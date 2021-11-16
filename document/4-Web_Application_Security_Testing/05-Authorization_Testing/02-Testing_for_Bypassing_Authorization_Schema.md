@@ -1,48 +1,48 @@
-# Testing for Bypassing Authorization Schema
+# Тестирование для обхода схемы авторизации
 
-|ID          |
-|------------|
-|WSTG-ATHZ-02|
+| ID |
+| ------------- |
+| WSTG-ATHZ-02 |
 
-## Summary
+## Резюме
 
-This kind of test focuses on verifying how the authorization schema has been implemented for each role or privilege to get access to reserved functions and resources.
+Этот тип теста фокусируется на проверке того, как схема авторизации была реализована для каждой роли или привилегии, чтобы получить доступ к зарезервированным функциям и ресурсам.
 
-For every specific role the tester holds during the assessment and for every function and request that the application executes during the post-authentication phase, it is necessary to verify:
+Для каждой конкретной роли, которую тестировщик выполняет во время оценки, и для каждой функции и запроса, которые приложение выполняет на этапе после аутентификации, необходимо проверить:
 
-- Is it possible to access that resource even if the user is not authenticated?
-- Is it possible to access that resource after the log-out?
-- Is it possible to access functions and resources that should be accessible to a user that holds a different role or privilege?
+- Можно ли получить доступ к этому ресурсу, даже если пользователь не аутентифицирован?
+- Можно ли получить доступ к этому ресурсу после выхода из системы??
+- Возможно ли получить доступ к функциям и ресурсам, которые должны быть доступны пользователю, который выполняет другую роль или привилегию?
 
-Try to access the application as an administrative user and track all the administrative functions.
+Попробуйте получить доступ к приложению в качестве административного пользователя и отслеживать все административные функции.
 
-- Is it possible to access administrative functions if the tester is logged in as a  non-admin user?
-- Is it possible to use these administrative functions as a user with a different role and for whom that action should be denied?
+- Можно ли получить доступ к административным функциям, если тестер зарегистрирован как пользователь без администратора?
+- Можно ли использовать эти административные функции в качестве пользователя с другой ролью и для которого в этом действии должно быть отказано?
 
-## Test Objectives
+## Цели теста
 
-- Assess if horizontal or vertical access is possible.
+- Оцените, возможен ли горизонтальный или вертикальный доступ.
 
-## How to Test
+## Как проверить
 
-- Access resources and conduct operations horizontally.
-- Access resources and conduct operations vertically.
+- Доступ к ресурсам и проведение операций по горизонтали.
+- Доступ к ресурсам и проведение операций по вертикали.
 
-### Testing for Horizontal Bypassing Authorization Schema
+### Тестирование для схемы разрешения горизонтального обхода
 
-For every function, specific role, or request that the application executes, it is necessary to verify:
+Для каждой функции, конкретной роли или запроса, который выполняет приложение, необходимо проверить:
 
-- Is it possible to access resources that should be accessible to a user that holds a different identity with the same role or privilege?
-- Is it possible to operate functions on resources that should be accessible to a user that holds a different identity?
+- Возможно ли получить доступ к ресурсам, которые должны быть доступны пользователю, который имеет другую личность с той же ролью или привилегией?
+- Можно ли управлять функциями на ресурсах, которые должны быть доступны пользователю, который имеет другую идентичность?
 
-For each role:
+Для каждой роли:
 
-1. Register or generate two users with identical privileges.
-2. Establish and keep two different sessions active (one for each user).
-3. For every request, change the relevant parameters and the session identifier from token one to token two and diagnose the responses for each token.
-4. An application will be considered vulnerable if the responses are the same, contain same private data or indicate successful operation on other users' resource or data.
+1. Зарегистрируйтесь или создайте двух пользователей с одинаковыми привилегиями.
+2. Установите и сохраните два разных сеанса активными (по одному для каждого пользователя).
+3. Для каждого запроса измените соответствующие параметры и идентификатор сеанса с токена один на токен два и диагностируйте ответы для каждого токена.
+4. Приложение будет считаться уязвимым, если ответы совпадают, содержат те же личные данные или указывают на успешную работу с ресурсом или данными других пользователей.
 
-For example, suppose that the `viewSettings` function is part of every account menu of the application with the same role, and it is possible to access it by requesting the following URL: `https://www.example.com/account/viewSettings`. Then, the following HTTP request is generated when calling the `viewSettings` function:
+Например, предположим, что `viewSettings` функция является частью каждого меню учетной записи приложения с одинаковой ролью, и к ней можно получить доступ, запросив следующий URL: `https://www.example.com/account/viewSettings`. Затем при вызове генерируется следующий HTTP-запрос `viewSettings` функция:
 
 ```http
 POST /account/viewSettings HTTP/1.1
@@ -53,7 +53,7 @@ Cookie: SessionID=USER_SESSION
 username=example_user
 ```
 
-Valid and legitimate response:
+Действительный и законный ответ:
 
 ```html
 HTTP1.1 200 OK
@@ -66,7 +66,7 @@ HTTP1.1 200 OK
 }
 ```
 
-The attacker may try and execute that request with the same `username` parameter:
+Злоумышленник может попытаться выполнить этот запрос с тем же `username` параметр:
 
 ```html
 POST /account/viewCCpincode HTTP/1.1
@@ -77,13 +77,13 @@ Cookie: SessionID=ATTACKER_SESSION
 username=example_user
 ```
 
-If the attacker's response contain the data of the `example_user`, then the application is vulnerable for lateral movement attacks, where a user can read or write other user's data.
+Если ответ злоумышленника содержит данные `example_user`, то приложение уязвимо для атак бокового движения, когда пользователь может читать или записывать данные другого пользователя.
 
-### Testing for Access to Administrative Functions
+### Тестирование на доступ к административным функциям
 
-For example, suppose that the `addUser` function is part of the administrative menu of the application, and it is possible to access it by requesting the following URL `https://www.example.com/admin/addUser`.
+Например, предположим, что функция `addUser` является частью административного меню приложения, и к ней можно получить доступ, запросив следующий URL `https://www.example.com/admin/addUser`.
 
-Then, the following HTTP request is generated when calling the `addUser` function:
+Затем при вызове функции `addUser` генерируется следующий HTTP-запрос:
 
 ```http
 POST /admin/addUser HTTP/1.1
@@ -93,29 +93,29 @@ Host: www.example.com
 userID=fakeuser&role=3&group=grp001
 ```
 
-Further questions or considerations would go in the following direction:
+Дальнейшие вопросы или соображения будут идти в следующем направлении:
 
-- What happens if a non-administrative user tries to execute that request?
-- Will the user be created?
-- If so, can the new user use their privileges?
+- Что произойдет, если неадминистративный пользователь попытается выполнить этот запрос?
+- Будет ли пользователь создан?
+- Если это так, может ли новый пользователь использовать свои привилегии?
 
-### Testing for Access to Resources Assigned to a Different Role
+### Тестирование на доступ к ресурсам, назначенным на другую роль
 
-Various applications setup resource controls based on user roles. Let's take an example resumes or CVs (curriculum vitae) uploaded on a careers form to an S3 bucket.
+Различные приложения настраивают управление ресурсами на основе ролей пользователей. Давайте возьмем пример резюме или резюме (биографические данные), загруженные в форму карьеры в ведро S3.
 
-As a normal user, try accessing the location of those files. If you are able to retrieve them, modify them, or delete them, then the application is vulnerable.
+Как обычный пользователь, попробуйте получить доступ к расположению этих файлов. Если вы можете получить их, изменить или удалить, приложение уязвимо.
 
-### Testing for Special Request Header Handling
+### Тестирование для обработки заголовка специального запроса
 
-Some applications support non-standard headers such as `X-Original-URL` or `X-Rewrite-URL` in order to allow overriding the target URL in requests with the one specified in the header value.
+Некоторые приложения поддерживают нестандартные заголовки, такие как `X-Original-URL` или `X-Rewrite-URL` чтобы разрешить переопределение целевого URL в запросах с указанным в значении заголовка.
 
-This behavior can be leveraged in a situation in which the application is behind a component that applies access control restriction based on the request URL.
+Такое поведение может быть использовано в ситуации, когда приложение находится за компонентом, который применяет ограничение контроля доступа на основе URL-адреса запроса
 
-The kind of access control restriction based on the request URL can be, for example, blocking access from Internet to an administration console exposed on `/console` or `/admin`.
+Тип ограничения контроля доступа, основанный на URL-адресе запроса, может, например, блокировать доступ из Интернета к открытой консоли администрирования `/console` или `/admin`.
 
-To detect the support for the header `X-Original-URL` or `X-Rewrite-URL`, the following steps can be applied.
+Чтобы обнаружить поддержку заголовка `X-Original-URL` или `X-Rewrite-URL`, следующие шаги могут быть применены.
 
-#### 1. Send a Normal Request without Any X-Original-Url or X-Rewrite-Url Header
+#### 1. Отправить обычный запрос без каких-либо X-Original-Url или X-Rewrite-Url Заголовок
 
 ```http
 GET / HTTP/1.1
@@ -123,7 +123,7 @@ Host: www.example.com
 [...]
 ```
 
-#### 2. Send a Request with an X-Original-Url Header Pointing to a Non-Existing Resource
+#### 2. Отправить запрос с X-Original-Url Заголовок, указывающий на несуществующий ресурс
 
 ```html
 GET / HTTP/1.1
@@ -132,7 +132,7 @@ X-Original-URL: /donotexist1
 [...]
 ```
 
-#### 3. Send a Request with an X-Rewrite-Url Header Pointing to a Non-Existing Resource
+#### 3. Отправить запрос с X-Rewrite-Url Заголовок, указывающий на несуществующий ресурс
 
 ```html
 GET / HTTP/1.1
@@ -141,13 +141,13 @@ X-Rewrite-URL: /donotexist2
 [...]
 ```
 
-If the response for either request contains markers that the resource was not found, this indicates that the application supports the special request headers. These markers may include the HTTP response status code 404, or a "resource not found" message in the response body.
+Если ответ на любой запрос содержит маркеры, которые ресурс не был найден, это указывает на то, что приложение поддерживает специальные заголовки запросов. Эти маркеры могут включать код состояния ответа HTTP 404 или a "resource not found" сообщение в теле ответа.
 
-Once the support for the header `X-Original-URL` or `X-Rewrite-URL` was validated then the tentative of bypass against the access control restriction can be leveraged by sending the expected request to the application but specifying a URL "allowed" by the front-end component as the main request URL and specifying the real target URL in the `X-Original-URL` or `X-Rewrite-URL` header depending on the one supported. If both are supported then try one after the other to verify for which header the bypass is effective.
+Однажды поддержка заголовка `X-Original-URL` или `X-Rewrite-URL` был подтвержден, тогда предварительный обход против ограничения контроля доступа можно использовать, отправив ожидаемый запрос в приложение, но указав URL-адрес, «разрешенный» внешним компонентом в качестве основного URL-адреса запроса, и указав реальный целевой URL-адрес в `X-Original-URL` или `X-Rewrite-URL` заголовок в зависимости от поддерживаемого. Если оба поддерживаются, попробуйте один за другим, чтобы проверить, для какого заголовка обход эффективен.
 
-#### 4. Other Headers to Consider
+#### 4. Другие заголовки, чтобы рассмотреть
 
-Often admin panels or administrative related bits of functionality are only accessible to clients on local networks, therefore it may be possible to abuse various proxy or forwarding related HTTP headers to gain access. Some headers and values to test with are:
+Часто административные панели или связанные с ними функции доступны только для клиентов в локальных сетях, поэтому может быть возможно злоупотреблять различными прокси-серверами или пересылками, связанными с HTTP-заголовками, для получения доступа. Некоторые заголовки и значения для тестирования:
 
 - Headers:
     - `X-Forwarded-For`
@@ -165,12 +165,12 @@ Often admin panels or administrative related bits of functionality are only acce
         - `192.168.0.0/16`
     - Link local addresses: `169.254.0.0/16`
 
-Note: Including a port element along with the address or hostname may also help bypass edge protections such as web application firewalls, etc.
-For example: `127.0.0.4:80`, `127.0.0.4:443`, `127.0.0.4:43982`
+Примечание. Включение элемента порта вместе с адресом или именем хоста также может помочь обойти защиту краев, такую как брандмауэры веб-приложений и т. Д.
+Например: `127.0.0.4:80`, `127.0.0.4:443`, `127.0.0.4:43982`
 
-## Remediation
+## Восстановление
 
-Employ the least privilege principles on the users, roles, and resources to ensure that no unauthorized access occurs.
+Используйте наименьшие принципы привилегий для пользователей, ролей и ресурсов, чтобы гарантировать отсутствие несанкционированного доступа.
 
 ## Tools
 
