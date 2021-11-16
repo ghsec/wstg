@@ -1,37 +1,37 @@
-# Testing JSON Web Tokens
+# Тестирование веб-токенов JSON
 
-|ID          |
-|------------|
-|WSTG-SESS-10|
+| ID |
+| ------------- |
+| WSTG-SESS-10 |
 
-## Summary
+## Резюме
 
-JSON Web Tokens (JWTs) are cryptographically signed JSON tokens, intended to share claims between systems. They are are frequently used as authentication or session tokens, particularly on REST APIs.
+Веб-токены JSON (JWT) представляют собой криптографически подписанные токены JSON, предназначенные для обмена претензиями между системами. Они часто используются в качестве аутентификации или токенов сеанса, особенно в API REST.
 
-JWTs are a common source of vulnerabilities, both in how they are in implemented in applications, and in the underlying libraries. As they are used for authentication, a vulnerability can easily result in a complete compromise of the application.
+JWT являются распространенным источником уязвимостей как в том, как они применяются в приложениях, так и в базовых библиотеках. Поскольку они используются для аутентификации, уязвимость может легко привести к полному компромиссу приложения.
 
-## Test Objectives
+## Цели теста
 
-- Determine whether the JWTs expose sensitive information.
-- Determine whether the JWTs can be tampered with or modified.
+- Определите, предоставляют ли JWT конфиденциальную информацию.
+- Определите, могут ли JWT быть подделаны или изменены.
 
-## How to Test
+## Как проверить
 
-### Overview
+### Обзор
 
-JWTs are are made up of three components:
+JWT состоят из трех компонентов:
 
-- The header
-- The payload (or body)
-- The signature
+- Заголовок
+- Полезная нагрузка (или тело)
+- Подпись
 
-Each component is Base64 encoded, and they are separated by periods (`.`). Note that the Base64 encoding used in a JWT strips out the equals signs (`=`), so you may need to add these back in to decode the sections.
+Каждый компонент имеет кодировку Base64, и они разделены периодами (`.`). Обратите внимание, что кодировка Base64, используемая в JWT, удаляет знаки равенства (`= `), поэтому вам может потребоваться добавить их обратно для декодирования разделов.
 
-### Analyse the Contents
+### Проанализируйте содержание
 
-#### Header
+#### Заголовок
 
-The header defines the type of token (typically `JWT`), and the algorithm used for the signature. An example decoded header is shown below:
+Заголовок определяет тип токена (обычно `JWT`) и алгоритм, используемый для подписи. Пример декодированного заголовка показан ниже:
 
 ```json
 {
@@ -39,8 +39,7 @@ The header defines the type of token (typically `JWT`), and the algorithm used f
   "typ": "JWT"
 }
 ```
-
-There are three main types of algorithms that are used to calculate the signatures:
+Существует три основных типа алгоритмов, которые используются для расчета подписей:
 
 | Algorithm | Description |
 |-----------|-------------|
@@ -48,11 +47,11 @@ There are three main types of algorithms that are used to calculate the signatur
 | RSxxx and PSxxx | Public key signature using RSA. |
 | ESxxx | Public key signature using ECDSA. |
 
-There are also a wide range of [other algorithms](https://www.iana.org/assignments/jose/jose.xhtml#web-signature-encryption-algorithms) which may be used for encrypted tokens (JWEs), although these are less common.
+Есть также широкий спектр [other algorithms](https://www.iana.org/assignments/jose/jose.xhtml#web-signature-encryption-algorithms) которые могут использоваться для зашифрованных токенов (JWE), хотя они встречаются реже.
 
-#### Payload
+#### Полезная нагрузка
 
-The payload of the JWT contains the actual data. An example payload is shown below:
+Полезная нагрузка JWT содержит фактические данные. Пример полезной нагрузки показан ниже:
 
 ```json
 {
@@ -63,9 +62,9 @@ The payload of the JWT contains the actual data. An example payload is shown bel
 }
 ```
 
-The payload is it not usually encrypted, so review it to determine whether there is any sensitive of potentially inappropriate data included within it.
+Полезная нагрузка обычно не зашифрована, поэтому просмотрите ее, чтобы определить, есть ли в ней какие-либо конфиденциальные данные, потенциально неподходящие.
 
-This JWT includes the username and administrative status of the user, as well as two standard claims (`iat` and `exp`). These claims are defined in [RFC 5719](https://tools.ietf.org/html/rfc7519#section-4.1), a brief summary of them is given in the table below:
+Этот JWT включает имя пользователя и административный статус пользователя, а также две стандартные претензии (`iat` и `exp`). Эти претензии определены в [RFC 5719](https://tools.ietf.org/html/rfc7519#section-4.1),  краткое их резюме приведено в таблице ниже:
 
 | Claim | Full Name | Description |
 |-------|-----------|-------------|
@@ -74,35 +73,35 @@ This JWT includes the username and administrative status of the user, as well as
 | `nbf` | Not Before | The Unix timestamp of earliest date that the token can be used. |
 | `exp` | Expires | The Unix timestamp of when the token expires. |
 
-#### Signature
+#### Подпись
 
-The signature is calculated using the algorithm defined in the JWT header, and then Base64 encoded and appended to the token. Modifying any part of the JWT should cause the signature to be invalid, and the token to be rejected by the server.
+Подпись рассчитывается с использованием алгоритма, определенного в заголовке JWT, а затем Base64 кодируется и добавляется к токену. Изменение любой части JWT должно привести к тому, что подпись будет недействительной, а токен будет отклонен сервером.
 
-### Review Usage
+### Обзор использования
 
-As well as being cryptographically secure itself, the JWT also needs to be stored and sent in a secure manner. This should include checks that:
+Помимо криптографической безопасности, JWT также необходимо хранить и отправлять безопасным способом. Это должно включать проверки, которые:
 
-- It is always [sent over encrypted (HTTPS) connections](../09-Testing_for_Weak_Cryptography/03-Testing_for_Sensitive_Information_Sent_via_Unencrypted_Channels.md).
-- If it is stored in a cookie, then it should be [marked with appropriate attributes](../06-Session_Management_Testing/02-Testing_for_Cookies_Attributes.md).
+- Это всегда [sent over encrypted (HTTPS) connections](../09-Testing_for_Weak_Cryptography/03-Testing_for_Sensitive_Information_Sent_via_Unencrypted_Channels.md).
+- Если он хранится в файле cookie, то так и должно быть [marked with appropriate attributes](../06-Session_Management_Testing/02-Testing_for_Cookies_Attributes.md).
 
-The validity of the JWT should also be reviewed, based on the `iat`, `nbf` and `exp` claims, to determine that:
+Действительность JWT также должна быть пересмотрена на основе претензий `iat`, `nbf` и `exp`, чтобы определить, что:
 
-- The JWT has a reasonable lifespan for the application.
-- Expired tokens are rejected by the application.
+- JWT имеет разумный срок службы для приложения.
+- Истекшие токены отклоняются приложением.
 
-### Signature Verification
+### Проверка подписи
 
-One of the most serious vulnerabilities encountered with JWTs is when the application fails to validate that the signature is correct. This usually occurs when a developer uses a function such as the NodeJS `jwt.decode()` function, which simply decodes the body of the JWT, rather than `jwt.verify()`, which verifies the signature before decoding the JWT.
+Одна из наиболее серьезных уязвимостей, с которыми сталкиваются JWT, - это когда приложение не может подтвердить правильность подписи. Обычно это происходит, когда разработчик использует функцию, такую как функция NodeJS `jwt.decode ()`, которая просто декодирует тело JWT, а не `jwt.verify ()`, которая проверяет подпись перед декодированием JWT. ,
 
-This can be easily tested for by modifying the body of the JWT without changing anything in the header or signature, submitting it in a request to see if the application accepts it.
+Это можно легко проверить, изменив тело JWT, не меняя ничего в заголовке или подписи, отправив его в запросе, чтобы увидеть, принимает ли приложение его.
 
-#### The None Algorithm
+#### Алгоритм None
 
-As well as the public key and HMAC-based algorithms, the JWT specification also defines a signature algorithm called `none`. As the name suggests, this means that there is no signature for the JWT, allowing it to be modified.
+Помимо открытого ключа и алгоритмов на основе HMAC, спецификация JWT также определяет алгоритм подписи, называемый `none`. Как следует из названия, это означает, что для JWT нет подписи, позволяющей ее изменять.
 
-Some implementation try and avoid this by explicitly blocking the use of the `none` algorithm. If this is done in a case-insensitive way, it may be possible to bypass by specifying an algorithm such as `NoNe`.
+Некоторые реализации пытаются избежать этого, явно блокируя использование алгоритма `none`. Если это делается нечувствительным к регистру способом, можно обойти его, указав алгоритм, такой как «NoNe».
 
-This can be tested by modifying the signature algorithm (`alg`) in the JWT header to `NoNe`, as shown in the example below:
+Это можно проверить, изменив алгоритм подписи (`alg`) в заголовке JWT на `NoNe`, как показано в примере ниже:
 
 ```json
 {
@@ -111,35 +110,35 @@ This can be tested by modifying the signature algorithm (`alg`) in the JWT heade
 }
 ```
 
-The header and payload are then re-encoded with Base64, and the signature is removed (leaving the trailing period). Using the header above, and the payload listed in the [payload](#payload) section, this would give the following JWT:
+Заголовок и полезная нагрузка затем перекодируются с помощью Base64, и подпись удаляется (оставляя период трейлинга). Использование заголовка выше и полезной нагрузки, указанной в [payload](#payload) раздел, это даст следующее JWT:
 
 ```txt
 eyJhbGciOiAiTm9OZSIsICJ0eXAiOiAiSldUIn0.eyJ1c2VybmFtZSI6ImFkbWluaW5pc3RyYXRvciIsImlzX2FkbWluIjp0cnVlLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjI0MjYyMn0.
 ```
 
-### Weak HMAC Keys
+### Слабые ключи HMAC
 
-If the JWT is signed using a HMAC-based algorithm (such as HS256), the security of the signature is entirely reliant on the strength of the secret key used in the HMAC.
+Если JWT подписан с использованием алгоритма на основе HMAC (такого как HS256), безопасность подписи полностью зависит от силы секретного ключа, используемого в HMAC
 
-If the application is using off-the-shelf or open source software, the first step should be go investigate the code, and see whether there is default HMAC signing key that is used.
+Если приложение использует готовое или открытое программное обеспечение, первым шагом должно быть изучение кода и выяснение того, используется ли ключ подписи HMAC по умолчанию.
 
-If there isn't a default, then it may be possible to crack guess or brute-force they key. The simplest way to do this is to use the [crackjwt.py](https://github.com/Sjord/jwtcrack) script, which simply requires the JWT and a dictionary file.
+Если нет дефолта, то может быть возможно взломать предположение или грубую силу, которую они имеют. Самый простой способ сделать это - использовать [crackjwt.py](https://github.com/Sjord/jwtcrack) скрипт, который просто требует JWT и файл словаря.
 
-A more powerful option is to convert the JWT into a format that can be used by [John the Ripper](https://github.com/openwall/john) using the [jwt2john.py](https://github.com/Sjord/jwtcrack/blob/master/jwt2john.py) script. John can then be used to carry out much more advanced attacks against the key.
+Более мощным вариантом является преобразование JWT в формат, который можно использовать [John the Ripper](https://github.com/openwall/john) используя [jwt2john.py](https://github.com/Sjord/jwtcrack/blob/master/jwt2john.py) скрипт. Затем Джона можно использовать для более совершенных атак на ключ.
 
-If the JWT is large, it may exceed the maximum size supported by John. This can be worked around by increasing the value of the `SALT_LIMBS` variable in `/src/hmacSHA256_fmt_plug.c` (or the equivalent file for other HMAC formats) and recompiling John, as discussed in the following [GitHub issue](https://github.com/openwall/john/issues/1904).
+Если JWT большой, он может превышать максимальный размер, поддерживаемый Джоном. Это можно обойти, увеличив значение переменной `SALT_LIMBS` в `/src/hmacSHA256_fmt_plug.c` (или эквивалентный файл для других форматов HMAC) и перекомпиляция Джона, как описано ниже [GitHub issue](https://github.com/openwall/john/issues/1904).
 
-If this key can be obtained, then it is possible to create and sign arbitrary JWTs, which usually results in a complete compromise of the application.
+Если этот ключ можно получить, то можно создать и подписать произвольные JWT, что обычно приводит к полному компромиссу приложения.
 
-### HMAC vs Public Key Confusion
+### HMAC против путаницы в открытых ключах
 
-If the application uses JWTs with public key based signatures, but does not check that the algorithm is correct, this can potentially exploit this in a signature type confusion attack. In order for this to be successful, the following conditions need to be met:
+Если приложение использует JWT с сигнатурами на основе открытых ключей, но не проверяет правильность алгоритма, это может потенциально использовать его в атаке путаницы типа подписи. Чтобы это было успешным, необходимо выполнить следующие условия:
 
-1. The application must expect the JWT to be signed with a public key based algorithm (i.e, `RSxxx` or `ESxxx`).
-2. The application must not check which algorithm the JWT is actually using for the signature.
-3. The public key used to verify the JWT must be available to the attacker.
+1. Приложение должно ожидать, что JWT будет подписан с алгоритмом на основе открытого ключа (т. Е. `RSxxx` или `ESxxx`).
+2. Приложение не должно проверять, какой алгоритм JWT фактически использует для подписи.
+3. Открытый ключ, используемый для проверки JWT, должен быть доступен злоумышленнику.
 
-If all of these conditions are true, then an attacker can use the public key to sign the JWT using a HMAC based algorithm (such as `HS256`). For example, the [Node.JS jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) library uses the same function for both public key and HMAC based tokens, as shown in the example below:
+Если все эти условия верны, злоумышленник может использовать открытый ключ для подписи JWT с использованием алгоритма на основе HMAC (например, `HS256`). Например, [Node.JS jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) библиотека использует одну и ту же функцию как для открытого ключа, так и для токенов на основе HMAC, как показано в примере ниже:
 
 ```javascript
 // Verify a JWT signed using RS256
@@ -149,23 +148,23 @@ jwt.verify(token, publicKey);
 jwt.verify(token, secretKey);
 ```
 
-This means that if the JWT is signed using `publicKey` as a secret key for the `HS256` algorithm, the signature will be considered valid.
+Это означает, что если JWT подписан с использованием `publicKey` в качестве секретного ключа для алгоритма `HS256`, подпись будет считаться действительной.
 
-In order to exploit this issue, the public key must be obtained. The most common way this can happen is if the application re-uses the same key for both signing JWTs and as part of the TLS certificate. In this case, the key can be downloaded from the server using a command such as the following:
+Чтобы использовать эту проблему, необходимо получить открытый ключ. Наиболее распространенный способ, которым это может произойти, - это если приложение повторно использует один и тот же ключ как для подписи JWT, так и в качестве части сертификата TLS. В этом случае ключ можно загрузить с сервера с помощью команды, такой как:
 
 ```sh
 openssl s_client -connect example.org:443 | openssl x509 -pubkey -noout
 ```
 
-Alternatively, the key may be available from a public file on the site at a common location such as `/.well-known/jwks.json`.
+В качестве альтернативы ключ может быть доступен из общедоступного файла на сайте в общем месте, например `/.well-known/jwks.json`.
 
-In order to test this, modify the contents of the JWT, and then use the previously obtained public key to sign the JWT using the `HS256` algorithm. This is often difficult to perform when testing without access to the source code or implementation details, because the format of the key must be identical to the one used by the server, so issues such as empty space or CRLF encoding may result in the keys not matching.
+Чтобы проверить это, измените содержимое JWT, а затем используйте ранее полученный открытый ключ, чтобы подписать JWT с использованием алгоритма `HS256`. Это часто бывает трудно выполнить при тестировании без доступа к исходному коду или деталям реализации, потому что формат ключа должен быть идентичен тому, который используется сервером, поэтому такие проблемы, как пустое пространство или кодирование CRLF, могут привести к тому, что ключи не будут совпадать.
 
-### Attacker Provided Public Key
+### Атакующий предоставил открытый ключ
 
-The [JSON Web Signature (JWS) standard](https://tools.ietf.org/html/rfc7515) (which defines the header and signatures used by JWTs) allows the key used to sign the token to be embedded in the header. If the library used to validate the token supports this, and doesn't check the key against a list of approved keys, this allows an attacker to sign an JWT with an arbitrary key that they provide.
+The [JSON Web Signature (JWS) standard](https://tools.ietf.org/html/rfc7515) (который определяет заголовок и подписи, используемые JWT) позволяет клавише, используемой для подписи токена, быть встроенным в заголовок. Если библиотека, используемая для проверки токена, поддерживает это и не проверяет ключ по списку утвержденных ключей, это позволяет злоумышленнику подписать JWT с произвольным ключом, который они предоставляют.
 
-There are a variety of scripts that can be used to do this, such as [jwk-node-jose.py](https://github.com/zi0Black/POC-CVE-2018-0114) or [jwt_tool](https://github.com/ticarpi/jwt_tool).
+Для этого можно использовать различные сценарии, например [jwk-node-jose.py](https://github.com/zi0Black/POC-CVE-2018-0114) or [jwt_tool](https://github.com/ticarpi/jwt_tool).
 
 ## Related Test Cases
 
@@ -173,14 +172,14 @@ There are a variety of scripts that can be used to do this, such as [jwk-node-jo
 - [Testing for Cookie Attributes](../06-Session_Management_Testing/02-Testing_for_Cookies_Attributes.md).
 - [Testing Browser Storage](../11-Client-side_Testing/12-Testing_Browser_Storage.md).
 
-## Remediation
+## Восстановление
 
-- Use a secure and up to date library to handle JWTs.
-- Ensure that the signature is valid, and that it is using the expected algorithm.
-- Use a strong HMAC key or a unique private key to sign them.
-- Ensure that there is no sensitive information exposed in the payload.
-- Ensure that JWTs are securely stored and transmitted.
-- See the [OWASP JSON Web Tokens Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html).
+- Используйте безопасную и актуальную библиотеку для обработки JWT.
+- Убедитесь, что подпись действительна и что она использует ожидаемый алгоритм.
+- Используйте сильный ключ HMAC или уникальный закрытый ключ, чтобы подписать их.
+- Убедитесь, что в полезной нагрузке не обнаружена конфиденциальная информация.
+- Убедитесь, что JWT надежно хранятся и передаются.
+- Смотрите [OWASP JSON Web Tokens Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html).
 
 ## Tools
 
