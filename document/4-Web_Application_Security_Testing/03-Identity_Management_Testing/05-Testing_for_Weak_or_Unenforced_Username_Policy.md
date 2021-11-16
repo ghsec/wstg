@@ -1,25 +1,25 @@
-# Testing for Weak or Unenforced Username Policy
+# Тестирование на слабую или неисполненную политику имени пользователя
 
-|ID          |
-|------------|
-|WSTG-IDNT-05|
+| ID |
+| ------------- |
+| WSTG-IDNT-05 |
 
-## Summary
+## Резюме
 
-User account names are often highly structured (e.g. Joe Bloggs account name is jbloggs and Fred Nurks account name is fnurks) and valid account names can easily be guessed.
+Имена учетных записей пользователей часто имеют высокую структуру (например,. Имя учетной записи Joe Bloggs - jbloggs, а имя учетной записи Fred Nurks - fnurks), и можно легко угадать действительные имена учетных записей.
 
-## Test Objectives
+## Цели теста
 
-- Determine whether a consistent account name structure renders the application vulnerable to account enumeration.
-- Determine whether the application's error messages permit account enumeration.
+- Определите, делает ли согласованная структура имени учетной записи уязвимой для перечисления учетной записи.
+- Определите, позволяют ли сообщения об ошибках приложения перечислять учетные записи.
 
-## How to Test
+## Как проверить
 
-- Determine the structure of account names.
-- Evaluate the application's response to valid and invalid account names.
-- Use different responses to valid and invalid account names to enumerate valid account names.
-- Use account name dictionaries to enumerate valid account names.
+- Определить структуру имен учетных записей.
+- Оцените ответ приложения на действительные и недействительные имена учетных записей.
+- Используйте разные ответы на действительные и недействительные имена учетных записей, чтобы перечислить действительные имена учетных записей.
+- Используйте словари имени учетной записи, чтобы перечислить действительные имена учетных записей.
 
-## Remediation
+## Восстановление
 
-Ensure the application returns consistent generic error messages in response to invalid account name, password or other user credentials entered during the log in process.
+Убедитесь, что приложение возвращает согласованные общие сообщения об ошибках в ответ на неверное имя учетной записи, пароль или другие учетные данные пользователя, введенные во время процесса входа в систему.
