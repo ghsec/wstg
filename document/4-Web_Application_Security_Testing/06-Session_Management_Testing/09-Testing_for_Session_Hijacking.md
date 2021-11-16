@@ -1,58 +1,58 @@
-# Testing for Session Hijacking
+# Тестирование на сеанс угона
 
-|ID          |
-|------------|
-|WSTG-SESS-09|
+| ID |
+| ------------- |
+| WSTG-SESS-09 |
 
-## Summary
+## Резюме
 
-An attacker who gets access to user session cookies can impersonate them by presenting such cookies. This attack is known as session hijacking. When considering network attackers, i.e., attackers who control the network used by the victim, session cookies can be unduly exposed to the attacker over HTTP. To prevent this, session cookies should be marked with the `Secure` attribute so that they are only communicated over HTTPS.
+Злоумышленник, получивший доступ к файлам cookie сеанса пользователя, может выдать себя за них, представив такие файлы cookie. Эта атака известна как захват сеанса. При рассмотрении сетевых злоумышленников, т.е.злоумышленники, которые контролируют сеть, используемую жертвой, сеансовые куки могут быть чрезмерно подвержены злоумышленнику по HTTP. Чтобы предотвратить это, сеансовые куки должны быть помечены атрибутом `Secure`, чтобы они передавались только по HTTPS .
 
-Note that the `Secure` attribute should also be used when the web application is entirely deployed over HTTPS, otherwise the following cookie theft attack is possible. Assume that `example.com` is entirely deployed over HTTPS, but does not mark its session cookies as `Secure`. The following attack steps are possible:
+Обратите внимание, что атрибут `Secure` также следует использовать, когда веб-приложение полностью развернуто через HTTPS, в противном случае возможна следующая атака кражи файлов cookie. Предположим, что `example.com` полностью развернут через HTTPS, но не помечает свои сеансовые куки как `Secure`. Возможны следующие шаги атаки:
 
-1. The victim sends a request to `http://another-site.com`.
-2. The attacker corrupts the corresponding response so that it triggers a request to `http://example.com`.
-3. The browser now tries to access `http://example.com`.
-4. Though the request fails, the session cookies are leaked in the clear over HTTP.
+1. Жертва отправляет запрос `http://another-site.com`.
+2. Злоумышленник повреждает соответствующий ответ, так что он запускает запрос `http://example.com`.
+3. Браузер теперь пытается получить доступ `http://example.com`.
+4. Хотя запрос не выполняется, сеансовые куки просочились в чистоте по HTTP
 
-Alternatively, session hijacking can be prevented by banning use of HTTP using [HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security). Note that there is a subtlety here related to cookie scoping. In particular, full HSTS adoption is required when session cookies are issued with the `Domain` attribute set.
+В качестве альтернативы, захват сеанса можно предотвратить, запретив использование HTTP [HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security). Обратите внимание, что здесь есть тонкость, связанная с покачиванием файлов cookie. В частности, полное принятие HSTS требуется, когда сеансовые файлы cookie выпускаются с набором атрибутов `Domain`.
 
-Full HSTS adoption is described in a paper called *Testing for Integrity Flaws in Web Sessions* by Stefano Calzavara, Alvise Rabitti, Alessio Ragazzo, and Michele Bugliesi. Full HSTS adoption occurs when a host activates HSTS for itself and all its sub-domains. Partial HSTS adoption is when a host activates HSTS just for itself.
+Полное принятие HSTS описано в статье под названием *Testing for Integrity Flaws in Web Sessions* Стефано Кальзавара, Альвизе Рабитти, Алессио Рагаццо и Микеле Буглиеси. Полное принятие HSTS происходит, когда хост активирует HSTS для себя и всех своих субдоменов. Частичное принятие HSTS - это когда хост активирует HSTS только для себя.
 
-With the `Domain` attribute set, session cookies can be shared across sub-domains. Use of HTTP with sub-domains should be avoided to prevent the disclosure of unencrypted cookies sent over HTTP. To exemplify this security flaw, assume that the website `example.com` activates HSTS without the `includeSubDomains` option. The website issues session cookies with the `Domain` attribute set to `example.com`. The following attack is possible:
+С набором атрибутов `Domain` файлы cookie сеанса могут совместно использоваться между поддоменами. Следует избегать использования HTTP с поддоменами, чтобы предотвратить раскрытие незашифрованных файлов cookie, отправленных по HTTP. Чтобы проиллюстрировать этот недостаток безопасности, предположим, что веб-сайт `example.com` активирует HSTS без опции `includeSubDomains`. Веб-сайт выдает сеансовые файлы cookie с атрибутом `Domain`, установленным в `example.com`. Возможна следующая атака:
 
-1. The victim sends a request to `http://another-site.com`.
-2. The attacker corrupts the corresponding response so that it triggers a request to `http://fake.example.com`.
-3. The browser now tries to access `http://fake.example.com`, which is permitted by the HSTS configuration.
-4. Since the request is sent to a sub-domain of `example.com` with the `Domain` attribute set, it includes the session cookies, which are leaked in the clear over HTTP.
+1. Жертва отправляет запрос `http://another-site.com`.
+2. Злоумышленник повреждает соответствующий ответ, так что он запускает запрос `http://fake.example.com`.
+3. Браузер теперь пытается получить доступ `http://fake.example.com`, что разрешено конфигурацией HSTS.
+4. Поскольку запрос отправляется в поддомен `example.com` с набором атрибутов `Domain`, он включает в себя сеансовые файлы cookie, которые просачиваются в прозрачный HTTP
 
-Full HSTS should be activated on the apex domain to prevent this attack.
+Полный HSTS должен быть активирован на апексном домене, чтобы предотвратить эту атаку.
 
-## Test Objectives
+## Цели теста
 
-- Identify vulnerable session cookies.
-- Hijack vulnerable cookies and assess the risk level.
+- Определите уязвимые сеансовые куки.
+- Убейте уязвимые файлы cookie и оцените уровень риска.
 
-## How to Test
+## Как проверить
 
-The testing strategy is targeted at network attackers, hence it only needs to be applied to sites without full HSTS adoption (sites with full HSTS adoption are secure, since their cookies are not communicated over HTTP). We assume to have two testing accounts on the website under test, one to act as the victim and one to act as the attacker. We simulate a scenario where the attacker steals all the cookies which are not protected against disclosure over HTTP, and presents them to the website to access the victim's account. If these cookies are enough to act on the victim's behalf, session hijacking is possible.
+Стратегия тестирования предназначена для сетевых злоумышленников, поэтому ее нужно применять только к сайтам без полного принятия HSTS (сайты с полным внедрением HSTS безопасны, поскольку их файлы cookie не передаются по HTTP). Мы предполагаем, что на тестируемом веб-сайте есть две учетные записи тестирования: одна - жертва, а другая - злоумышленник. Мы моделируем сценарий, при котором злоумышленник крадет все файлы cookie, которые не защищены от раскрытия по HTTP, и представляет их на веб-сайт для доступа к учетной записи жертвы. Если этих файлов cookie достаточно, чтобы действовать от имени жертвы, возможен захват сеанса.
 
-Here are the steps for executing this test:
+Вот шаги для выполнения этого теста:
 
-1. Login to the website as the victim and reach any page offering a secure function requiring authentication.
-2. Delete from the cookie jar all the cookies which satisfy any of the following conditions.
-    - in case there is no HSTS adoption: the `Secure` attribute is set.
-    - in case there is partial HSTS adoption: the `Secure` attribute is set or the `Domain` attribute is not set.
-3. Save a snapshot of the cookie jar.
-4. Trigger the secure function identified at step 1.
-5. Observe whether the operation at step 4 has been performed successfully. If so, the attack was successful.
-6. Clear the cookie jar, login as the attacker and reach the page at step 1.
-7. Write in the cookie jar, one by one, the cookies saved at step 3.
-8. Trigger again the secure function identified at step 1.
-9. Clear the cookie jar and login again as the victim.
-10. Observe whether the operation at step 8 has been performed successfully in the victim's account. If so, the attack was successful; otherwise, the site is secure against session hijacking.
+1. Войдите на сайт как жертва и зайдите на любую страницу, предлагающую безопасную функцию, требующую аутентификации.
+2. Удалить из банки с печеньем все файлы cookie, которые удовлетворяют любому из следующих условий.
+    - в случае отсутствия принятия HSTS: установлен атрибут `Secure`.
+    - в случае частичного принятия HSTS: установлен атрибут `Secure` или атрибут `Domain` не установлен.
+3. Сохраните снимок банки с печеньем.
+4. Запустите безопасную функцию, указанную на шаге 1.
+5. Посмотрите, была ли операция на шаге 4 успешно выполнена. Если так, атака была успешной.
+6. Очистите банку с файлами cookie, войдите в систему как злоумышленник и перейдите на страницу на шаге 1.
+7. Напишите в банке с печеньем, один за другим, куки сохраняются на шаге 3.
+8. Снова запустите безопасную функцию, указанную на шаге 1.
+9. Очистите банку с печеньем и снова войдите в систему как жертва.
+10. Посмотрите, была ли операция на шаге 8 успешно выполнена на счете жертвы. Если это так, атака была успешной; в противном случае сайт защищен от захвата сеанса.
 
-We recommend using two different machines or browsers for the victim and the attacker. This allows you to decrease the number of false positives if the web application does fingerprinting to verify access enabled from a given cookie. A shorter but less precise variant of the testing strategy only requires one testing account. It follows the same pattern, but it halts at step 5 (note that this makes step 3 useless).
+Мы рекомендуем использовать две разные машины или браузеры для жертвы и злоумышленника. Это позволяет уменьшить количество ложных срабатываний, если веб-приложение выполняет дактилоскопию для проверки доступа, включенного из данного файла cookie. Более короткий, но менее точный вариант стратегии тестирования требует только одной учетной записи тестирования. Он следует той же схеме, но останавливается на шаге 5 (обратите внимание, что это делает шаг 3 бесполезным).
 
 ## Tools
 
