@@ -1,73 +1,73 @@
-# Review Old Backup and Unreferenced Files for Sensitive Information
+# Просмотр старых резервных копий и неотреференных файлов для конфиденциальной информации
 
 |ID          |
 |------------|
 |WSTG-CONF-04|
 
-## Summary
+## Резюме
 
-While most of the files within a web server are directly handled by the server itself, it isn't uncommon to find unreferenced or forgotten files that can be used to obtain important information about the infrastructure or the credentials.
+Хотя большинство файлов на веб-сервере напрямую обрабатываются самим сервером, нередко можно найти файлы без ссылок или забытых, которые можно использовать для получения важной информации об инфраструктуре или учетных данных.
 
-Most common scenarios include the presence of renamed old versions of modified files, inclusion files that are loaded into the language of choice and can be downloaded as source, or even automatic or manual backups in form of compressed archives. Backup files can also be generated automatically by the underlying file system the application is hosted on, a feature usually referred to as "snapshots".
+Наиболее распространенные сценарии включают наличие переименованных старых версий измененных файлов, файлов включения, которые загружаются на выбранный язык и могут быть загружены в качестве исходного, или даже автоматическое или ручное резервное копирование в виде сжатых архивов. Резервные файлы также могут автоматически генерироваться базовой файловой системой, в которой размещено приложение, - функцией, обычно называемой «снимками».
 
-All these files may grant the tester access to inner workings, back doors, administrative interfaces, or even credentials to connect to the administrative interface or the database server.
+Все эти файлы могут предоставлять тестеру доступ к внутренней работе, задним дверям, административным интерфейсам или даже учетным данным для подключения к административному интерфейсу или серверу базы данных.
 
-An important source of vulnerability lies in files which have nothing to do with the application, but are created as a consequence of editing application files, or after creating on-the-fly backup copies, or by leaving in the web tree old files or unreferenced files.Performing in-place editing or other administrative actions on production web servers may inadvertently leave backup copies, either generated automatically by the editor while editing files, or by the administrator who is zipping a set of files to create a backup.
+Важный источник уязвимости лежит в файлах, которые не имеют ничего общего с приложением, но создаются как следствие редактирования файлов приложения, или после создания резервных копий на лету, или оставляя в веб-дереве старые файлы или файлы без ссылок. Выполнение редактирования на месте или другие административные действия на производственных веб-серверах может непреднамеренно оставить резервные копии, либо автоматически генерируется редактором при редактировании файлов, или администратором, который запускает набор файлов для создания резервной копии.
 
-It is easy to forget such files and this may pose a serious security threat to the application. That happens because backup copies may be generated with file extensions differing from those of the original files. A `.tar`, `.zip` or `.gz` archive that we generate (and forget...) has obviously a different extension, and the same happens with automatic copies created by many editors (for example, emacs generates a backup copy named `file~` when editing `file`). Making a copy by hand may produce the same effect (think of copying `file` to `file.old`). The underlying file system the application is on could be making `snapshots` of your application at different points in time without your knowledge, which may also be accessible via the web, posing a similar but different `backup file` style threat to your application.
+Такие файлы легко забыть, и это может представлять серьезную угрозу безопасности приложения. Это происходит потому, что резервные копии могут быть созданы с расширениями файлов, отличными от расширений оригинальных файлов. Архив `.tar`, `.zip` или `.gz`, который мы генерируем (и забудьте...) имеет, очевидно, другое расширение, и то же самое происходит с автоматическими копиями, созданными многими редакторами (например, emacs генерирует резервную копию с именем `file ~ `при редактировании `file`). Создание копии вручную может привести к тому же эффекту (подумайте о копировании `file` в `file.old`). Базовая файловая система, в которой находится приложение, может делать «снимки» вашего приложения в разные моменты времени без вашего ведома, который также может быть доступен через Интернет, создавая аналогичную, но другую угрозу стиля «резервного файла» для вашего приложения.
 
-As a result, these activities generate files that are not needed by the application and may be handled differently than the original file by the web server. For example, if we make a copy of `login.asp` named `login.asp.old`, we are allowing users to download the source code of `login.asp`. This is because `login.asp.old` will be typically served as text or plain, rather than being executed because of its extension. In other words, accessing `login.asp` causes the execution of the server-side code of `login.asp`, while accessing `login.asp.old` causes the content of `login.asp.old` (which is, again, server-side code) to be plainly returned to the user and displayed in the browser. This may pose security risks, since sensitive information may be revealed.
+В результате эти действия генерируют файлы, которые не нужны приложению и могут обрабатываться веб-сервером иначе, чем исходный файл. Например, если мы делаем копию `login.asp` с именем `login.asp.old`, мы позволяем пользователям загружать исходный код `login.asp`. Это связано с тем, что `login.asp.old` обычно будет обслуживаться как текст или обычный текст, а не выполняться из-за его расширения. Другими словами, доступ к `login.asp` вызывает выполнение кода на стороне сервера `login.asp`, а доступ к `login.asp.old` вызывает содержимое `login.asp.old` (что опять же, код на стороне сервера) должен быть явно возвращен пользователю и отображен в браузере. Это может представлять угрозу безопасности, поскольку может быть раскрыта конфиденциальная информация.
 
-Generally, exposing server-side code is a bad idea. Not only are you unnecessarily exposing business logic, but you may be unknowingly revealing application-related information which may help an attacker (path names, data structures, etc.). Not to mention the fact that there are too many scripts with embedded username and password in clear text (which is a careless and very dangerous practice).
+Как правило, раскрытие кода на стороне сервера - плохая идея. Вы не только излишне разоблачаете бизнес-логику, но и можете неосознанно раскрывать информацию, связанную с приложениями, которая может помочь злоумышленнику (имена путей, структуры данных и т. Д.).). Не говоря уже о том, что в виде открытого текста слишком много сценариев со встроенным именем пользователя и паролем (что является небрежной и очень опасной практикой).
 
-Other causes of unreferenced files are due to design or configuration choices when they allow diverse kind of application-related files such as data files, configuration files, log files, to be stored in file system directories that can be accessed by the web server. These files have normally no reason to be in a file system space that could be accessed via web, since they should be accessed only at the application level, by the application itself (and not by the casual user browsing around).
+Другие причины нессылочных файлов связаны с выбором дизайна или конфигурации, когда они позволяют хранить различные типы файлов, связанных с приложениями, такие как файлы данных, файлы конфигурации, файлы журналов, в каталогах файловой системы, к которым может обращаться веб-сервер. Эти файлы обычно не имеют причин находиться в пространстве файловой системы, доступ к которому можно получить через Интернет, поскольку к ним должен обращаться только на уровне приложения, само приложение (а не случайный пользователь, просматривающий его).
 
-### Threats
+### Угрозы
 
-Old, backup and unreferenced files present various threats to the security of a web application:
+Старые, резервные и неотреференные файлы представляют различные угрозы безопасности веб-приложения:
 
-- Unreferenced files may disclose sensitive information that can facilitate a focused attack against the application; for example include files containing database credentials, configuration files containing references to other hidden content, absolute file paths, etc.
-- Unreferenced pages may contain powerful functionality that can be used to attack the application; for example an administration page that is not linked from published content but can be accessed by any user who knows where to find it.
-- Old and backup files may contain vulnerabilities that have been fixed in more recent versions; for example `viewdoc.old.jsp` may contain a directory traversal vulnerability that has been fixed in `viewdoc.jsp` but can still be exploited by anyone who finds the old version.
-- Backup files may disclose the source code for pages designed to execute on the server; for example requesting `viewdoc.bak` may return the source code for `viewdoc.jsp`, which can be reviewed for vulnerabilities that may be difficult to find by making blind requests to the executable page. While this threat obviously applies to scripted languages, such as Perl, PHP, ASP, shell scripts, JSP, etc., it is not limited to them, as shown in the example provided in the next bullet.
-- Backup archives may contain copies of all files within (or even outside) the webroot. This allows an attacker to quickly enumerate the entire application, including unreferenced pages, source code, include files, etc. For example, if you forget a file named `myservlets.jar.old` file containing (a backup copy of) your servlet implementation classes, you are exposing a lot of sensitive information which is susceptible to decompilation and reverse engineering.
-- In some cases copying or editing a file does not modify the file extension, but modifies the filename. This happens for example in Windows environments, where file copying operations generate filenames prefixed with "Copy of " or localized versions of this string. Since the file extension is left unchanged, this is not a case where an executable file is returned as plain text by the web server, and therefore not a case of source code disclosure. However, these files too are dangerous because there is a chance that they include obsolete and incorrect logic that, when invoked, could trigger application errors, which might yield valuable information to an attacker, if diagnostic message display is enabled.
-- Log files may contain sensitive information about the activities of application users, for example sensitive data passed in URL parameters, session IDs, URLs visited (which may disclose additional unreferenced content), etc. Other log files (e.g. ftp logs) may contain sensitive information about the maintenance of the application by system administrators.
-- File system snapshots may contain copies of the code that contain vulnerabilities that have been fixed in more recent versions. For example `/.snapshot/monthly.1/view.php` may contain a directory traversal vulnerability that has been fixed in `/view.php` but can still be exploited by anyone who finds the old version.
+- файлы без ссылок могут раскрывать конфиденциальную информацию, которая может облегчить целенаправленную атаку на приложение; например, включают файлы, содержащие учетные данные базы данных, файлы конфигурации, содержащие ссылки на другой скрытый контент, абсолютные пути к файлам и т. д.
+- страницы без ссылок могут содержать мощные функции, которые можно использовать для атаки приложения; например, страница администрирования, которая не связана с опубликованным контентом, но доступна любому пользователю, который знает, где ее найти.
+- Старые и резервные файлы могут содержать уязвимости, которые были исправлены в более поздних версиях; например, `viewdoc.old.jsp` может содержать уязвимость обхода каталога, которая была исправлена в `viewdoc.jsp`, но все еще может использоваться любым, кто найдет старую версию.
+- Резервные файлы могут раскрывать исходный код для страниц, предназначенных для выполнения на сервере; например, запрос `viewdoc.bak` может вернуть исходный код для `viewdoc.jsp`, который можно проверить на наличие уязвимостей, которые может быть трудно найти, делая слепые запросы на исполняемую страницу. Хотя эта угроза, очевидно, применима к языкам сценариев, таким как Perl, PHP, ASP, сценарии оболочки, JSP и т. Д., это не ограничивается ими, как показано в примере, приведенном в следующей пуле.
+- Резервные архивы могут содержать копии всех файлов в (или даже за пределами) webroot. Это позволяет злоумышленнику быстро перечислить все приложение, включая нереференс-страницы, исходный код, файлы и т. Д. Например, если вы забыли файл с именем `myservlets.jar.old`, содержащий (резервную копию) ваших классов реализации сервлета, вы раскрываете много конфиденциальной информации, которая подвержена декомпиляции и реверс-инжинирингу.
+- В некоторых случаях копирование или редактирование файла не изменяет расширение файла, но изменяет имя файла. Это происходит, например, в средах Windows, где операции копирования файлов генерируют имена файлов с префиксом «Копия» или локализованные версии этой строки. Поскольку расширение файла остается неизменным, это не тот случай, когда исполняемый файл возвращается веб-сервером в виде простого текста, и, следовательно, не случай раскрытия исходного кода. Однако эти файлы также опасны, поскольку существует вероятность того, что они включают устаревшую и неправильную логику, которая при вызове может вызвать ошибки приложения, которые могут дать ценную информацию злоумышленнику, если отображение диагностического сообщения включено.
+- Файлы журналов могут содержать конфиденциальную информацию о деятельности пользователей приложения, например, конфиденциальные данные, передаваемые в параметрах URL, идентификаторы сеанса, посещенные URL-адреса (которые могут раскрывать дополнительный неотреференный контент) и т. Д. Другие файлы журнала (например,. ftp logs) может содержать конфиденциальную информацию о поддержке приложения системными администраторами.
+- Снимки файловой системы могут содержать копии кода, которые содержат уязвимости, которые были исправлены в более поздних версиях. Например, `/.snapshot/monthly.1/view.php` может содержать уязвимость обхода каталогов, которая была исправлена в `/view.php`, но все еще может использоваться любым, кто найдет старую версию.
 
-## Test Objectives
+## Цели теста
 
-- Find and analyse unreferenced files that might contain sensitive information.
+- Найти и проанализировать файлы без ссылок, которые могут содержать конфиденциальную информацию.
 
-## How to Test
+## Как проверить
 
-### Black-Box Testing
+### Тестирование черного ящика
 
-Testing for unreferenced files uses both automated and manual techniques, and typically involves a combination of the following:
+Тестирование для файлов без ссылок использует как автоматические, так и ручные методы и обычно включает в себя комбинацию следующего:
 
-#### Inference from the Naming Scheme Used for Published Content
+#### Вывод из схемы именования, используемой для опубликованного контента
 
-Enumerate all of the application’s pages and functionality. This can be done manually using a browser, or using an application spidering tool. Most applications use a recognizable naming scheme, and organize resources into pages and directories using words that describe their function. From the naming scheme used for published content, it is often possible to infer the name and location of unreferenced pages. For example, if a page `viewuser.asp` is found, then look also for `edituser.asp`, `adduser.asp` and `deleteuser.asp`. If a directory `/app/user` is found, then look also for `/app/admin` and `/app/manager`.
+Перечислите все страницы и функции приложения. Это можно сделать вручную с помощью браузера или с помощью инструмента для добавления паутины. Большинство приложений используют узнаваемую схему именования и организуют ресурсы на страницы и каталоги, используя слова, которые описывают их функцию. Из схемы именования, используемой для опубликованного контента, часто можно определить имя и местоположение неотреференных страниц. Например, если страница `viewuser.asp` найдена, также найдите `edituser.asp`, `adduser.asp` и `deleteuser.asp`. Если каталог `/ app / user` найден, найдите также `/ app / admin` и `/ app / manager`.
 
-#### Other Clues in Published Content
+#### Другие подсказки в опубликованном контенте
 
-Many web applications leave clues in published content that can lead to the discovery of hidden pages and functionality. These clues often appear in the source code of HTML and JavaScript files. The source code for all published content should be manually reviewed to identify clues about other pages and functionality. For example:
+Многие веб-приложения оставляют подсказки в опубликованном контенте, что может привести к обнаружению скрытых страниц и функциональности. Эти подсказки часто появляются в исходном коде файлов HTML и JavaScript. Исходный код для всего опубликованного контента должен быть проверен вручную, чтобы определить подсказки о других страницах и функциональности. Например:
 
-Programmers' comments and commented-out sections of source code may refer to hidden content:
+Комментарии программистов и комментируемые разделы исходного кода могут относиться к скрытому контенту:
 
 ```html
 <!-- <A HREF="uploadfile.jsp">Upload a document to the server</A> -->
 <!-- Link removed while bugs in uploadfile.jsp are fixed          -->
 ```
 
-JavaScript may contain page links that are only rendered within the user’s GUI under certain circumstances:
+JavaScript может содержать ссылки на страницы, которые отображаются только в графическом интерфейсе пользователя при определенных обстоятельствах:
 
 ```javascript
 var adminUser=false;
 if (adminUser) menu.add (new menuItem ("Maintain users", "/admin/useradmin.jsp"));
 ```
 
-HTML pages may contain FORMs that have been hidden by disabling the SUBMIT element:
+HTML-страницы могут содержать FORM, которые были скрыты путем отключения элемента SUBMIT :
 
 ```html
 <form action="forgotPassword.jsp" method="post">
@@ -76,7 +76,7 @@ HTML pages may contain FORMs that have been hidden by disabling the SUBMIT eleme
 </form>
 ```
 
-Another source of clues about unreferenced directories is the `/robots.txt` file used to provide instructions to web robots:
+Другим источником подсказок о неотреференных каталогах является файл `/robots.txt`, используемый для предоставления инструкций веб-роботам :
 
 ```html
 User-agent: *
@@ -87,9 +87,9 @@ Disallow: /~jbloggs
 Disallow: /include
 ```
 
-#### Blind Guessing
+#### Слепое угадывание
 
-In its simplest form, this involves running a list of common filenames through a request engine in an attempt to guess files and directories that exist on the server. The following netcat wrapper script will read a wordlist from stdin and perform a basic guessing attack:
+В простейшей форме это включает в себя запуск списка общих имен файлов через механизм запросов в попытке угадать файлы и каталоги, которые существуют на сервере. Следующий сценарий оболочки netcat прочтет список слов из stdin и выполнит базовую атаку гадания:
 
 ```bash
 #!/bin/bash
@@ -104,60 +104,60 @@ echo -e "GET /$url HTTP/1.0\nHost: $server\n" | netcat $server $port | head -1
 done | tee outputfile
 ```
 
-Depending upon the server, GET may be replaced with HEAD for faster results. The output file specified can be grepped for "interesting" response codes. The response code 200 (OK) usually indicates that a valid resource has been found (provided the server does not deliver a custom "not found" page using the 200 code). But also look out for 301 (Moved), 302 (Found), 401 (Unauthorized), 403 (Forbidden) and 500 (Internal error), which may also indicate resources or directories that are worthy of further investigation.
+В зависимости от сервера GET может быть заменен на HEAD для более быстрых результатов. Указанный выходной файл можно пометить для «интересных» кодов ответов. Код ответа 200 (OK) обычно указывает, что действительный ресурс был найден (при условии, что сервер не предоставляет пользовательскую страницу «не найден» с использованием кода 200). Но также обратите внимание на 301 (Moved), 302 (Found), 401 (Unauthorized), 403 (Forbidden) и 500 (Внутренняя ошибка), которые также могут указывать ресурсы или каталоги, которые заслуживают дальнейшего изучения.
 
-The basic guessing attack should be run against the webroot, and also against all directories that have been identified through other enumeration techniques. More advanced/effective guessing attacks can be performed as follows:
+Базовая атака угадывания должна выполняться против webroot, а также против всех каталогов, которые были идентифицированы с помощью других методов подсчета. Более продвинутые / эффективные атаки могут быть выполнены следующим образом:
 
-- Identify the file extensions in use within known areas of the application (e.g. jsp, aspx, html), and use a basic wordlist appended with each of these extensions (or use a longer list of common extensions if resources permit).
-- For each file identified through other enumeration techniques, create a custom wordlist derived from that filename. Get a list of common file extensions (including ~, bak, txt, src, dev, old, inc, orig, copy, tmp, swp, etc.) and use each extension before, after, and instead of, the extension of the actual filename.
+- Определите расширения файлов, используемые в известных областях приложения (например,. jsp, aspx, html) и используйте базовый список слов, прилагаемый к каждому из этих расширений (или используйте более длинный список общих расширений, если позволяют ресурсы).
+- Для каждого файла, идентифицированного с помощью других методов подсчета, создайте пользовательский список слов, полученный из этого имени файла. Получить список распространенных расширений файлов (включая ~, bak, txt, src, dev, old, inc, orig, copy, tmp, swp и т. Д.).) и использовать каждое расширение до, после и вместо расширения фактического имени файла.
 
-Note: Windows file copying operations generate filenames prefixed with "Copy of " or localized versions of this string, hence they do not change file extensions. While "Copy of " files typically do not disclose source code when accessed, they might yield valuable information in case they cause errors when invoked.
+Примечание. Операции копирования файлов Windows генерируют имена файлов с префиксом «Копия» или локализованные версии этой строки, поэтому они не изменяют расширения файлов. Хотя файлы «Копия» обычно не раскрывают исходный код при доступе, они могут дать ценную информацию в случае, если они вызывают ошибки при вызове.
 
-#### Information Obtained Through Server Vulnerabilities and Misconfiguration
+#### Информация, полученная благодаря уязвимости и неправильной конфигурации сервера
 
-The most obvious way in which a misconfigured server may disclose unreferenced pages is through directory listing. Request all enumerated directories to identify any which provide a directory listing.
+Наиболее очевидный способ, которым неверно настроенный сервер может раскрывать неотреференные страницы, - это список каталогов. Запросите все перечисленные каталоги, чтобы идентифицировать любые, которые предоставляют список каталогов.
 
-Numerous vulnerabilities have been found in individual web servers which allow an attacker to enumerate unreferenced content, for example:
+На отдельных веб-серверах были обнаружены многочисленные уязвимости, которые позволяют злоумышленнику перечислять нереференциальный контент, например:
 
-- Apache ?M=D directory listing vulnerability.
-- Various IIS script source disclosure vulnerabilities.
-- IIS WebDAV directory listing vulnerabilities.
+- Апач ?Уязвимость в списке каталогов M = D.
+- Различные уязвимости раскрытия информации из исходного кода IIS.
+- Уязвимости списка каталогов IIS WebDAV.
 
-#### Use of Publicly Available Information
+#### Использование общедоступной информации
 
-Pages and functionality in Internet-facing web applications that are not referenced from within the application itself may be referenced from other public domain sources. There are various sources of these references:
+На страницы и функции веб-приложений, обращенных к Интернету, на которые нет ссылок внутри самого приложения, можно ссылаться из других общедоступных источников. Существуют различные источники этих ссылок:
 
-- Pages that used to be referenced may still appear in the archives of Internet search engines. For example, `1998results.asp` may no longer be linked from a company’s website, but may remain on the server and in search engine databases. This old script may contain vulnerabilities that could be used to compromise the entire site. The `site:` Google search operator may be used to run a query only against the domain of choice, such as in: `site:www.example.com`. Using search engines in this way has lead to a broad array of techniques which you may find useful and that are described in the `Google Hacking` section of this Guide. Check it to hone your testing skills via Google. Backup files are not likely to be referenced by any other files and therefore may have not been indexed by Google, but if they lie in browsable directories the search engine might know about them.
-- In addition, Google and Yahoo keep cached versions of pages found by their robots. Even if `1998results.asp` has been removed from the target server, a version of its output may still be stored by these search engines. The cached version may contain references to, or clues about, additional hidden content that still remains on the server.
-- Content that is not referenced from within a target application may be linked to by third-party websites. For example, an application which processes online payments on behalf of third-party traders may contain a variety of bespoke functionality which can (normally) only be found by following links within the web sites of its customers.
+- Страницы, на которые раньше ссылались, все еще могут появляться в архивах поисковых систем Интернета. Например, `1998results.asp` больше не может быть связан с веб-сайтом компании, но может оставаться на сервере и в базах данных поисковых систем. Этот старый скрипт может содержать уязвимости, которые могут быть использованы для компрометации всего сайта. Оператор поиска `site:` Google может использоваться для запуска запроса только в отношении выбранного домена, например, в: `site: www.example.com`. Использование поисковых систем таким образом привело к широкому спектру методов, которые вы можете найти полезными и которые описаны в разделе «Google Hacking» данного руководства. Проверьте это, чтобы отточить свои навыки тестирования через Google. Файлы резервных копий вряд ли будут ссылаться на какие-либо другие файлы и, следовательно, могут не индексироваться Google, но если они лежат в каталогах с возможностью просмотра, поисковая система может знать о них.
+- Кроме того, Google и Yahoo хранят кэшированные версии страниц, найденные их роботами. Даже если `1998results.asp` был удален с целевого сервера, версия его вывода все еще может храниться этими поисковыми системами. Кэшированная версия может содержать ссылки или подсказки о дополнительном скрытом контенте, который все еще остается на сервере.
+- Контент, на который не ссылаются в целевом приложении, может быть связан сторонними веб-сайтами. Например, приложение, которое обрабатывает онлайн-платежи от имени сторонних трейдеров, может содержать различные индивидуальные функции, которые (обычно) можно найти только по ссылкам на веб-сайтах своих клиентов.
 
-#### Filename Filter Bypass
+#### Обход фильтра имени файла
 
-Because deny list filters are based on regular expressions, one can sometimes take advantage of obscure OS filename expansion features in which work in ways the developer didn't expect. The tester can sometimes exploit differences in ways that filenames are parsed by the application, web server, and underlying OS and it's filename conventions.
+Поскольку фильтры списка запретов основаны на регулярных выражениях, иногда можно воспользоваться неясными функциями расширения имени файла ОС, которые работают так, как этого не ожидал разработчик. Тестер может иногда использовать различия в способах анализа имен файлов приложением, веб-сервером и базовой ОС, а также в соглашениях об именах файлов.
 
-Example: Windows 8.3 filename expansion `c:\\program files` becomes `C:\\PROGRA\~1`
+Пример: расширение имени файла Windows 8.3 `c: \\ program files` становится `C: \\ PROGRA \ ~ 1`
 
-- Remove incompatible characters
-- Convert spaces to underscores
-- Take the first six characters of the basename
-- Add `~<digit>` which is used to distinguish files with names using the same six initial characters
-- This convention changes after the first 3 cname ollisions
-- Truncate  file extension to three characters
-- Make all the characters uppercase
+- Удалить несовместимые символы
+- Преобразуйте пробелы в подчеркивания
+- Возьмите первые шесть символов базового имени
+- Добавьте `~ <digit> `, который используется для различения файлов с именами, используя те же шесть начальных символов
+- Это соглашение изменяется после первых 3-ти названий
+- Усечь расширение файла до трех символов
+- Сделайте все персонажи заглавными
 
-### Gray-Box Testing
+### Тестирование серой коробки
 
-Performing gray box testing against old and backup files requires examining the files contained in the directories belonging to the set of web directories served by the web server(s) of the web application infrastructure. Theoretically the examination should be performed by hand to be thorough. However, since in most cases copies of files or backup files tend to be created by using the same naming conventions, the search can be easily scripted. For example, editors leave behind backup copies by naming them with a recognizable extension or ending and humans tend to leave behind files with a `.old` or similar predictable extensions. A good strategy is that of periodically scheduling a background job checking for files with extensions likely to identify them as copy or backup files, and performing manual checks as well on a longer time basis.
+Для выполнения тестирования серого поля на старых и резервных файлах необходимо изучить файлы, содержащиеся в каталогах, принадлежащих набору веб-каталогов, обслуживаемых веб-сервером (серверами) инфраструктуры веб-приложений. Теоретически экзамен должен проводиться вручную, чтобы быть тщательным. Однако, поскольку в большинстве случаев копии файлов или файлов резервных копий, как правило, создаются с использованием одних и тех же соглашений об именах, поиск можно легко выполнить по сценарию. Например, редакторы оставляют резервные копии, называя их узнаваемым расширением или окончанием, и люди, как правило, оставляют файлы с `.old` или подобными предсказуемыми расширениями. Хорошей стратегией является периодическое планирование проверки фоновых заданий для файлов с расширениями, которые могут идентифицировать их как файлы для копирования или резервного копирования, а также выполнение ручных проверок на более длительной основе.
 
-## Remediation
+## Восстановление
 
-To guarantee an effective protection strategy, testing should be compounded by a security policy which clearly forbids dangerous practices, such as:
+Чтобы гарантировать эффективную стратегию защиты, тестирование должно усугубляться политикой безопасности, которая явно запрещает опасные действия, такие как:
 
-- Editing files in-place on the web server or application server file systems. This is a particularly bad habit, since it is likely to generate backup or temporary files by the editors. It is amazing to see how often this is done, even in large organizations. If you absolutely need to edit files on a production system, do ensure that you don’t leave behind anything which is not explicitly intended, and consider that you are doing it at your own risk.
-- Carefully check any other activity performed on file systems exposed by the web server, such as spot administration activities. For example, if you occasionally need to take a snapshot of a couple of directories (which you should not do on a production system), you may be tempted to zip them first. Be careful not to leave behind those archive files.
-- Appropriate configuration management policies should help prevent obsolete and un-referenced files.
-- Applications should be designed not to create (or rely on) files stored under the web directory trees served by the web server. Data files, log files, configuration files, etc. should be stored in directories not accessible by the web server, to counter the possibility of information disclosure (not to mention data modification if web directory permissions allow writing).
-- File system snapshots should not be accessible via the web if the document root is on a file system using this technology. Configure your web server to deny access to such directories, for example under Apache a location directive such this should be used:
+- Редактирование файлов на месте на веб-сервере или файловых системах сервера приложений. Это особенно вредная привычка, поскольку редакторы могут создавать резервные или временные файлы. Удивительно видеть, как часто это делается, даже в крупных организациях. Если вам абсолютно необходимо редактировать файлы в производственной системе, убедитесь, что вы не оставляете ничего, что явно не предназначено, и учтите, что вы делаете это на свой страх и риск.
+- Тщательно проверяйте любые другие действия, выполняемые в файловых системах, открытых веб-сервером, такие как действия по управлению точками. Например, если вам иногда нужно сделать снимок нескольких каталогов (что вам не следует делать в производственной системе), у вас может возникнуть соблазн сначала застегнуть их. Будьте осторожны, чтобы не оставить позади эти архивные файлы.
+- Соответствующие политики управления конфигурацией должны помочь предотвратить устаревшие и не ссылочные файлы.
+- Приложения должны быть разработаны таким образом, чтобы не создавать (или полагаться на) файлы, хранящиеся в деревьях веб-каталогов, обслуживаемых веб-сервером. Файлы данных, файлы журналов, файлы конфигурации и т. Д. должны храниться в каталогах, недоступных веб-серверу, чтобы противостоять возможности раскрытия информации (не говоря уже об изменении данных, если разрешения веб-каталогов позволяют писать).
+- Снимки файловой системы не должны быть доступны через Интернет, если корень документа находится в файловой системе, использующей эту технологию. Настройте свой веб-сервер, чтобы запретить доступ к таким каталогам, например, в Apache должна использоваться директива о местоположении, такая как эта
 
 ```xml
 <Location ~ ".snapshot">
@@ -166,9 +166,9 @@ To guarantee an effective protection strategy, testing should be compounded by a
 </Location>
 ```
 
-## Tools
+## Инструменты
 
-Vulnerability assessment tools tend to include checks to spot web directories having standard names (such as "admin", "test", "backup", etc.), and to report any web directory which allows indexing. If you can’t get any directory listing, you should try to check for likely backup extensions. Check for example
+Инструменты оценки уязвимости, как правило, включают проверки для обнаружения веб-каталогов со стандартными именами (например, «admin», «test», «backup» и т. Д.).) и сообщать о любом веб-каталоге, который позволяет индексировать. Если вы не можете получить какой-либо список каталогов, вам следует попытаться проверить возможные расширения резервного копирования. Проверьте например
 
 - [Nessus](https://www.tenable.com/products/nessus)
 - [Nikto2](https://cirt.net/Nikto2)
@@ -182,4 +182,4 @@ Web spider tools
 - [Xenu](http://home.snafu.de/tilman/xenulink.html)
 - [curl](https://curl.haxx.se)
 
-Some of them are also included in standard Linux distributions. Web development tools usually include facilities to identify broken links and unreferenced files.
+Некоторые из них также включены в стандартные дистрибутивы Linux. Инструменты веб-разработки обычно включают средства для идентификации неработающих ссылок и нессылочных файлов.
