@@ -4,32 +4,32 @@
 |------------|
 |WSTG-INFO-08|
 
-## Summary
+## Резюме
 
-There is nothing new under the sun, and nearly every web application that one may think of developing has already been developed. With the vast number of free and Open Source software projects that are actively developed and deployed around the world, it is very likely that an application security test will face a target that is entirely or partly dependent on these well known applications or frameworks (e.g. WordPress, phpBB, Mediawiki, etc). Knowing the web application components that are being tested significantly helps in the testing process and will also drastically reduce the effort required during the test. These well known web applications have known HTML headers, cookies, and directory structures that can be enumerated to identify the application. Most of the web frameworks have several markers in those locations which help an attacker or tester to recognize them. This is basically what all automatic tools do, they look for a marker from a predefined location and then compare it to the database of known signatures. For better accuracy several markers are usually used.
+Под солнцем нет ничего нового, и почти каждое веб-приложение, которое можно придумать, уже разработано. С огромным количеством бесплатных и открытых программных проектов, которые активно разрабатываются и развертываются по всему миру, весьма вероятно, что тест безопасности приложения столкнется с целью, которая полностью или частично зависит от этих хорошо известных приложений или структур (например,. WordPress, phpBB, Mediawiki и т. Д.). Знание тестируемых компонентов веб-приложения значительно помогает в процессе тестирования, а также значительно сокращает усилия, необходимые во время теста. Эти хорошо известные веб-приложения имеют известные заголовки HTML, файлы cookie и структуры каталогов, которые можно перечислить для идентификации приложения. Большинство веб-фреймворков имеют несколько маркеров в тех местах, которые помогают злоумышленнику или тестеру распознавать их. Это в основном то, что делают все автоматические инструменты, они ищут маркер из предопределенного местоположения, а затем сравнивают его с базой данных известных подписей. Для большей точности обычно используются несколько маркеров.
 
-## Test Objectives
+## Цели теста
 
-- Fingerprint the components being used by the web applications.
+- Отпечаток компонентов, используемых веб-приложениями.
 
-## How to Test
+## Как проверить
 
 ### Black-Box Testing
 
-There are several common locations to consider in order to identify frameworks or components:
+Есть несколько общих мест для определения структур или компонентов:
 
-- HTTP headers
-- Cookies
-- HTML source code
-- Specific files and folders
-- File extensions
-- Error messages
+- HTTP-заголовки
+- Печенье
+- Исходный код HTML
+- Конкретные файлы и папки
+- Расширения файлов
+- Сообщения об ошибках
 
-#### HTTP Headers
+#### Заголовки HTTP
 
-The most basic form of identifying a web framework is to look at the `X-Powered-By` field in the HTTP response header. Many tools can be used to fingerprint a target, the simplest one is netcat.
+Самая основная форма идентификации веб-фрейма - это просмотр поля `X-Powered-By` в заголовке ответа HTTP. Многие инструменты могут быть использованы для снятия отпечатков пальцев с цели, самый простой - netcat.
 
-Consider the following HTTP Request-Response:
+Рассмотрим следующий HTTP-запрос-ответ:
 
 ```html
 $ nc 127.0.0.1 80
@@ -41,9 +41,9 @@ Server: nginx/1.0.14
 X-Powered-By: Mono
 ```
 
-From the `X-Powered-By` field, we understand that the web application framework is likely to be `Mono`. However, although this approach is simple and quick, this methodology doesn't work in 100% of cases. It is possible to easily disable `X-Powered-By` header by a proper configuration. There are also several techniques that allow a web site to obfuscate HTTP headers (see an example in the [Remediation](#Remediation) section). In the example above we can also note a specific version of `nginx` is being used to serve the content.
+Из поля `X-Powered-By` мы понимаем, что структура веб-приложений, вероятно, будет `Mono`. Однако, хотя этот подход прост и быстр, эта методология не работает в 100% случаев. Можно легко отключить заголовок `X-Powered-By` с помощью правильной конфигурации. Существует также несколько методов, которые позволяют веб-сайту запутывать заголовки HTTP (см. Пример в [Remediation](#Remediation) section). В приведенном выше примере мы также можем отметить, что для обслуживания контента используется конкретная версия `nginx`.
 
-So in the same example the tester could either miss the `X-Powered-By` header or obtain an answer like the following:
+Таким образом, в том же примере тестер может пропустить заголовок `X-Powered-By` или получить ответ, как следующий:
 
 ```html
 HTTP/1.1 200 OK
@@ -55,7 +55,7 @@ Vary: Accept-Encoding
 X-Powered-By: Blood, sweat and tears
 ```
 
-Sometimes there are more HTTP headers that point at a certain framework. In the following example, according to the information from HTTP request, one can see that `X-Powered-By` header contains PHP version. However, the `X-Generator` header points out the used framework is actually `Swiftlet`, which helps a penetration tester to expand their attack vectors. When performing fingerprinting, carefully inspect every HTTP header for such leaks.
+Иногда есть больше заголовков HTTP, которые указывают на определенную структуру. В следующем примере, согласно информации из HTTP-запроса, можно увидеть, что заголовок `X-Powered-By` содержит версию PHP. Однако заголовок `X-Generator` указывает, что используемая структура на самом деле `Swiftlet`, что помогает тестеру проникновения расширять свои векторы атаки. При выполнении дактилоскопии тщательно проверяйте каждый заголовок HTTP на наличие таких утечек.
 
 ```html
 HTTP/1.1 200 OK
@@ -73,14 +73,14 @@ X-Generator: Swiftlet
 
 #### Cookies
 
-Another similar and somewhat more reliable way to determine the current web framework are framework-specific cookies.
+Другим аналогичным и несколько более надежным способом определения текущей веб-структуры являются файлы cookie для конкретной структуры.
 
-Consider the following HTTP-request:
+Рассмотрим следующий HTTP-запрос:
 
 ![Cakephp HTTP Request](images/Cakephp_cookie.png)\
 *Figure 4.1.8-7: Cakephp HTTP Request*
 
-The cookie `CAKEPHP` has automatically been set, which gives information about the framework being used. A list of common cookie names is presented in [Cookies](#Cookies) section. Limitations still exist in relying on this identification mechanism - it is possible to change the name of cookies. For example, for the selected `CakePHP` framework this could be done via the following configuration (excerpt from `core.php`):
+Файл cookie `CAKEPHP` был установлен автоматически, что дает информацию об используемой структуре. Список распространенных имен файлов cookie представлен в [Cookies](#Cookies) раздел. Ограничения по-прежнему существуют в зависимости от этого механизма идентификации - можно изменить название файлов cookie. Например, для выбранной структуры `CakePHP` это можно сделать с помощью следующей конфигурации (выдержка из `core.php`):
 
 ```php
 /**
@@ -94,54 +94,55 @@ The cookie `CAKEPHP` has automatically been set, which gives information about t
 Configure::write('Session.cookie', 'CAKEPHP');
 ```
 
-However, these changes are less likely to be made than changes to the `X-Powered-By` header, so this approach to identification can be considered as more reliable.
+Однако эти изменения с меньшей вероятностью будут внесены, чем изменения в заголовке `X-Powered-By`, поэтому этот подход к идентификации можно считать более надежным.
 
-#### HTML Source Code
+#### Исходный код HTML
 
-This technique is based on finding certain patterns in the HTML page source code. Often one can find a lot of information which helps a tester to recognize a specific component. One of the common markers are HTML comments that directly lead to framework disclosure. More often certain framework-specific paths can be found, i.e. links to framework-specific CSS or JS folders. Finally, specific script variables might also point to a certain framework.
+Этот метод основан на поиске определенных шаблонов в исходном коде страницы HTML. Часто можно найти много информации, которая помогает тестеру распознавать определенный компонент. Одним из распространенных маркеров являются комментарии HTML, которые непосредственно приводят к раскрытию информации о структуре. Чаще можно найти определенные специфичные для фреймворка пути, т.е. ссылки на специфичные для фреймворка папки CSS или JS. Наконец, конкретные переменные сценария могут также указывать на определенную структуру.
 
-From the screenshot below one can easily learn the used framework and its version by the mentioned markers. The comment, specific paths and script variables can all help an attacker to quickly determine an instance of ZK framework.
+На скриншоте ниже можно легко узнать используемую структуру и ее версию по упомянутым маркерам. Комментарий, конкретные пути и переменные сценария могут помочь злоумышленнику быстро определить экземпляр ZK framework.
 
 ![ZK Framework Sample](images/Zk_html_source.png)\
 *Figure 4.1.8-2: ZK Framework HTML Source Sample*
 
-Frequently such information is positioned in the `<head>` section of HTTP responses, in `<meta>` tags, or at the end of the page. Nevertheless, entire responses should be analyzed since it can be useful for other purposes such as inspection of other useful comments and hidden fields. Sometimes, web developers do not care much about hiding information about the frameworks or components used. It is still possible to stumble upon something like this at the bottom of the page:
+Часто такая информация размещается в разделе «<head>» ответов HTTP, в тегах «<meta>» или в конце страницы. Тем не менее, все ответы должны быть проанализированы, поскольку они могут быть полезны для других целей, таких как проверка других полезных комментариев и скрытых полей. Иногда веб-разработчики не заботятся о сокрытии информации об используемых фреймворках или компонентах. По-прежнему можно наткнуться на что-то подобное внизу страницы:
 
 ![Banshee Bottom Page](images/Banshee_bottom_page.png)\
 *Figure 4.1.8-3: Banshee Bottom Page*
 
-### Specific Files and Folders
+### Конкретные файлы и папки
+  
+Существует другой подход, который очень помогает злоумышленнику или тестеру идентифицировать приложения или компоненты с высокой точностью. Каждый веб-компонент имеет свою собственную структуру файлов и папок на сервере. Было отмечено, что можно увидеть конкретный путь из источника HTML-страницы, но иногда они не представлены там явно и все еще находятся на сервере.
 
-There is another approach which greatly helps an attacker or tester to identify applications or components with high accuracy. Every web component has its own specific file and folder structure on the server. It has been noted that one can see the specific path from the HTML page source but sometimes they are not explicitly presented there and still reside on the server.
-
-In order to uncover them a technique known as forced browsing or "dirbusting" is used. Dirbusting is brute forcing a target with known folder and filenames and monitoring HTTP-responses to enumerate server content. This information can be used both for finding default files and attacking them, and for fingerprinting the web application. Dirbusting can be done in several ways, the example below shows a successful dirbusting attack against a WordPress-powered target with the help of defined list and intruder functionality of Burp Suite.
+Чтобы раскрыть их, используется техника, известная как принудительный просмотр или «перетирка». Dirbusting - это грубое принуждение цели с известными папками и именами файлов и мониторинг HTTP-ответов для подсчета содержимого сервера. Эта информация может использоваться как для поиска файлов по умолчанию и их атаки, так и для снятия отпечатков пальцев с веб-приложения. Dirbusting может быть выполнен несколькими способами, в приведенном ниже примере показана успешная атака на цель с поддержкой WordPress с помощью определенного списка и функциональности нарушителя Burp Suite.
 
 ![Dirbusting with Burp](images/Wordpress_dirbusting.png)\
 *Figure 4.1.8-4: Dirbusting with Burp*
 
-We can see that for some WordPress-specific folders (for instance, `/wp-includes/`, `/wp-admin/` and `/wp-content/`) HTTP responses are 403 (Forbidden), 302 (Found, redirection to `wp-login.php`), and 200 (OK) respectively. This is a good indicator that the target is WordPress powered. The same way it is possible to dirbust different application plugin folders and their versions. In the screenshot below one can see a typical CHANGELOG file of a Drupal plugin, which provides information on the application being used and discloses a vulnerable plugin version.
-
+Мы видим, что для некоторых папок, специфичных для WordPress (например, `/wp-includes/`,` / wp-admin / `и` / wp-content /`) HTTP-ответы составляют 403 (Forbidden), 302 ( Основано, перенаправление на `wp-login.php`) и 2000 (ОК) соответственно. Это хороший показатель того, что целью является работа на WordPress. Точно так же можно перекачивать разные папки плагинов приложений и их версии. На скриншоте ниже можно увидеть типичный файл CHANGELOG плагина Drupal, который предоставляет информацию об используемом приложении и раскрывает уязвимую версию плагина.
+  
+  
 ![Drupal Botcha Disclosure](images/Drupal_botcha_disclosure.png)\
 *Figure 4.1.8-5: Drupal Botcha Disclosure*
 
-Tip: before starting with dirbusting, check the `robots.txt` file first. Sometimes application specific folders and other sensitive information can be found there as well. An example of such a `robots.txt` file is presented on a screenshot below.
+Совет: перед началом работы с dirbusting сначала проверьте файл `robots.txt`. Иногда там можно найти специфичные для приложения папки и другую конфиденциальную информацию. Пример такого файла `robots.txt` представлен на скриншоте ниже.
 
 ![Robots Info Disclosure](images/Robots-info-disclosure.png)\
 *Figure 4.1.8-6: Robots Info Disclosure*
 
-Specific files and folders are different for each specific application. If the identified application or component is Open Source there may be value in setting up a temporary installation during penetration tests in order to gain a better understanding of what infrastructure or functionality is presented, and what files might be left on the server. However, several good file lists already exist; one good example is [FuzzDB wordlists of predictable files/folders](https://github.com/fuzzdb-project/fuzzdb).
+Конкретные файлы и папки различны для каждого конкретного приложения. Если идентифицированное приложение или компонент является открытым исходным кодом, может быть полезно настроить временную установку во время тестов на проникновение, чтобы лучше понять, какая инфраструктура или функциональность представлены и какие файлы могут остаться на сервере. Однако несколько хороших списков файлов уже существуют; один хороший пример [FuzzDB wordlists of predictable files/folders](https://github.com/fuzzdb-project/fuzzdb).
 
-#### File Extensions
+#### Расширения файлов
+  
+URL могут включать расширения файлов, которые также могут помочь идентифицировать веб-платформу или технологию.
 
-URLs may include file extensions, which can also help to identify the web platform or technology.
-
-For example, the OWASP wiki used PHP:
+Например, в вики OWASP используется PHP :
 
 ```text
 https://wiki.owasp.org/index.php?title=Fingerprint_Web_Application_Framework&action=edit&section=4
 ```
 
-Here are some common web file extensions and associated technologies:
+Вот некоторые распространенные веб-файлы и связанные с ними технологии:
 
 - `.php` -- PHP
 - `.aspx` -- Microsoft ASP.NET
@@ -149,12 +150,12 @@ Here are some common web file extensions and associated technologies:
 
 #### Error Messages
 
-As can be seen in the following screenshot the listed file system path points to use of WordPress (`wp-content`). Also testers should be aware that WordPress is PHP based (`functions.php`).
+Как видно из следующего снимка экрана, указанный путь к файловой системе указывает на использование WordPress (`wp-content`). Также тестировщики должны знать, что WordPress основан на PHP (`functions.php`).
 
 ![WordPress Parse error](images/wp-syntaxerror.png)\
 *Figure 4.1.8-7: WordPress Parse Error*
 
-## Common Identifiers
+## Общие идентификаторы
 
 ### Cookies
 
@@ -185,7 +186,7 @@ As can be seen in the following screenshot the listed file system path points to
 | Wix          | Domain=.wix.com                   |
 | VIVVO        | VivvoSessionId                    |
 
-### HTML Source Code
+### Исходный код HTML
 
 | Application | Keyword                                                                        |
 |-------------|--------------------------------------------------------------------------------|
@@ -196,15 +197,15 @@ As can be seen in the following screenshot the listed file system path points to
 | Drupal      | `<meta name="Generator" content="Drupal 7 (http://drupal.org)" />`             |
 | DotNetNuke  | `DNN Platform - [http://www.dnnsoftware.com](http://www.dnnsoftware.com)`      |
 
-#### General Markers
+#### Генерал Маркерс
 
 - `%framework_name%`
 - `powered by`
 - `built upon`
 - `running`
 
-#### Specific Markers
-
+#### Специальные маркеры
+  
 | Framework         | Keyword                        |
 |-------------------|--------------------------------|
 | Adobe ColdFusion  | `<!-- START headerTags.cfm` |
@@ -213,29 +214,29 @@ As can be seen in the following screenshot the listed file system path points to
 | Business Catalyst | `<!-- BC_OBNW -->`       |
 | Indexhibit        | `ndxz-studio`                  |
 
-## Remediation
+## Восстановление
 
-While efforts can be made to use different cookie names (through changing configs), hiding or changing file/directory paths (through rewriting or source code changes), removing known headers, etc. such efforts boil down to "security through obscurity". System owners/admins should recognize that those efforts only slow down the most basic of adversaries. The time/effort may be better used on stakeholder awareness and solution maintenance activities.
+Хотя можно приложить усилия для использования различных имен файлов cookie (путем изменения конфигурации), скрытия или изменения путей файлов / каталогов (путем переписывания или изменения исходного кода), удаления известных заголовков и т. Д. такие усилия сводятся к «безопасности через безвестность». Владельцы / администраторы системы должны признать, что эти усилия только замедляют работу самых основных противников. Время / усилия могут быть лучше использованы для информирования заинтересованных сторон и поддержки решений.
 
 ## Tools
 
-A list of general and well-known tools is presented below. There are also a lot of other utilities, as well as framework-based fingerprinting tools.
+Список общих и известных инструментов представлен ниже. Есть также много других утилит, а также инструменты дактилоскопии на основе фреймворка.
 
 ### WhatWeb
 
 Website: [https://github.com/urbanadventurer/WhatWeb](https://github.com/urbanadventurer/WhatWeb)
 
-Currently one of the best fingerprinting tools on the market. Included in a default [Kali Linux](https://www.kali.org/) build. Language: Ruby Matches for fingerprinting are made with:
+В настоящее время один из лучших инструментов дактилоскопии на рынке. Включено по умолчанию [Kali Linux](https://www.kali.org/) build. Language: Ruby Matches for fingerprinting are made with:
 
-- Text strings (case sensitive)
-- Regular expressions
-- Google Hack Database queries (limited set of keywords)
-- MD5 hashes
-- URL recognition
-- HTML tag patterns
-- Custom ruby code for passive and aggressive operations
+- Текстовые строки (с учетом регистра)
+- Регулярные выражения
+- Google Hack Database запросы (ограниченный набор ключевых слов)
+- MD5 хэши
+- Распознавание URL
+- шаблоны тегов HTML
+- Пользовательский рубиновый код для пассивных и агрессивных операций
 
-Sample output is presented on a screenshot below:
+Вывод образца представлен на скриншоте ниже:
 
 ![Whatweb Output sample](images/Whatweb-sample.png)\
 *Figure 4.1.8-8: Whatweb Output sample*
@@ -244,9 +245,9 @@ Sample output is presented on a screenshot below:
 
 Website: [https://www.wappalyzer.com/](https://www.wappalyzer.com/)
 
-Wapplyzer is available in multiple usage models, the most popular of which is likely the Firefox/Chrome extensions. They work only on regular expression matching and doesn't need anything other than the page to be loaded in browser. It works completely at the browser level and gives results in the form of icons. Although sometimes it has false positives, this is very handy to have notion of what technologies were used to construct a target website immediately after browsing a page.
+Wapplyzer доступен в моделях с несколькими вариантами использования, наиболее популярными из которых, вероятно, являются расширения Firefox / Chrome. Они работают только над соответствием регулярным выражениям и не нуждаются ни в чем, кроме страницы, которая будет загружена в браузер. Он полностью работает на уровне браузера и дает результаты в виде значков. Хотя иногда он имеет ложные срабатывания, очень удобно иметь представление о том, какие технологии использовались для создания целевого веб-сайта сразу после просмотра страницы.
 
-Sample output of a plug-in is presented on a screenshot below.
+Пример вывода плагина представлен на скриншоте ниже.
 
 ![Wappalyzer Output for OWASP Website](images/Owasp-wappalyzer.png)\
 *Figure 4.1.8-9: Wappalyzer Output for OWASP Website*
