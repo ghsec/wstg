@@ -1,60 +1,60 @@
-# Identify Application Entry Points
+# Определите точки входа приложения
 
 |ID          |
 |------------|
 |WSTG-INFO-06|
 
-## Summary
+## Резюме
 
-Enumerating the application and its attack surface is a key precursor before any thorough testing can be undertaken, as it allows the tester to identify likely areas of weakness. This section aims to help identify and map out areas within the application that should be investigated once enumeration and mapping have been completed.
+Перечисление приложения и его поверхности атаки является ключевым предшественником, прежде чем можно будет провести какое-либо тщательное тестирование, поскольку оно позволяет тестеру определять вероятные области слабости. Этот раздел призван помочь идентифицировать и наметить области в приложении, которые должны быть исследованы после завершения подсчета и картирования.
 
-## Test Objectives
+## Цели теста
 
-- Identify possible entry and injection points through request and response analysis.
+- Определите возможные точки входа и инъекции с помощью анализа запросов и ответов.
 
-## How to Test
+## Как проверить
 
-Before any testing begins, the tester should always get a good understanding of the application and how the user and browser communicates with it. As the tester walks through the application, they should pay attention to all HTTP requests as well as every parameter and form field that is passed to the application. They should pay special attention to when GET requests are used and when POST requests are used to pass parameters to the application. In addition, they also need to pay attention to when other methods for RESTful services are used.
+Перед началом любого тестирования тестер всегда должен хорошо понимать приложение и то, как пользователь и браузер общаются с ним. Когда тестер проходит через приложение, ему следует обратить внимание на все HTTP-запросы, а также на все параметры и поля формы, которые передаются в приложение. Они должны уделять особое внимание тому, когда используются запросы GET и когда запросы POST используются для передачи параметров в приложение. Кроме того, им также необходимо обратить внимание на то, когда используются другие методы для услуг RESTful.
 
-Note that in order to see the parameters sent in the body of requests such as a POST request, the tester may want to use a tool such as an intercepting proxy (See [tools](#tools)). Within the POST request, the tester should also make special note of any hidden form fields that are being passed to the application, as these usually contain sensitive information, such as state information, quantity of items, the price of items, that the developer never intended for anyone to see or change.
+Обратите внимание, что для просмотра параметров, отправленных в теле запросов, таких как запрос POST, тестер может захотеть использовать такой инструмент, как перехватчик прокси (см [tools](#tools)). В запросе POST, тестер также должен особо отмечать любые скрытые поля формы, которые передаются в приложение, поскольку они обычно содержат конфиденциальную информацию, такие как государственная информация, количество предметов, цена предметов, что разработчик никогда не собирался никого видеть или менять.
 
-In the author's experience, it has been very useful to use an intercepting proxy and a spreadsheet for this stage of testing. The proxy will keep track of every request and response between the tester and the application as they explore it. Additionally, at this point, testers usually trap every request and response so that they can see exactly every header, parameter, etc. that is being passed to the application and what is being returned. This can be quite tedious at times, especially on large interactive sites (think of a banking application). However, experience will show what to look for and this phase can be significantly reduced.
+По опыту автора, было очень полезно использовать перехватчик и электронную таблицу для этого этапа тестирования. Прокси-сервер будет отслеживать каждый запрос и ответ между тестером и приложением при его изучении. Кроме того, в этот момент тестировщики обычно задерживают каждый запрос и ответ, чтобы они могли видеть точно каждый заголовок, параметр и т. Д. это передается в приложение и что возвращается. Иногда это может быть довольно утомительно, особенно на крупных интерактивных сайтах (вспомните банковское приложение). Тем не менее, опыт покажет, что искать, и этот этап может быть значительно сокращен.
 
-As the tester walks through the application, they should take note of any interesting parameters in the URL, custom headers, or body of the requests/responses, and save them in a spreadsheet. The spreadsheet should include the page requested (it might be good to also add the request number from the proxy, for future reference), the interesting parameters, the type of request (GET, POST, etc), if access is authenticated/unauthenticated, if TLS is used, if it's part of a multi-step process, if WebSockets are used, and any other relevant notes. Once they have every area of the application mapped out, then they can go through the application and test each of the areas that they have identified and make notes for what worked and what didn't work. The rest of this guide will identify how to test each of these areas of interest, but this section must be undertaken before any of the actual testing can commence.
+Когда тестер проходит через приложение, он должен принять к сведению любые интересные параметры в URL, пользовательских заголовках или теле запросов / ответов и сохранить их в электронной таблице. Электронная таблица должна включать запрашиваемую страницу (может быть также полезно добавить номер запроса из прокси, для дальнейшего использования) интересные параметры, тип запроса (ПОЛУЧИТЬ, ПОСТ, так далее) если доступ аутентифицирован / не аутентифицирован, если используется TLS, если это часть многоэтапного процесса, если используются WebSockets, и любые другие соответствующие примечания. После того, как они наметили все области приложения, они могут пройти через приложение и протестировать каждую из областей, которые они определили, и сделать заметки о том, что сработало, а что не сработало. В оставшейся части этого руководства будет указано, как проверить каждую из этих областей, представляющих интерес, но этот раздел должен быть предпринят до того, как может начаться любое фактическое тестирование.
 
-Below are some points of interests for all requests and responses. Within the requests section, focus on the GET and POST methods, as these appear the majority of the requests. Note that other methods, such as PUT and DELETE, can be used. Often, these more rare requests, if allowed, can expose vulnerabilities. There is a special section in this guide dedicated for testing these HTTP methods.
+Ниже приведены некоторые пункты интересов для всех запросов и ответов. В разделе запросов сфокусируйтесь на методах GET и POST, так как они появляются в большинстве запросов. Обратите внимание, что могут использоваться другие методы, такие как PUT и DELETE. Часто эти более редкие запросы, если они разрешены, могут выявить уязвимости. В этом руководстве есть специальный раздел, посвященный тестированию этих методов HTTP.
 
 ### Requests
 
-- Identify where GETs are used and where POSTs are used.
-- Identify all parameters used in a POST request (these are in the body of the request).
-- Within the POST request, pay special attention to any hidden parameters. When a POST is sent all the form fields (including hidden parameters) will be sent in the body of the HTTP message to the application. These typically aren't seen unless a proxy or view the HTML source code is used. In addition, the next page shown, its data, and the level of access can all be different depending on the value of the hidden parameter(s).
-- Identify all parameters used in a GET request (i.e., URL), in particular the query string (usually after a ? mark).
-- Identify all the parameters of the query string. These usually are in a pair format, such as `foo=bar`. Also note that many parameters can be in one query string such as separated by a `&`, `\~`, `:`, or any other special character or encoding.
-- A special note when it comes to identifying multiple parameters in one string or within a POST request is that some or all of the parameters will be needed to execute the attacks. The tester needs to identify all of the parameters (even if encoded or encrypted) and identify which ones are processed by the application. Later sections of the guide will identify how to test these parameters. At this point, just make sure each one of them is identified.
-- Also pay attention to any additional or custom type headers not typically seen (such as `debug: false`).
+- Определите, где используются GET и где используются POST.
+- Определите все параметры, используемые в запросе POST (они находятся в теле запроса).
+- В запросе POST обратите особое внимание на любые скрытые параметры. Когда POST отправляется, все поля формы (включая скрытые параметры) будут отправлены в тело сообщения HTTP в приложение. Обычно они не видны, если не используется прокси-сервер или исходный код HTML. Кроме того, показана следующая страница, ее данные и уровень доступа могут различаться в зависимости от значения скрытого параметра (параметров).
+- Определить все параметры, используемые в запросе GET (т.е., URL), в частности строка запроса (обычно после a ? знак).
+- Определите все параметры строки запроса. Они обычно в формате пары, например `foo = bar`. Также обратите внимание, что многие параметры могут находиться в одной строке запроса, например, разделенной символом `&`, `\ ~`, `: `, или любым другим специальным символом или кодировкой.
+- Особое примечание, когда речь идет об определении нескольких параметров в одной строке или в запросе POST, заключается в том, что для выполнения атак потребуется некоторые или все параметры. Тестер должен идентифицировать все параметры (даже если они закодированы или зашифрованы) и определить, какие из них обрабатываются приложением. Более поздние разделы руководства определят, как проверить эти параметры. На этом этапе просто убедитесь, что каждый из них идентифицирован.
+- Также обратите внимание на любые дополнительные или пользовательские заголовки типа, которые обычно не видны (например, `debug: false`).
 
 ### Responses
 
-- Identify where new cookies are set (`Set-Cookie` header), modified, or added to.
-- Identify where there are any redirects (3xx HTTP status code), 400 status codes, in particular 403 Forbidden, and 500 internal server errors during normal responses (i.e., unmodified requests).
-- Also note where any interesting headers are used. For example, `Server: BIG-IP` indicates that the site is load balanced. Thus, if a site is load balanced and one server is incorrectly configured, then the tester might have to make multiple requests to access the vulnerable server, depending on the type of load balancing used.
+- Определите, где установлены новые файлы cookie (заголовок «Set-Cookie»), изменен или добавлен.
+- Определите, где есть какие-либо перенаправления (3xx HTTP-код состояния), 400 кодов состояния, в частности 403 Запрещено, и 500 внутренних ошибок сервера во время обычных ответов (т.е., неизмененные запросы).
+- Также обратите внимание, где используются интересные заголовки. Например, «Сервер: BIG-IP» указывает, что сайт сбалансирован по нагрузке. Таким образом, если сайт сбалансирован по нагрузке и один сервер неправильно настроен, то тестер может сделать несколько запросов на доступ к уязвимому серверу в зависимости от типа используемой балансировки нагрузки.
 
 ### OWASP Attack Surface Detector
 
-The Attack Surface Detector (ASD) tool investigates the source code and uncovers the endpoints of a web application, the parameters these endpoints accept, and the data type of those parameters. This includes the unlinked endpoints a spider will not be able to find, or optional parameters totally unused in client-side code. It also has the capability to calculate the changes in attack surface between two versions of an application.
+Инструмент «Детектор поверхности атаки» (ASD) исследует исходный код и раскрывает конечные точки веб-приложения, параметры, которые принимают эти конечные точки, и тип данных этих параметров. Это включает в себя несвязанные конечные точки, которые паук не сможет найти, или необязательные параметры, полностью неиспользованные в клиентском коде. Он также имеет возможность рассчитать изменения поверхности атаки между двумя версиями приложения.
 
-The Attack Surface Detector is available as a plugin to both ZAP and Burp Suite, and a command-line tool is also available. The command-line tool exports the attack surface as a JSON output, which can then be used by the ZAP and Burp Suite plugin. This is helpful for cases where the source code is not provided to the penetration tester directly. For example, the penetration tester can get the json output file from a customer who does not want to provide the source code itself.
+Детектор поверхности атаки доступен в виде плагина для ZAP и Burp Suite, а также доступен инструмент командной строки. Инструмент командной строки экспортирует поверхность атаки как выход JSON, который затем может использоваться плагинами ZAP и Burp Suite. Это полезно в тех случаях, когда исходный код не предоставляется непосредственно тестеру проникновения. Например, тестер проникновения может получить выходной файл json от клиента, который не хочет предоставлять сам исходный код.
 
-#### How to Use
+#### Как использовать
 
-The CLI jar file is available for download from [https://github.com/secdec/attack-surface-detector-cli/releases](https://github.com/secdec/attack-surface-detector-cli/releases).
+Файл баночки CLI доступен для скачивания [https://github.com/secdec/attack-surface-detector-cli/releases](https://github.com/secdec/attack-surface-detector-cli/releases).
 
-You can run the following command for ASD to identify endpoints from the source code of the target web application.
+Вы можете запустить следующую команду для ASD, чтобы идентифицировать конечные точки из исходного кода целевого веб-приложения.
 
 `java -jar attack-surface-detector-cli-1.3.5.jar <source-code-path> [flags]`
 
-Here is an example of running the command against [OWASP RailsGoat](https://github.com/OWASP/railsgoat).
+Вот пример запуска команды против [OWASP RailsGoat](https://github.com/OWASP/railsgoat).
 
 ```text
 $ java -jar attack-surface-detector-cli-1.3.5.jar railsgoat/
@@ -100,18 +100,18 @@ Generated 36 total parameters
 To enable logging include the -debug argument
 ```
 
-You can also generate a JSON output file using the `-json` flag, which can be used by the plugin to both ZAP and Burp Suite. See the following links for more details.
+Вы также можете создать выходной файл JSON, используя флаг `-json`, который может использоваться плагином как для ZAP, так и для Burp Suite. Смотрите следующие ссылки для более подробной информации.
 
 - [Home of ASD Plugin for OWASP ZAP](https://github.com/secdec/attack-surface-detector-zap/wiki)
 - [Home of ASD Plugin for PortSwigger Burp](https://github.com/secdec/attack-surface-detector-burp/wiki)
 
-### Testing for Application Entry Points
+### Тестирование на точки входа приложения
 
-The following are two examples on how to check for application entry points.
+Ниже приведены два примера того, как проверить точки входа в приложение.
 
 #### Example 1
 
-This example shows a GET request that would purchase an item from an online shopping application.
+В этом примере показан запрос GET, который позволит приобрести товар в онлайн-заявке на покупки.
 
 ```http
 GET /shoppingApp/buyme.asp?CUSTOMERID=100&ITEM=z101a&PRICE=62.50&IP=x.x.x.x HTTP/1.1
@@ -119,11 +119,11 @@ Host: x.x.x.x
 Cookie: SESSIONID=Z29vZCBqb2IgcGFkYXdhIG15IHVzZXJuYW1lIGlzIGZvbyBhbmQgcGFzc3dvcmQgaXMgYmFy
 ```
 
-> All the parameters of the request such as CUSTOMERID, ITEM, PRICE, IP, and the Cookie, which could just be encoded parameters or parameters used for session state.
+> Все параметры запроса, такие как CUSTOMERID, ITEM, PRICE, IP и Cookie, которые могут быть просто закодированы параметрами или параметрами, используемыми для состояния сеанса.
 
 #### Example 2
 
-This example shows a POST request that would log you into an application.
+В этом примере показан запрос POST, который войдет в приложение.
 
 ```http
 POST /example/authenticate.asp?service=login HTTP/1.1
@@ -133,13 +133,13 @@ Cookie: SESSIONID=dGhpcyBpcyBhIGJhZCBhcHAgdGhhdCBzZXRzIHByZWRpY3RhYmxlIGNvb2tpZ
 user=admin&pass=pass123&debug=true&fromtrustIP=true
 ```
 
-It can be noted that the parameters are sent in several locations:
+Можно отметить, что параметры отправляются в нескольких местах:
 
-1. In the query string: `service`
-2. In the Cookie header: `SESSIONID`, `CustomCookie`
-3. In the request body: `user`, `pass`, `debug`, `fromtrustIP`
+1. В строке запроса: `service`
+2. В заголовке Cookie: `SESSIONID`, `CustomCookie`
+3. В теле запроса: `user`, `pass`, `debug`, `fromtrustIP`
 
-Having a variety of injection locations provide the attacker with chaining possibilities that could improve the chances of finding a bug in the handling code.
+Наличие различных мест инъекции предоставляет злоумышленнику возможности цепочки, которые могут повысить вероятность обнаружения ошибки в коде обработки.
 
 ## Tools
 
