@@ -1,50 +1,50 @@
-# Test for Subdomain Takeover
+# Тест на поглощение субдомена
 
-|ID          |
-|------------|
-|WSTG-CONF-10|
+| ID |
+| ------------- |
+| WSTG-CONF-10 |
 
-## Summary
+## Резюме
 
-A successful exploitation of this kind of vulnerability allows an adversary to claim and take control of the victim's subdomain. This attack relies on the following:
+Успешная эксплуатация такого рода уязвимости позволяет противнику требовать и контролировать субдомен жертвы. Эта атака опирается на следующее:
 
-1. The victim's external DNS server subdomain record is configured to point to a non-existing or non-active resource/external service/endpoint. The proliferation of XaaS (Anything as a Service) products and public cloud services offer a lot of potential targets to consider.
-2. The service provider hosting the resource/external service/endpoint does not handle subdomain ownership verification properly.
+1. Внешняя запись поддомена DNS-сервера жертвы настроена так, чтобы указывать на несуществующий или неактивный ресурс / внешнюю службу / конечную точку. Распространение продуктов XaaS (Anything as a Service) и общедоступных облачных сервисов предлагает множество потенциальных целей для рассмотрения.
+2. Поставщик услуг, размещающий ресурс / внешнюю службу / конечную точку, не обрабатывает проверку владения субдоменом должным образом.
 
-If the subdomain takeover is successful a wide variety of attacks are possible (serving malicious content, phising, stealing user session cookies, credentials, etc.). This vulnerability could be exploited for a wide variety of DNS resource records including: `A`, `CNAME`, `MX`, `NS`, `TXT` etc. In terms of the attack severity an `NS` subdomain takeover (although less likely) has the highest impact because a successful attack could result in full control over the whole DNS zone and  the victim's domain.
+Если поглощение поддомена является успешным, возможны самые разные атаки (обслуживание вредоносного контента, физинг, кража файлов cookie сеанса пользователя, учетных данных и т. Д.).). Эта уязвимость может быть использована для самых разных записей ресурсов DNS, включая: `A`, `CNAME`, `MX`, `NS`, `TXT` и т. Д. С точки зрения серьезности атаки поглощение субдомена «NS» (хотя и менее вероятно) оказывает наибольшее влияние, поскольку успешная атака может привести к полному контролю всей зоны DNS и домена жертвы.
 
 ### GitHub
 
-1. The victim (victim.com) uses GitHub for development and configured a DNS record (`coderepo.victim.com`) to access it.
-2. The victim decides to migrate their code repository from GitHub to a commercial platform and does not remove `coderepo.victim.com` from their DNS server.
-3. An adversary finds out that `coderepo.victim.com` is hosted on GitHub and uses GitHub Pages to claim `coderepo.victim.com` using their GitHub account.
+1. Жертва (victim.com) использует GitHub для разработки и настроила запись DNS (`coderepo.victim.com`) для доступа к ней.
+2. Жертва решает перенести свой репозиторий кода из GitHub на коммерческую платформу и не удаляет `coderepo.victim.com` со своего DNS-сервера.
+3. Противник узнает, что `coderepo.victim.com` размещен на GitHub и использует GitHub Pages для получения `coderepo.victim.com` с помощью своей учетной записи GitHub.
 
-### Expired Domain
+### Истекший домен
 
-1. The victim (victim.com) owns another domain (victimotherdomain.com) and uses a CNAME record (www) to reference the other domain (`www.victim.com` --> `victimotherdomain.com`)
-2. At some point, victimotherdomain.com expires and is available for registration by anyone. Since the CNAME record is not deleted from the victim.com DNS zone, anyone who registers `victimotherdomain.com` has full control over `www.victim.com` until the DNS record is present.
+1. Жертва (victim.com) владеет другим доменом (victimotherdomain.com) и использует запись CNAME (www) для ссылки на другой домен (`www.victim.com` -> `victimotherdomain.com`)
+2. В какой-то момент срок действия victivotherdomain.com истекает и доступен для регистрации любому. Поскольку запись CNAME не удаляется из зоны DNS viction.com, любой, кто регистрирует `victimotherdomain.com`, имеет полный контроль над `www.victim.com` до появления записи DNS.
 
-## Test Objectives
+## Цели теста
 
-- Enumerate all possible domains (previous and current).
-- Identify forgotten or misconfigured domains.
+- Перечислите все возможные домены (предыдущие и текущие).
+- Определите забытые или неправильно настроенные домены.
 
-## How to Test
+## Как проверить
 
-### Black-Box Testing
+### Тестирование черного ящика
 
-The first step is to enumerate the victim DNS servers and resource records. There are multiple ways to accomplish this task, for example DNS enumeration using a list of common subdomains dictionary, DNS brute force or using web search engines and other OSINT data sources.
+Первым шагом является подсчет DNS-серверов жертвы и записей ресурсов. Существует несколько способов выполнения этой задачи, например, подсчет DNS с использованием списка общих словарей поддоменов, грубой силы DNS или с помощью поисковых систем в Интернете и других источников данных OSINT.
 
-Using the dig command the tester looks for the following DNS server response messages that warrant further investigation:
+Используя команду dig, тестер ищет следующие сообщения ответа DNS-сервера, которые требуют дальнейшего расследования:
 
 - `NXDOMAIN`
 - `SERVFAIL`
 - `REFUSED`
 - `no servers could be reached.`
 
-#### Testing DNS A, CNAME Record Subdomain Takeover
+#### Тестирование DNS A, CNAME Record Subdomain Takeover
 
-Perform a basic DNS enumeration on the victim's domain (`victim.com`) using `dnsrecon`:
+Выполните базовую инвентаризацию DNS в домене жертвы (`victim.com`), используя `dnsrecon` :
 
 ```bash
 $ ./dnsrecon.py -d victim.com
@@ -56,7 +56,7 @@ $ ./dnsrecon.py -d victim.com
 ...
 ```
 
-Identify which DNS resource records are dead and point to inactive/not-used services. Using the dig command for the `CNAME` record:
+Определите, какие записи ресурсов DNS мертвы, и укажите на неактивные / неиспользуемые сервисы. Использование команды dig для записи `CNAME`:
 
 ```bash
 $ dig CNAME fictioussubdomain.victim.com
@@ -67,16 +67,16 @@ $ dig CNAME fictioussubdomain.victim.com
 ;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
 ```
 
-The following DNS responses warrant further investigation: `NXDOMAIN`.
+Следующие ответы DNS требуют дальнейшего расследования: `NXDOMAIN`.
 
-To test the `A` record the tester performs a whois database lookup and identifies GitHub as the service provider:
+Чтобы протестировать запись `A`, тестер выполняет поиск базы данных whois и идентифицирует GitHub как поставщика услуг :
 
 ```bash
 $ whois 192.30.252.153 | grep "OrgName"
 OrgName: GitHub, Inc.
 ```
 
-The tester visits `subdomain.victim.com` or issues a HTTP GET request which returns a "404 - File not found" response which is a clear indication of the vulnerability.
+Тестер посещает `subdomain.victim.com` или выдает запрос HTTP GET, который возвращает ответ «404 - файл не найден», который является четким признаком уязвимости.
 
 ![GitHub 404 File Not Found response](images/subdomain_takeover_ex1.jpeg)\
 *Figure 4.2.10-1: GitHub 404 File Not Found response*
@@ -86,9 +86,9 @@ The tester claims the domain using GitHub Pages:
 ![GitHub claim domain](images/subdomain_takeover_ex2.jpeg)\
 *Figure 4.2.10-2: GitHub claim domain*
 
-#### Testing NS Record Subdomain Takeover
+#### Тестирование поглощения субдомена NS Record
 
-Identify all nameservers for the domain in scope:
+Определите все серверы имен для домена в области:
 
 ```bash
 $ dig ns victim.com +short
@@ -96,17 +96,17 @@ ns1.victim.com
 nameserver.expireddomain.com
 ```
 
-In this fictious example the tester checks if the domain `expireddomain.com` is active with a domain registrar search. If the domain is available for purchase the subdomain is vulnerable.
+В этом вымышленном примере тестер проверяет, активен ли домен `expireddomain.com` с помощью поиска регистратора домена. Если домен доступен для покупки, поддомен уязвим.
 
-The following DNS responses warrant further investigation: `SERVFAIL` or `REFUSED`.
+Следующие ответы DNS требуют дальнейшего расследования: `SERVFAIL` or `REFUSED`.
 
-### Gray-Box Testing
+### Тестирование серой коробки
 
-The tester has the DNS zone file available which means DNS enumeration is not necessary. The testing methodology is the same.
+Тестер имеет файл зоны DNS, что означает, что подсчет DNS не требуется. Методология тестирования одинакова.
 
-## Remediation
+## Восстановление
 
-To mitigate the risk of subdomain takeover the vulnerable DNS resource record(s) should be removed from the DNS zone. Continous monitoring and periodic checks are recommended as best practice.
+Чтобы снизить риск поглощения субдомена, уязвимая запись (и) DNS-ресурса должна быть удалена из зоны DNS. Постоянный мониторинг и периодические проверки рекомендуются в качестве наилучшей практики.
 
 ## Tools
 
