@@ -1,79 +1,79 @@
-# Testing Directory Traversal File Include
+# Тестирование каталога Traversal File Include
 
-|ID          |
-|------------|
-|WSTG-ATHZ-01|
+| ID |
+| ------------- |
+| WSTG-ATHZ-01 |
 
-## Summary
+## Резюме
 
-Many web applications use and manage files as part of their daily operation. Using input validation methods that have not been well designed or deployed, an aggressor could exploit the system in order to read or write files that are not intended to be accessible. In particular situations, it could be possible to execute arbitrary code or system commands.
+Многие веб-приложения используют и управляют файлами как часть своей повседневной работы. Используя методы проверки ввода, которые не были хорошо разработаны или развернуты, агрессор может использовать систему для чтения или записи файлов, которые не предназначены для доступности. В определенных ситуациях может быть возможно выполнить произвольный код или системные команды.
 
-Traditionally, web servers and web applications implement authentication mechanisms to control access to files and resources. Web servers try to confine users' files inside a "root directory" or "web document root", which represents a physical directory on the file system. Users have to consider this directory as the base directory into the hierarchical structure of the web application.
+Традиционно веб-серверы и веб-приложения реализуют механизмы аутентификации для контроля доступа к файлам и ресурсам. Веб-серверы пытаются ограничить файлы пользователей в «корневом каталоге» или «корневом веб-документе», который представляет физический каталог в файловой системе. Пользователи должны рассматривать этот каталог как базовый каталог в иерархической структуре веб-приложения.
 
-The definition of the privileges is made using Access Control Lists (ACL) which identify which users or groups are supposed to be able to access, modify, or execute a specific file on the server. These mechanisms are designed to prevent malicious users from accessing sensitive files (for example, the common `/etc/passwd` file on a UNIX-like platform) or to avoid the execution of system commands.
+Определение привилегий производится с использованием списков контроля доступа (ACL), которые определяют, какие пользователи или группы должны иметь доступ, изменять или выполнять определенный файл на сервере. Эти механизмы предназначены для предотвращения доступа вредоносных пользователей к конфиденциальным файлам (например, общим `/etc/passwd` файл на UNIX-подобной платформе) или во избежание выполнения системных команд.
 
-Many web applications use server-side scripts to include different kinds of files. It is quite common to use this method to manage images, templates, load static texts, and so on. Unfortunately, these applications expose security vulnerabilities if input parameters (i.e., form parameters, cookie values) are not correctly validated.
+Многие веб-приложения используют серверные сценарии для включения различных типов файлов. Этот метод довольно часто используется для управления изображениями, шаблонами, загрузкой статических текстов и так далее. К сожалению, эти приложения обнаруживают уязвимости безопасности при вводе параметров (т.е.параметры формы, значения cookie) не проверены правильно.
 
-In web servers and web applications, this kind of problem arises in path traversal/file include attacks. By exploiting this kind of vulnerability, an attacker is able to read directories or files which they normally couldn't read, access data outside the web document root, or include scripts and other kinds of files from external websites.
+На веб-серверах и веб-приложениях такая проблема возникает при переходах пути / включении файлов. Используя этот вид уязвимости, злоумышленник может читать каталоги или файлы, которые он обычно не может прочитать, получать доступ к данным за пределами корня веб-документа или включать сценарии и другие виды файлов с внешних веб-сайтов.
 
-For the purpose of the OWASP Testing Guide, only the security threats related to web applications will be considered and not threats to web servers (e.g., the infamous `%5c` escape code into Microsoft IIS web server). Further reading suggestions will be provided in the references section for interested readers.
+Для целей Руководства по тестированию OWASP будут рассматриваться только угрозы безопасности, связанные с веб-приложениями, а не угрозы веб-серверам (например,.печально известный код выхода "% 5c" на веб-сервере Microsoft IIS). Дополнительные предложения по чтению будут представлены в разделе ссылок для заинтересованных читателей.
 
-This kind of attack is also known as the dot-dot-slash attack (`../`), directory traversal, directory climbing, or backtracking.
+Этот вид атаки также известен как атака точка-точка-косая черта (`../ `), пересечение каталогов, скалолазание или обратный путь.
 
-During an assessment, to discover path traversal and file include flaws, testers need to perform two different stages:
+Во время оценки, чтобы обнаружить путь прохождения и файл, включите недостатки, тестировщики должны выполнить два разных этапа:
 
-1. Input Vectors Enumeration (a systematic evaluation of each input vector)
-2. Testing Techniques (a methodical evaluation of each attack technique used by an attacker to exploit the vulnerability)
+1. Перечень векторов ввода (систематическая оценка каждого входного вектора)
+2. Методы тестирования (методическая оценка каждой техники атаки, используемой злоумышленником для использования уязвимости)
 
-## Test Objectives
+## Цели теста
 
-- Identify injection points that pertain to path traversal.
-- Assess bypassing techniques and identify the extent of path traversal.
+- Определите точки инъекции, которые относятся к пересечению пути.
+- Оцените методы обхода и определите степень прохождения пути.
 
-## How to Test
+## Как проверить
 
-### Black-Box Testing
+### Тестирование черного ящика
 
 #### Input Vectors Enumeration
 
-In order to determine which part of the application is vulnerable to input validation bypassing, the tester needs to enumerate all parts of the application that accept content from the user. This also includes HTTP GET and POST queries and common options like file uploads and HTML forms.
+Чтобы определить, какая часть приложения уязвима для обхода проверки ввода, тестер должен перечислить все части приложения, которые принимают контент от пользователя. Это также включает в себя HTTP GET и POST запросы и общие параметры, такие как загрузка файлов и HTML-формы.
 
-Here are some examples of the checks to be performed at this stage:
+Вот несколько примеров проверок, которые будут выполнены на данном этапе:
 
-- Are there request parameters which could be used for file-related operations?
-- Are there unusual file extensions?
-- Are there interesting variable names?
+- Существуют ли параметры запроса, которые можно использовать для операций, связанных с файлами?
+- Есть ли необычные расширения файлов?
+- Есть ли интересные имена переменных?
     - `http://example.com/getUserProfile.jsp?item=ikki.html`
     - `http://example.com/index.php?file=content`
     - `http://example.com/main.cgi?home=index.htm`
-- Is it possible to identify cookies used by the web application for the dynamic generation of pages or templates?
+- Можно ли идентифицировать файлы cookie, используемые веб-приложением для динамического создания страниц или шаблонов?
     - `Cookie: ID=d9ccd3f4f9f18cc1:TM=2166255468:LM=1162655568:S=3cFpqbJgMSSPKVMV:TEMPLATE=flower`
     - `Cookie: USER=1826cc8f:PSTYLE=GreenDotRed`
 
-#### Testing Techniques
+#### Методы тестирования
 
-The next stage of testing is analyzing the input validation functions present in the web application. Using the previous example, the dynamic page called `getUserProfile.jsp` loads static information from a file and shows the content to users. An attacker could insert the malicious string `../../../../etc/passwd` to include the password hash file of a Linux/UNIX system. Obviously, this kind of attack is possible only if the validation checkpoint fails; according to the file system privileges, the web application itself must be able to read the file.
+Следующим этапом тестирования является анализ функций проверки входных данных, присутствующих в веб-приложении. Используя предыдущий пример, динамическая страница с именем `getUserProfile.jsp` загружает статическую информацию из файла и показывает содержимое пользователям. Злоумышленник может вставить вредоносную строку `../../../../etc/passwd` включить хэш-файл пароля системы Linux / UNIX. Очевидно, что такого рода атака возможна только в случае сбоя контрольной точки проверки; в соответствии с привилегиями файловой системы само веб-приложение должно иметь возможность читать файл.
 
-**Note:** To successfully test for this flaw, the tester needs to have knowledge of the system being tested and the location of the files being requested. There is no point requesting `/etc/passwd` from an IIS web server.
+**Note:** Чтобы успешно проверить этот недостаток, тестер должен знать, какая система тестируется и где запрашиваются файлы. Нет смысла запрашивать `/etc/passwd` с веб-сервера IIS.
 
 ```text
 http://example.com/getUserProfile.jsp?item=../../../../etc/passwd
 ```
 
-Another common example is including content from an external source:
+Другой распространенный пример - включение контента из внешнего источника:
 
 ```text
 http://example.com/index.php?file=http://www.owasp.org/malicioustxt
 ```
 
-The same can be applied to cookies or any other input vector that is used for dynamic page generation.
+То же самое можно применить к файлам cookie или любому другому входному вектору, который используется для динамического создания страниц.
 
-More file inclusion payloads can be found at [PayloadsAllTheThings - File Inclusion](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/File%20Inclusion)
+Больше полезных нагрузок включения файла можно найти по адресу [PayloadsAllTheThings - File Inclusion](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/File%20Inclusion)
 
-It is important to note that different operating systems use different path separators
+Важно отметить, что разные операционные системы используют разные разделители путей
 
-- Unix-like OS:
-    - root directory: `/`
+- Unix-подобная ОС :
+    - корневой каталог: `/`
     - directory separator: `/`
 - Windows OS:
     - root directory: `<drive letter>:`
@@ -82,17 +82,17 @@ It is important to note that different operating systems use different path sepa
     - root directory: `<drive letter>:`
     - directory separator: `:`
 
-It's a common mistake by developers to not expect every form of encoding and therefore only do validation for basic encoded content. If at first the test string isn't successful, try another encoding scheme.
+Разработчики часто не ожидают, что все формы кодирования будут выполняться, и поэтому проводят проверку только для основного закодированного контента. Если сначала тестовая строка не удалась, попробуйте другую схему кодирования.
 
-You can find encoding techniques and ready to use directory traversal payloads at [PayloadsAllTheThings - Directory Traversal](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Directory%20Traversal)
+Вы можете найти методы кодирования и готовые к использованию полезные нагрузки для обхода каталогов [PayloadsAllTheThings - Directory Traversal](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Directory%20Traversal)
 
-#### Windows Specific Considerations
+#### Особые соображения Windows
 
-- Windows shell: Appending any of the following to paths used in a shell command results in no difference in function:
-    - Angle brackets `<` and `>` at the end of the path
-    - Double quotes (closed properly) at the end of the path
-    - Extraneous current directory markers such as `./` or `.\\`
-    - Extraneous parent directory markers with arbitrary items that may or may not exist:
+- Оболочка Windows: добавление любого из следующего к путям, используемым в команде оболочки, не приводит к разнице в функции:
+    - Угловые скобки `<` и `> `в конце пути
+    - Двойные кавычки (закрыты правильно) в конце пути
+    - Посторонние маркеры текущего каталога, такие как `./` or `.\\`
+    - Посторонние маркеры родительских каталогов с произвольными элементами, которые могут существовать или не существовать:
         - `file.txt`
         - `file.txt...`
         - `file.txt<spaces>`
@@ -100,39 +100,39 @@ You can find encoding techniques and ready to use directory traversal payloads a
         - `file.txt<<<>>><`
         - `./././file.txt`
         - `nonexistant/../file.txt`
-- Windows API: The following items are discarded when used in any shell command or API call where a string is taken as a filename:
-    - periods
-    - spaces
-- Windows UNC Filepaths: Used to reference files on SMB shares. Sometimes, an application can be made to refer to files on a remote UNC filepath. If so, the Windows SMB server may send stored credentials to the attacker, which can be captured and cracked. These may also be used with a self-referential IP address or domain name to evade filters, or used to access files on SMB shares inaccessible to the attacker, but accessible from the web server.
+- Windows API: следующие элементы отбрасываются при использовании в любой команде оболочки или вызове API, где строка берется в качестве имени файла:
+    - периоды
+    - пробелы
+- Filepaths Windows UNC: используется для ссылок на файлы на акции SMB. Иногда можно подать заявку на обращение к файлам на удаленном пути к файлу UNC. Если это так, SMB-сервер Windows может отправлять сохраненные учетные данные злоумышленнику, которые могут быть захвачены и взломаны. Они также могут использоваться с самореферентным IP-адресом или доменным именем для уклонения от фильтров или использоваться для доступа к файлам на общих долях SMB, недоступных злоумышленнику, но доступных с веб-сервера.
     - `\\server_or_ip\path\to\file.abc`
     - `\\?\server_or_ip\path\to\file.abc`
-- Windows NT Device Namespace: Used to refer to the Windows device namespace. Certain references will allow access to file systems using a different path.
-    - May be equivalent to a drive letter such as `c:\`, or even a drive volume without an assigned letter: `\\.\GLOBALROOT\Device\HarddiskVolume1\`
-    - Refers to the first disc drive on the machine: `\\.\CdRom0\`
+- Пространство имен устройств Windows NT: используется для ссылки на пространство имен устройств Windows. Некоторые ссылки позволят получить доступ к файловым системам по другому пути.
+    - Может быть эквивалентно букве диска, такой как `c:\`, или даже громкость диска без назначенной буквы : `\\.\GLOBALROOT\Device\HarddiskVolume1\`
+    - Относится к первому дисководу на машине : `\\.\CdRom0\`
 
-### Gray-Box Testing
+### Тестирование серой коробки
 
-When the analysis is performed with a gray-box testing approach, testers have to follow the same methodology as in black-box testing. However, since they can review the source code, it is possible to search the input vectors more easily and accurately. During a source code review, they can use simple tools (such as the *grep* command) to search for one or more common patterns within the application code: inclusion functions/methods, filesystem operations, and so on.
+Когда анализ выполняется с использованием подхода тестирования «серый ящик», тестировщики должны следовать той же методологии, что и при тестировании «черный ящик». Однако, поскольку они могут просматривать исходный код, можно легче и точнее искать входные векторы. Во время проверки исходного кода они могут использовать простые инструменты (такие как *grep* команда) для поиска одного или нескольких распространенных шаблонов в коде приложения: функции / методы включения, операции файловой системы и т. д.
 
 - `PHP: include(), include_once(), require(), require_once(), fopen(), readfile(), ...`
 - `JSP/Servlet: java.io.File(), java.io.FileReader(), ...`
 - `ASP: include file, include virtual, ...`
 
-Using online code search engines (e.g., [Searchcode](https://searchcode.com/)), it may also be possible to find path traversal flaws in Open Source software published on the Internet.
+Исползоване посковы систем онлайн-кода (например,., [Searchcode] (https://searchcode.com/)), также может быть возможно найти недостатки пути пересечения в программном обеспечении с открытым исходным кодом, опубликованном в Интернете.
 
-For PHP, testers can use the following regex:
+Для PHP тестеры могут использовать следующий регулярное выражение:
 
 ```text
 (include|require)(_once)?\s*['"(]?\s*\$_(GET|POST|COOKIE)
 ```
 
-Using the gray-box testing method, it is possible to discover vulnerabilities that are usually harder to discover, or even impossible to find during a standard black-box assessment.
+Используя метод тестирования «серых ящиков», можно обнаружить уязвимости, которые обычно труднее обнаружить или даже невозможно найти во время стандартной оценки «черных ящиков».
 
-Some web applications generate dynamic pages using values and parameters stored in a database. It may be possible to insert specially crafted path traversal strings when the application adds data to the database. This kind of security problem is difficult to discover due to the fact the parameters inside the inclusion functions seem internal and **safe** but are not in reality.
+Некоторые веб-приложения генерируют динамические страницы, используя значения и параметры, хранящиеся в базе данных. Может быть возможно вставить специально созданные строки обхода пути, когда приложение добавляет данные в базу данных. Такого рода проблему безопасности трудно обнаружить из-за того, что параметры внутри функций включения кажутся внутренними и **safe** но не в реальности.
 
-Additionally, by reviewing the source code it is possible to analyze the functions that are supposed to handle invalid input: some developers try to change invalid input to make it valid, avoiding warnings and errors. These functions are usually prone to security flaws.
+Кроме того, просматривая исходный код, можно проанализировать функции, которые должны обрабатывать недопустимый ввод: некоторые разработчики пытаются изменить недопустимый ввод, чтобы сделать его действительным, избегая предупреждений и ошибок. Эти функции обычно подвержены недостаткам безопасности.
 
-Consider a web application with these instructions:
+Рассмотрим веб-приложение с этими инструкциями:
 
 ```php
 filename = Request.QueryString("file");
@@ -140,7 +140,7 @@ Replace(filename, "/","\");
 Replace(filename, "..\","");
 ```
 
-Testing for the flaw is achieved by:
+Тестирование на недостаток достигается с помощью:
 
 ```text
 file=....//....//boot.ini
