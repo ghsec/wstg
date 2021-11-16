@@ -1,40 +1,40 @@
-# Test Account Provisioning Process
+# Процесс предоставления тестовой учетной записи
 
-|ID          |
-|------------|
-|WSTG-IDNT-03|
+| ID |
+| ------------- |
+| WSTG-IDNT-03 |
 
-## Summary
+## Резюме
 
-The provisioning of accounts presents an opportunity for an attacker to create a valid account without application of the proper identification and authorization process.
+Предоставление учетных записей дает возможность злоумышленнику создать действительную учетную запись без применения надлежащего процесса идентификации и авторизации.
 
-## Test Objectives
+## Цели теста
 
-- Verify which accounts may provision other accounts and of what type.
+- Проверьте, какие учетные записи могут предоставлять другие учетные записи и какого типа.
 
-## How to Test
+## Как проверить
 
-Determine which roles are able to provision users and what sort of accounts they can provision.
+Определите, какие роли могут предоставлять пользователи и какие учетные записи они могут предоставлять.
 
-- Is there any verification, vetting and authorization of provisioning requests?
-- Is there any verification, vetting and authorization of de-provisioning requests?
-- Can an administrator provision other administrators or just users?
-- Can an administrator or other user provision accounts with privileges greater than their own?
-- Can an administrator or user de-provision themselves?
-- How are the files or resources owned by the de-provisioned user managed? Are they deleted? Is access transferred?
+- Есть ли какая-либо проверка, проверка и авторизация запросов на предоставление?
+- Есть ли какая-либо проверка, проверка и авторизация запросов на отмену предоставления?
+- Может ли администратор предоставить других администраторов или просто пользователей?
+- Может ли администратор или другие учетные записи пользователей предоставлять привилегии, превышающие их собственные?
+- Может ли администратор или пользователь отменить предоставление самостоятельно?
+- Как управляются файлы или ресурсы, принадлежащие недоказанному пользователю? Они удалены? Доступ передается?
 
-### Example
+### Пример
 
-In WordPress, only a user's name and email address are required to provision the user, as shown below:
+В WordPress для предоставления пользователю требуются только имя пользователя и адрес электронной почты, как показано ниже:
 
 ![WordPress User Add](images/Wordpress_useradd.png)\
 *Figure 4.3.3-1: WordPress User Add*
 
-De-provisioning of users requires the administrator to select the users to be de-provisioned, select Delete from the dropdown menu (circled) and then applying this action. The administrator is then presented with a dialog box asking what to do with the user's posts (delete or transfer them).
+Для удаления из положения пользователей требуется, чтобы администратор выбрал пользователей, которые должны быть исключены из программы, выбрал «Удалить» в раскрывающемся меню (обведено кружками) и затем применил это действие. Затем администратору предоставляется диалоговое окно с вопросом, что делать с сообщениями пользователя (удалить или перенести их).
 
 ![WordPress Auth and Users](images/Wordpress_authandusers.png)\
 *Figure 4.3.3-2: WordPress Auth and Users*
 
-## Tools
+## Инструменты
 
-While the most thorough and accurate approach to completing this test is to conduct it manually, HTTP proxy tools could be also useful.
+Хотя наиболее тщательный и точный подход к завершению этого теста заключается в проведении его вручную, инструменты HTTP-прокси также могут быть полезны.
