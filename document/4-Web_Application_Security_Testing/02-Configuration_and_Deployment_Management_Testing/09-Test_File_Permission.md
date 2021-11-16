@@ -1,41 +1,41 @@
-# Test File Permission
+# Разрешение тестового файла
 
-|ID          |
-|------------|
-|WSTG-CONF-09|
+| ID |
+| ------------- |
+| WSTG-CONF-09 |
 
-## Summary
+## Резюме
 
-When a resource is given a permissions setting that provides access to a wider range of actors than required, it could lead to the exposure of sensitive information, or the modification of that resource by unintended parties. This is especially dangerous when the resource is related to program configuration, execution, or sensitive user data.
+Когда ресурсу присваивается настройка разрешений, которая обеспечивает доступ к более широкому кругу участников, чем требуется, это может привести к раскрытию конфиденциальной информации или изменению этого ресурса непреднамеренными сторонами. Это особенно опасно, когда ресурс связан с конфигурацией программы, выполнением или конфиденциальными пользовательскими данными.
 
-A clear example is an execution file that is executable by unauthorized users. For another example, account information or a token value to access an API - increasingly seen in modern web services or microservices - may be stored in a configuration file whose permissions are set to world-readable from the installation by default. Such sensitive data can be exposed by internal malicious actors of the host or by a remote attacker who compromised the service with other vulnerabilities but obtained only a normal user privilege.
+Ярким примером является файл выполнения, который может быть выполнен неавторизованными пользователями. В другом примере информация об учетной записи или значение токена для доступа к API - все чаще встречающемуся в современных веб-сервисах или микросервисах - может храниться в файле конфигурации, разрешения которого по умолчанию устанавливаются на мировоззрение из установки. Такие конфиденциальные данные могут быть обнаружены внутренними злоумышленниками хоста или удаленным злоумышленником, который скомпрометировал службу с другими уязвимостями, но получил только обычные привилегии пользователя.
 
-## Test Objectives
+## Цели теста
 
-- Review and identify any rogue file permissions.
+- Просмотрите и определите любые мошеннические разрешения для файлов.
 
-## How to Test
+## Как проверить
 
-In Linux, use `ls` command to check the file permissions. Alternatively, `namei` can also be used to recursively list file permissions.
+В Linux используйте команду `ls` для проверки прав на файл. Кроме того, `namei` также можно использовать для рекурсива перечисления разрешений файлов.
 
-`$ namei -l /PathToCheck/`
+`$ namei -l /PathToCheck/ `
 
-The files and directories that require file permission testing include but are not limited to:
+Файлы и каталоги, которые требуют тестирования разрешения файлов, включают, но не ограничиваются:
 
-- Web files/directory
-- Configuration files/directory
-- Sensitive files (encrypted data, password, key)/directory
-- Log files (security logs, operation logs, admin logs)/directory
-- Executables (scripts, EXE, JAR, class, PHP, ASP)/directory
-- Database files/directory
-- Temp files /directory
-- Upload files/directory
+- Веб-файлы / каталог
+- Конфигурация файлов / каталога
+- Чувствительные файлы (зашифрованные данные, пароль, ключ) / каталог
+- Файлы журналов (журналы безопасности, журналы операций, журналы администраторов) / каталог
+- Исполняемые файлы (сценарии, EXE, JAR, класс, PHP, ASP) / каталог
+- Файлы / каталог базы данных
+- Temp файлы / каталог
+- Загрузить файлы / каталог
 
-## Remediation
+## Восстановление
 
-Set the permissions of the files and directories properly so that unauthorized users cannot access critical resources unnecessarily.
+Правильно установите разрешения для файлов и каталогов, чтобы неавторизованные пользователи не могли без необходимости получать доступ к критически важным ресурсам.
 
-## Tools
+## Инструменты
 
 - [Windows AccessEnum](https://technet.microsoft.com/en-us/sysinternals/accessenum)
 - [Windows AccessChk](https://technet.microsoft.com/en-us/sysinternals/accesschk)
