@@ -1,40 +1,40 @@
-# Testing for Cross Site Request Forgery
+# Тестирование на подделку межсайтовых запросов
 
-|ID          |
-|------------|
-|WSTG-SESS-05|
+| ID |
+| ------------- |
+| WSTG-SESS-05 |
 
-## Summary
+## Резюме
 
-Cross-Site Request Forgery ([CSRF](https://owasp.org/www-community/attacks/csrf)) is an attack that forces an end user to execute unintended actions on a web application in which they are currently authenticated. With a little social engineering help (like sending a link via email or chat), an attacker may force the users of a web application to execute actions of the attacker's choosing. A successful CSRF exploit can compromise end user data and operation when it targets a normal user. If the targeted end user is the administrator account, a CSRF attack can compromise the entire web application.
+Кросс-сайт Запрос подделки ([CSRF](https://owasp.org/www-community/attacks/csrf)) это атака, которая заставляет конечного пользователя выполнять непреднамеренные действия в веб-приложении, в котором они в настоящее время аутентифицированы. С небольшой помощью социальной инженерии (например, отправка ссылки по электронной почте или в чате) злоумышленник может заставить пользователей веб-приложения выполнить действия по выбору злоумышленника. Успешный эксплойт CSRF может поставить под угрозу данные и работу конечного пользователя, когда он нацелен на нормального пользователя. Если целевой конечный пользователь является учетной записью администратора, атака CSRF может поставить под угрозу все веб-приложение.
 
-CSRF relies on:
+CSRF полагается на:
 
-1. Web browser behavior regarding the handling of session-related information such as cookies and HTTP authentication information.
-2. An attacker's knowledge of valid web application URLs, requests, or functionality.
-3. Application session management relying only on information known by the browser.
-4. Existence of HTML tags whose presence cause immediate access to an HTTP[S] resource; for example the image tag `img`.
+1. Поведение веб-браузера в отношении обработки информации, связанной с сеансом, такой как файлы cookie и информация аутентификации HTTP.
+2. Знаяние злоумышленником действительных URL-адресов, запросов или функций веб-приложений.
+3. Управление сеансом приложения, опираясь только на информацию, известную браузером.
+4. Наличие тегов HTML, присутствие которых вызывает немедленный доступ к ресурсу HTTP [S]; например, тег изображения `img`.
 
-Points 1, 2, and 3 are essential for the vulnerability to be present, while point 4 facilitates the actual exploitation, but is not strictly required.
+Пункты 1, 2 и 3 необходимы для присутствия уязвимости, в то время как пункт 4 облегчает фактическую эксплуатацию, но не является строго обязательным.
 
-1. Browsers automatically send information used to identify a user session. Suppose *site* is a site hosting a web application, and the user *victim* has just authenticated to *site*. In response, *site* sends *victim* a cookie that identifies requests sent by *victim* as belonging to *victim’s* authenticated session. Once the browser receives the cookie set by *site*, it will automatically send it along with any further requests directed to *site*.
-2. If the application does not make use of session-related information in URLs, then the application URLs, their parameters, and legitimate values may be identified. This may be accomplished by code analysis or by accessing the application and taking note of forms and URLs embedded in the HTML or JavaScript.
-3. "Known by the browser" refers to information such as cookies or HTTP-based authentication information (such as Basic Authentication and not form-based authentication), that are stored by the browser and subsequently present at each request directed towards an application area requesting that authentication. The vulnerabilities discussed next apply to applications that rely entirely on this kind of information to identify a user session.
+1. Браузеры автоматически отправляют информацию, используемую для идентификации пользовательского сеанса. Предположим, что * site * - это сайт, на котором размещено веб-приложение, а пользователь * victim * только что прошел аутентификацию на * site *. В ответ * site * отправляет * victim * cookie-файл, который идентифицирует запросы, отправленные * victim * как принадлежащие к аутентифицированному сеансу * victim *. Как только браузер получит cookie-файл, установленный * site *, он автоматически отправит его вместе с любыми дополнительными запросами, направленными на * site *.
+2. Если приложение не использует информацию, связанную с сеансом, в URL-адресах, то могут быть определены URL-адреса приложений, их параметры и законные значения. Это может быть достигнуто путем анализа кода или путем доступа к приложению и принятия к сведению форм и URL-адресов, встроенных в HTML или JavaScript.
+3. «Известный браузером» относится к такой информации, как файлы cookie или информация аутентификации на основе HTTP (например, базовая аутентификация, а не аутентификация на основе форм), которые хранятся браузером и впоследствии присутствуют при каждом запросе, направленном в область приложения, запрашивающую это. аутентификация. Обсуждаемые ниже уязвимости применяются к приложениям, которые полностью используют такую информацию для идентификации сеанса пользователя.
 
-For simplicity's sake, consider GET-accessible URLs (though the discussion applies as well to POST requests). If *victim* has already authenticated themselves, submitting another request causes the cookie to be automatically sent with it. The figure below illustrates the user accessing an application on `www.example.com`.
+Для простоты рассмотрите доступные для GET URL-адреса (хотя обсуждение относится и к запросам POST). Если * victim * уже аутентифицировался, отправка другого запроса приводит к автоматической отправке файла cookie вместе с ним. На рисунке ниже показан пользователь, имеющий доступ к приложению `www.example.com`.
 
 ![Session Riding](images/Session_riding.GIF)\
 *Figure 4.6.5-1: Session Riding*
 
-The GET request could be sent by the user in several different ways:
+Запрос GET может быть отправлен пользователем несколькими различными способами:
 
-- Using the web application
-- Typing the URL directly in the browser
-- Following an external link that points to the URL
+- Использование веб-приложения
+- Напечатывание URL прямо в браузере
+- По внешней ссылке, которая указывает на URL
 
-These invocations are indistinguishable by the application. In particular, the third may be quite dangerous. There are a number of techniques and vulnerabilities that can disguise the real properties of a link. The link can be embedded in an email message, appear in a malicious website to which the user is lured, or appear in content hosted by a third-party (such as another web site or HTML email) and point to a resource of the application. If the user clicks on the link, since they are already authenticated by the web application on *site*, the browser will issue a GET request to the web application, accompanied by authentication information (the session ID cookie). This results in a valid operation being performed on the web application that the user does not expect; for example, a funds transfer on a web banking application.
+Эти вызовы неразличимы приложением. В частности, третий может быть довольно опасным. Существует ряд методов и уязвимостей, которые могут маскировать реальные свойства ссылки. Ссылка может быть встроена в сообщение электронной почты, отображаться на вредоносном веб-сайте, на который заманивается пользователь, или отображаться в контенте, размещенном третьей стороной (например, на другом веб-сайте или в электронной почте HTML), и указывать на ресурс приложения. ,. Если пользователь нажимает на ссылку, поскольку они уже аутентифицированы веб-приложением на * сайте *, браузер выдает запрос GET в веб-приложение, сопровождаемый информацией аутентификации (файл cookie идентификатора сеанса). Это приводит к тому, что в веб-приложении выполняется действительная операция, которую пользователь не ожидает; например, перевод средств в приложение веб-банкинга.
 
-By using a tag such as `img`, as specified in point 4 above, it is not even necessary that the user follows a particular link. Suppose the attacker sends the user an email inducing them to visit a URL referring to a page containing the following (oversimplified) HTML.
+Используя тег, такой как `img`, как указано в пункте 4 выше, даже не обязательно, чтобы пользователь следовал по определенной ссылке. Предположим, что злоумышленник отправляет пользователю электронное письмо, побуждающее его посетить URL-адрес, ссылающийся на страницу, содержащую следующий (неусиленный) HTML-код
 
 ```html
 <html>
@@ -46,85 +46,85 @@ By using a tag such as `img`, as specified in point 4 above, it is not even nece
 </html>
 ```
 
-When the browser displays this page, it will try to display the specified zero-dimension (thus, invisible) image from `https://www.company.example` as well. This results in a request being automatically sent to the web application hosted on *site*. It is not important that the image URL does not refer to a proper image, as its presence will trigger the request `action` specified in the `src` field anyway. This happens provided that image download is not disabled in the browser. Most browsers do not have image downloads disabled since that would cripple most web applications beyond usability.
+Когда браузер отображает эту страницу, он попытается отобразить указанное изображение нулевого размера (таким образом, невидимое) `https://www.company.example` также. Это приводит к тому, что запрос автоматически отправляется в веб-приложение, размещенное на * сайте *. Не важно, чтобы URL-адрес изображения не ссылался на правильное изображение, поскольку его присутствие в любом случае вызовет запрос `action`, указанный в поле `src`. Это происходит при условии, что загрузка изображения не отключена в браузере. В большинстве браузеров загрузка изображений не отключена, поскольку это может нанести ущерб большинству веб-приложений, выходящих за рамки удобства использования.
 
-The problem here is a consequence of:
+Проблема здесь является следствием:
 
-- HTML tags on the page resulting in automatic HTTP request execution (`img` being one of those).
-- The browser having no way to tell that the resource referenced by `img` is not a legitimate image.
-- Image loading that happens regardless of the location of the alleged image source, i.e., the form and the image itself need not be located on the same host or even the same domain.
+- HTML-теги на странице, приводящие к автоматическому выполнению HTTP-запроса («img» является одним из них).
+- Браузер не может сказать, что ресурс, на который ссылается `img`, не является законным изображением.
+- Загрузка изображения, которая происходит независимо от местоположения предполагаемого источника изображения, т.е.форма и само изображение не должны находиться на одном хосте или даже в одном домене.
 
-The fact that HTML content unrelated to the web application may refer to components in the application, and the fact that the browser automatically composes a valid request towards the application, allows this kind of attack. There is no way to prohibit this behavior unless it is made impossible for the attacker to interact with application functionality.
+Тот факт, что HTML-контент, не связанный с веб-приложением, может относиться к компонентам в приложении, и тот факт, что браузер автоматически создает действительный запрос к приложению, допускает такого рода атаки. Невозможно запретить такое поведение, если злоумышленнику не будет невозможно взаимодействовать с функциональностью приложения.
 
-In integrated mail/browser environments, simply displaying an email message containing the image reference would result in the execution of the request to the web application with the associated browser cookie. Email messages may reference seemingly valid image URLs such as:
+В интегрированных средах почты / браузера простое отображение сообщения электронной почты, содержащего ссылку на изображение, приведет к выполнению запроса к веб-приложению с помощью соответствующего файла cookie браузера. Сообщения электронной почты могут ссылаться на, казалось бы, действительные URL-адреса изображений, такие как:
 
 ```html
 <img src="https://[attacker]/picture.gif" width="0" height="0">
 ```
 
-In this example, `[attacker]` is a site controlled by the attacker. By utilizing a redirect mechanism, the malicious site may use `http://[attacker]/picture.gif` to direct the victim to `http://[thirdparty]/action` and trigger the `action`.
+В этом примере `[атакующий] `- это сайт, контролируемый злоумышленником. Используя механизм перенаправления, вредоносный сайт может использовать `http://[attacker]/picture.gif` to направить жертву к `http://[thirdparty]/action` и запустить `action`.
 
-Cookies are not the only example involved in this kind of vulnerability. Web applications whose session information is entirely supplied by the browser are vulnerable too. This includes applications relying on HTTP authentication mechanisms alone, since the authentication information is known by the browser and is sent automatically upon each request. This does not include form-based authentication, which occurs just once and generates some form of session-related information, usually a cookie.
+Файлы cookie - не единственный пример, связанный с такой уязвимостью. Веб-приложения, информация о сеансе которых полностью предоставляется браузером, также уязвимы. Это включает приложения, использующие только механизмы аутентификации HTTP, поскольку информация аутентификации известна браузеру и отправляется автоматически по каждому запросу. Это не включает аутентификацию на основе форм, которая происходит только один раз и генерирует некоторую форму информации, связанной с сеансом, обычно cookie.
 
-Let’s suppose that the victim is logged on to a firewall web management console. To log in, a user has to authenticate themselves and session information is stored in a cookie.
+Предположим, что жертва вошла в консоль управления брандмауэром. Чтобы войти, пользователь должен аутентифицировать себя, а информация о сеансе хранится в файле cookie.
 
-Let's suppose the firewall web management console has a function that allows an authenticated user to delete a rule specified by its numerical ID, or all the rules in the configuration if the user specifies `*` (a dangerous feature in reality, but one that makes for a more interesting example). The delete page is shown next. Let’s suppose that the form – for the sake of simplicity – issues a GET request. To delete rule number one:
+Предположим, что консоль веб-управления брандмауэра имеет функцию, которая позволяет аутентифицированному пользователю удалять правило, указанное в его числовом идентификаторе, или все правила в конфигурации, если пользователь указывает `*` (опасная особенность в реальности, но тот, который делает для более интересного примера). Страница удаления отображается следующим образом. Предположим, что форма - для простоты - выдает запрос GET. Чтобы удалить правило номер один:
 
 ```text
 https://[target]/fwmgt/delete?rule=1
 ```
 
-To delete all rules:
+Чтобы удалить все правила:
 
 ```text
 https://[target]/fwmgt/delete?rule=*
 ```
 
-This example is intentionally naive, but shows in a simplified way the dangers of CSRF.
+Этот пример намеренно наивен, но в упрощенном виде показывает опасность CSRF
 
 ![Session Riding Firewall Management](images/Session_Riding_Firewall_Management.gif)\
 *Figure 4.6.5-2: Session Riding Firewall Management*
 
-Using the form pictured in the figure above, entering the value `*` and clicking the Delete button will submit the following GET request:
+Используя форму, изображенную на рисунке выше, введя значение `*` и нажав кнопку Удалить, вы отправите следующий запрос GET:
 
 ```text
 https://www.company.example/fwmgt/delete?rule=*
 ```
 
-This would delete all firewall rules.
+Это удалит все правила брандмауэра.
 
 ![Session Riding Firewall Management 2](images/Session_Riding_Firewall_Management_2.gif)\
 *Figure 4.6.5-3: Session Riding Firewall Management 2*
 
-The user might also have accomplished the same results by manually submitting the URL:
+Пользователь также мог достичь тех же результатов, отправив URL-адрес вручную
 
 ```text
 https://[target]/fwmgt/delete?rule=*
 ```
 
-Or by following a link pointing, directly or via a redirection, to the above URL. Or, again, by accessing an HTML page with an embedded `img` tag pointing to the same URL.
+Или перейдя по ссылке, направленной напрямую или через перенаправление на указанный выше URL. Или, опять же, путем доступа к HTML-странице со встроенным тегом `img`, указывающим на тот же URL
 
-In all of these cases, if the user is currently logged in to the firewall management application, the request will succeed and will modify the configuration of the firewall. One can imagine attacks targeting sensitive applications and making automatic auction bids, money transfers, orders, changing the configuration of critical software components, etc.
+Во всех этих случаях, если пользователь в данный момент вошел в приложение управления брандмауэром, запрос будет успешным и изменит конфигурацию брандмауэра. Можно представить атаки на чувствительные приложения и автоматические аукционные предложения, денежные переводы, заказы, изменение конфигурации критически важных программных компонентов и т. Д.
 
-An interesting thing is that these vulnerabilities may be exercised behind a firewall; i.e. it is sufficient that the link being attacked be reachable by the victim and not directly by the attacker. In particular, it can be any intranet web server; for example, in the firewall management scenario mentioned before, which is unlikely to be exposed to the Internet.
+Интересно, что эти уязвимости могут быть реализованы за брандмауэром; то есть. достаточно, чтобы атакованная связь была доступна жертве, а не непосредственно злоумышленнику. В частности, это может быть любой веб-сервер интрасети; например, в сценарии управления брандмауэром, упомянутом ранее, который вряд ли будет открыт для Интернета.
 
-Self-vulnerable applications, i.e. applications that are used both as attack vector and target (such as web mail applications), make things worse. Since users are logged in when they read their email messages, a vulnerable application of this type can allow attackers to perform actions such as deleting messages or sending messages that appear to originate from the victim.
+Самоуязвимые приложения, т.е. приложения, которые используются как вектор атаки, так и цель (например, приложения веб-почты), ухудшают ситуацию. Поскольку пользователи входят в систему при чтении своих сообщений электронной почты, уязвимое приложение этого типа может позволить злоумышленникам выполнять такие действия, как удаление сообщений или отправка сообщений, которые, по-видимому, происходят от жертвы.
 
-## Test Objectives
+## Цели теста
 
-- Determine whether it is possible to initiate requests on a user's behalf that are not initiated by the user.
+- Определите, возможно ли инициировать запросы от имени пользователя, которые не инициированы пользователем.
 
-## How to Test
+## Как проверить
 
-Audit the application to ascertain if its session management is vulnerable. If session management relies only on client-side values (information available to the browser), then the application is vulnerable. "Client-side values" refers to cookies and HTTP authentication credentials (Basic Authentication and other forms of HTTP authentication; not form-based authentication, which is an application-level authentication).
+Аудит приложения, чтобы выяснить, уязвимо ли его управление сессиями. Если управление сеансом зависит только от значений на стороне клиента (информация доступна для браузера), то приложение уязвимо. «Значения на стороне клиента» относятся к файлам cookie и учетным данным аутентификации HTTP (базовая аутентификация и другие формы аутентификации HTTP; не аутентификация на основе форм, которая является аутентификацией на уровне приложения).
 
-Resources accessible via HTTP GET requests are easily vulnerable, though POST requests can be automated via JavaScript and are vulnerable as well; therefore, the use of POST alone is not enough to correct the occurrence of CSRF vulnerabilities.
+Ресурсы, доступные через HTTP-запросы GET, легко уязвимы, хотя запросы POST могут быть автоматизированы через JavaScript и также уязвимы; следовательно, одного использования POST недостаточно для исправления появления уязвимостей CSRF.
 
-In case of POST, the following sample can be used.
+В случае POST можно использовать следующий образец.
 
-1. Create an HTML page similar to that shown below
-2. Host the HTML on a malicious or third-party site
-3. Send the link for the page to the victim(s) and induce them to click it.
+1. Создайте HTML-страницу, аналогичную показанной ниже
+2. Размещайте HTML на вредоносном или стороннем сайте
+3. Отправьте ссылку на страницу жертве (жертвам) и заставьте их щелкнуть по ней.
 
 ```html
 <html>
@@ -139,7 +139,7 @@ In case of POST, the following sample can be used.
 </html>
 ```
 
-In case of web applications in which developers are utilizing JSON for browser to server communication, a problem may arise with the fact that there are no query parameters with the JSON format, which are a must with self-submitting forms. To bypass this case, we can use a self-submitting form with JSON payloads including hidden input to exploit CSRF. We'll have to change the encoding type (`enctype`) to `text/plain` to ensure the payload is delivered as-is. The exploit code will look like the following:
+В случае веб-приложений, в которых разработчики используют JSON для связи между браузером и сервером, может возникнуть проблема с тем фактом, что нет параметров запроса с форматом JSON, которые являются обязательными для самостоятельной отправки форм. Чтобы обойти этот случай, мы можем использовать самоподдающуюся форму с полезными нагрузками JSON, включая скрытый вход, для использования CSRF. Нам придется изменить тип кодирования (`enctype`) на `text / plain`, чтобы гарантировать, что полезная нагрузка доставляется как есть. Код эксплойта будет выглядеть следующим образом:
 
 ```html
 <html>
@@ -153,7 +153,7 @@ In case of web applications in which developers are utilizing JSON for browser t
 </html>
 ```
 
-The POST request will be as follow:
+Запрос POST будет следующим:
 
 ```http
 POST / HTTP/1.1
@@ -163,11 +163,11 @@ Content-Type: text/plain
 {"name":"hacked","password":"hacked","padding":"=something"}
 ```
 
-When this data is sent as a POST request, the server will happily accept the name and password fields and ignore the one with the name padding as it does not need it.
+Когда эти данные отправляются в качестве запроса POST, сервер с радостью примет поля имени и пароля и проигнорирует поле с набивкой имени, поскольку оно ему не нужно.
 
-## Remediation
+## Восстановление
 
-- See the [OWASP CSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) for prevention measures.
+- Смотрите [OWASP CSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) для профилактических мероприятий.
 
 ## Tools
 
