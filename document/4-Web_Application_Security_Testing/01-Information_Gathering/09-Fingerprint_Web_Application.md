@@ -4,4 +4,4 @@
 |------------|
 |WSTG-INFO-09|
 
-This content has been merged into: [Fingerprint Web Application Framework](08-Fingerprint_Web_Application_Framework.md).
+Этот контент был объединен в: [Fingerprint Web Application Framework](08-Fingerprint_Web_Application_Framework.md).
