@@ -1,33 +1,33 @@
-# Test File Extensions Handling for Sensitive Information
+# Обработка расширений тестовых файлов для конфиденциальной информации
 
 |ID          |
 |------------|
 |WSTG-CONF-03|
 
-## Summary
+## Резюме
 
-File extensions are commonly used in web servers to easily determine which technologies, languages and plugins must be used to fulfill the web request. While this behavior is consistent with RFCs and Web Standards, using standard file extensions provides the penetration tester useful information about the underlying technologies used in a web appliance and greatly simplifies the task of determining the attack scenario to be used on particular technologies. In addition, mis-configuration of web servers could easily reveal confidential information about access credentials.
+Расширения файлов обычно используются на веб-серверах, чтобы легко определить, какие технологии, языки и плагины должны использоваться для выполнения веб-запроса. Хотя это поведение согласуется с RFC и веб-стандартами, использование стандартных расширений файлов предоставляет тестеру проникновения полезную информацию о базовых технологиях, используемых в веб-приборе, и значительно упрощает задачу определения сценария атаки, который будет использоваться на определенных технологиях. Кроме того, неправильная конфигурация веб-серверов может легко раскрыть конфиденциальную информацию о учетных данных доступа.
 
-Extension checking is often used to validate files to be uploaded, which can lead to unexpected results because the content is not what is expected, or because of unexpected OS filename handling.
+Проверка расширения часто используется для проверки загружаемых файлов, что может привести к неожиданным результатам, поскольку содержание не соответствует ожидаемому, или из-за неожиданной обработки имени файла ОС.
 
-Determining how web servers handle requests corresponding to files having different extensions may help in understanding web server behavior depending on the kind of files that are accessed. For example, it can help to understand which file extensions are returned as text or plain versus those that cause server-side execution. The latter are indicative of technologies, languages or plugins that are used by web servers or application servers, and may provide additional insight on how the web application is engineered. For example, a ".pl" extension is usually associated with server-side Perl support. However, the file extension alone may be deceptive and not fully conclusive. For example, Perl server-side resources might be renamed to conceal the fact that they are indeed Perl related. See the next section on "web server components" for more on identifying server-side technologies and components.
+Определение того, как веб-серверы обрабатывают запросы, соответствующие файлам с разными расширениями, может помочь в понимании поведения веб-сервера в зависимости от типа файлов, к которым осуществляется доступ. Например, это может помочь понять, какие расширения файлов возвращаются как текстовые или простые по сравнению с теми, которые вызывают выполнение на стороне сервера. Последние указывают на технологии, языки или плагины, которые используются веб-серверами или серверами приложений, и могут дать дополнительное представление о том, как разрабатывается веб-приложение. Например, расширение «.pl» обычно связано с поддержкой Perl на стороне сервера. Однако одно расширение файла может быть обманчивым и не полностью убедительным. Например, ресурсы на стороне сервера Perl могут быть переименованы, чтобы скрыть тот факт, что они действительно связаны с Perl. См. Следующий раздел «Компоненты веб-сервера», чтобы узнать больше об идентификации технологий и компонентов на стороне сервера.
 
-## Test Objectives
+## Цели теста
 
-- Dirbust sensitive file extensions, or extensions that might contain raw data (*e.g.* scripts, raw data, credentials, etc.).
-- Validate that no system framework bypasses exist on the rules set.
+- Дирбуст-чувствительные расширения файлов или расширения, которые могут содержать необработанные данные (* например,.* сценарии, необработанные данные, учетные данные и т. д.).
+- Убедитесь, что в установленных правилах не существует обходов системной структуры.
 
-## How to Test
+## Как проверить
 
-### Forced Browsing
+### Принудительный просмотр
 
-Submit requests with different file extensions and verify how they are handled. The verification should be on a per web directory basis. Verify directories that allow script execution. Web server directories can be identified by scanning tools which look for the presence of well-known directories. In addition, mirroring the web site structure allows the tester to reconstruct the tree of web directories served by the application.
+Отправляйте запросы с различными расширениями файлов и проверяйте, как они обрабатываются. Проверка должна проводиться для каждого веб-каталога. Проверьте каталоги, которые позволяют выполнение скрипта. Каталоги веб-сервера можно идентифицировать с помощью инструментов сканирования, которые ищут наличие известных каталогов. Кроме того, зеркалирование структуры веб-сайта позволяет тестеру реконструировать дерево веб-каталогов, обслуживаемых приложением.
 
-If the web application architecture is load-balanced, it is important to assess all of the web servers. This may or may not be easy, depending on the configuration of the balancing infrastructure. In an infrastructure with redundant components there may be slight variations in the configuration of individual web or application servers. This may happen if the web architecture employs heterogeneous technologies (think of a set of IIS and Apache web servers in a load-balancing configuration, which may introduce slight asymmetric behavior between them, and possibly different vulnerabilities).
+Если архитектура веб-приложений сбалансирована по нагрузке, важно оценить все веб-серверы. Это может быть или не быть легко, в зависимости от конфигурации балансирующей инфраструктуры. В инфраструктуре с избыточными компонентами могут быть небольшие изменения в конфигурации отдельных веб-серверов или серверов приложений. Это может произойти, если в веб-архитектуре используются гетерогенные технологии (вспомните набор веб-серверов IIS и Apache в конфигурации балансировки нагрузки, которая может привести к незначительному асимметричному поведению между ними и, возможно, к различным уязвимостям).
 
-#### Example
+#### Пример
 
-The tester has identified the existence of a file named `connection.inc`. Trying to access it directly gives back its contents, which are:
+Тестер идентифицировал существование файла с именем `connection.inc`. Попытка получить к нему доступ напрямую возвращает его содержимое, которое:
 
 ```php
 <?
@@ -36,47 +36,47 @@ The tester has identified the existence of a file named `connection.inc`. Trying
 ?>
 ```
 
-The tester determines the existence of a MySQL DBMS back end, and the (weak) credentials used by the web application to access it.
+Тестер определяет наличие бэк-энда СУБД MySQL и (слабых) учетных данных, используемых веб-приложением для доступа к нему.
 
-The following file extensions should never be returned by a web server, since they are related to files which may contain sensitive information or to files for which there is no reason to be served.
+Следующие расширения файлов никогда не должны возвращаться веб-сервером, поскольку они связаны с файлами, которые могут содержать конфиденциальную информацию, или с файлами, для которых нет причин для обслуживания.
 
 - `.asa`
 - `.inc`
 - `.config`
 
-The following file extensions are related to files which, when accessed, are either displayed or downloaded by the browser. Therefore, files with these extensions must be checked to verify that they are indeed supposed to be served (and are not leftovers), and that they do not contain sensitive information.
+Следующие расширения файлов связаны с файлами, которые при доступе отображаются или загружаются браузером. Поэтому файлы с этими расширениями должны быть проверены, чтобы убедиться, что они действительно должны быть обработаны (и не являются остатками), и что они не содержат конфиденциальную информацию.
 
-- `.zip`, `.tar`, `.gz`, `.tgz`, `.rar`, etc.: (Compressed) archive files
-- `.java`: No reason to provide access to Java source files
-- `.txt`: Text files
-- `.pdf`: PDF documents
-- `.docx`, `.rtf`, `.xlsx`, `.pptx`, etc.: Office documents
-- `.bak`, `.old` and other extensions indicative of backup files (for example: `~` for Emacs backup files)
+- `.zip`, `.tar`, `.gz`, `.tgz`, `.rar` и т. Д.: (Сжатые) архивные файлы
+- `.java`: нет причин предоставлять доступ к исходным файлам Java
+- `.txt`: текстовые файлы
+- `.pdf`: документы PDF
+- `.docx`, `.rtf`, `.xlsx`, `.pptx` и т. Д.: Офисные документы
+- `.bak`, `.old` и другие расширения, указывающие на файлы резервных копий (например: `~` для файлов резервных копий Emacs)
 
-The list given above details only a few examples, since file extensions are too many to be comprehensively treated here. Refer to [FILExt](https://filext.com/) for a more thorough database of extensions.
+Приведенный выше список детализирует только несколько примеров, поскольку расширений файлов слишком много, чтобы их можно было всесторонне обработать здесь. Обратитесь к [FILExt](https://filext.com/) для более тщательной базы данных расширений.
 
-To identify files having a given extensions a mix of techniques can be employed. These techniques can include Vulnerability Scanners, spidering and mirroring tools, manually inspecting the application (this overcomes limitations in automatic spidering), querying search engines (see [Testing: Spidering and googling](../01-Information_Gathering/01-Conduct_Search_Engine_Discovery_Reconnaissance_for_Information_Leakage.md)). See also [Testing for Old, Backup and Unreferenced Files](04-Review_Old_Backup_and_Unreferenced_Files_for_Sensitive_Information.md) which deals with the security issues related to "forgotten" files.
+Для идентификации файлов, имеющих заданные расширения, можно использовать сочетание методов. Эти методы могут включать в себя сканеры уязвимости, инструменты для раскроя и зеркалирования, ручную проверку приложения (это преодолевает ограничения в автоматическом расклеивании), запрос поисковых систем (см [Testing: Spidering and googling](../01-Information_Gathering/01-Conduct_Search_Engine_Discovery_Reconnaissance_for_Information_Leakage.md)). Смотрите также [Testing for Old, Backup and Unreferenced Files](04-Review_Old_Backup_and_Unreferenced_Files_for_Sensitive_Information.md) который занимается вопросами безопасности, связанными с «забытыми» файлами.
 
-### File Upload
+### Загрузка файла
 
-Windows 8.3 legacy file handling can sometimes be used to defeat file upload filters.
+Устаревшая обработка файлов Windows 8.3 иногда может использоваться для поражения фильтров загрузки файлов.
 
-Usage Examples:
+Примеры использования:
 
-1. `file.phtml` gets processed as PHP code.
-2. `FILE~1.PHT` is served, but not processed by the PHP ISAPI handler.
-3. `shell.phPWND` can be uploaded.
-4. `SHELL~1.PHP` will be expanded and returned by the OS shell, then processed by the PHP ISAPI handler.
+1. `file.phtml` обрабатывается как код PHP.
+2. `FILE ~ 1.PHT` обслуживается, но не обрабатывается обработчиком PHP ISAPI.
+3. `shell.phPWND` можно загрузить.
+4. `SHELL ~ 1.PHP` будет расширен и возвращен оболочкой ОС, а затем обработан обработчиком PHP ISAPI.
 
-### Gray-Box Testing
+### Тестирование серой коробки
 
-Performing white-box testing against file extensions handling amounts to checking the configurations of web servers or application servers taking part in the web application architecture, and verifying how they are instructed to serve different file extensions.
+Выполнение тестирования «белого ящика» с обработкой расширений файлов сводится к проверке конфигураций веб-серверов или серверов приложений, участвующих в архитектуре веб-приложений, и проверке их инструкций по обслуживанию различных расширений файлов.
 
-If the web application relies on a load-balanced, heterogeneous infrastructure, determine whether this may introduce different behavior.
+Если веб-приложение опирается на гетерогенную инфраструктуру, сбалансированную по нагрузке, определите, может ли это привести к другому поведению.
 
-## Tools
+## Инструменты
 
-Vulnerability scanners, such as Nessus and Nikto check for the existence of well-known web directories. They may allow the tester to download the web site structure, which is helpful when trying to determine the configuration of web directories and how individual file extensions are served. Other tools that can be used for this purpose include:
+Сканеры уязвимости, такие как Nessus и Nikto, проверяют наличие известных веб-каталогов. Они могут позволить тестеру загрузить структуру веб-сайта, что полезно при попытке определить конфигурацию веб-каталогов и порядок обслуживания отдельных расширений файлов. Другие инструменты, которые можно использовать для этой цели, включают в себя:
 
 - [wget](https://www.gnu.org/software/wget)
 - [curl](https://curl.haxx.se)
