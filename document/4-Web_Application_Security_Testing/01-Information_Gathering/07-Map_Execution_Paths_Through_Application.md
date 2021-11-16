@@ -1,39 +1,40 @@
-# Map Execution Paths Through Application
+# Карта пути выполнения через приложение
 
 |ID          |
 |------------|
 |WSTG-INFO-07|
 
-## Summary
+## Резюме
 
-Before commencing security testing, understanding the structure of the application is paramount. Without a thorough understanding of the layout of the application, it is unlikely that it will be tested thoroughly.
+Перед началом тестирования безопасности понимание структуры приложения имеет первостепенное значение. Без глубокого понимания макета приложения маловероятно, что оно будет тщательно протестировано.
 
-## Test Objectives
+## Цели теста
 
-- Map the target application and understand the principal workflows.
+- Составьте карту целевого приложения и поймите основные рабочие процессы.
 
-## How to Test
+## Как проверить
 
-In black-box testing it is extremely difficult to test the entire codebase. Not just because the tester has no view of the code paths through the application, but even if they did, to test all code paths would be very time consuming. One way to reconcile this is to document what code paths were discovered and tested.
+При тестировании в черном ящике очень сложно протестировать всю кодовую базу. Не только потому, что тестер не видит пути кода через приложение, но даже если бы он это сделал, тестирование всех путей кода было бы очень трудоемким. Один из способов согласовать это - документировать, какие пути кода были обнаружены и проверены.
 
-There are several ways to approach the testing and measurement of code coverage:
+Есть несколько способов приблизиться к тестированию и измерению покрытия кода:
 
-- **Path** - test each of the paths through an application that includes combinatorial and boundary value analysis testing for each decision path. While this approach offers thoroughness, the number of testable paths grows exponentially with each decision branch.
-- **Data Flow (or Taint Analysis)** - tests the assignment of variables via external interaction (normally users). Focuses on mapping the flow, transformation and use of data throughout an application.
-- **Race** - tests multiple concurrent instances of the application manipulating the same data.
+- **Path** - протестируйте каждый из путей через приложение, которое включает в себя тестирование комбинаторного и граничного анализа для каждого пути принятия решения. Хотя этот подход предлагает тщательность, количество проверяемых путей растет экспоненциально с каждой веткой принятия решения.
+- **Data Flow (or Taint Analysis)** - проверяет назначение переменных через внешнее взаимодействие (обычно пользователей). Сосредоточение на отображении потока, преобразовании и использовании данных по всему приложению.
+- **Race** - проверяет несколько одновременных экземпляров приложения, манипулирующих одними и теми же данными.
 
-The trade off as to what method is used and to what degree each method is used should be negotiated with the application owner. Simpler approaches could also be adopted, including asking the application owner what functions or code sections they are particularly concerned about and how those code segments can be reached.
 
-To demonstrate code coverage to the application owner, the tester can start with a spreadsheet and document all the links discovered by spidering the application (either manually or automatically). Then the tester can look more closely at decision points in the application and investigate how many significant code paths are discovered. These should then be documented in the spreadsheet with URLs, prose and screenshot descriptions of the paths discovered.
+Компромисс в отношении того, какой метод используется и в какой степени используется каждый метод, должен быть согласован с владельцем приложения. Также могут быть приняты более простые подходы, в том числе вопрос о владельце приложения, какие функции или разделы кода они особенно обеспокоены и как эти сегменты кода могут быть достигнуты.
+
+Чтобы продемонстрировать покрытие кода владельцу приложения, тестер может начать с электронной таблицы и документировать все ссылки, обнаруженные путем добавления приложения (вручную или автоматически). Затем тестер может более внимательно изучить точки принятия решений в приложении и выяснить, сколько значительных путей кода обнаружено. Затем они должны быть задокументированы в электронной таблице с URL-адресами, прозой и описаниями скриншотов обнаруженных путей.
 
 ### Automatic Spidering
 
-The automatic spider is a tool used to automatically discover new resources (URLs) on a particular website. It begins with a list of URLs to visit, called the seeds, which depends on how the Spider is started. While there are a lot of Spidering tools, the following example uses the [Zed Attack Proxy (ZAP)](https://github.com/zaproxy/zaproxy):
+Автоматический паук - это инструмент, используемый для автоматического обнаружения новых ресурсов (URL) на определенном веб-сайте. Он начинается со списка URL-адресов для посещения, называемых семенами, которые зависят от того, как запускается Spider. Хотя существует много инструментов Spidering, в следующем примере используется [Zed Attack Proxy (ZAP)](https://github.com/zaproxy/zaproxy):
 
 ![Zed Attack Proxy Screen](images/OWASPZAPSP.png)\
 *Figure 4.1.7-1: Zed Attack Proxy Screen*
 
-[ZAP](https://github.com/zaproxy/zaproxy) offers various automatic spidering options, which can leveraged based on the tester's needs:
+[ZAP](https://github.com/zaproxy/zaproxy) предлагает различные варианты автоматического распыления, которые могут быть использованы в зависимости от потребностей тестера:
 
 - [Spider](https://www.zaproxy.org/docs/desktop/start/features/spider/)
 - [AJAX Spider](https://www.zaproxy.org/docs/desktop/addons/ajax-spider/)
