@@ -1,60 +1,60 @@
-# Test Role Definitions
+# Определения тестовых ролей
 
-|ID          |
-|------------|
-|WSTG-IDNT-01|
+| ID |
+| ------------- |
+| WSTG-IDNT-01 |
 
-## Summary
+## Резюме
 
-Applications have several types of functionalities and services, and those require access permissions based on the needs of the user. That user could be:
+Приложения имеют несколько типов функций и услуг, и для них требуются разрешения на доступ в зависимости от потребностей пользователя. Этот пользователь может быть:
 
-- an administrator, where they manage the application functionalities.
-- an auditor, where they review the application transactions and provide a detailed report.
-- a support engineer, where they help customers debug and fix issues on their accounts.
-- a customer, where they interact with the application and benefit from its services.
+- администратор, где они управляют функциями приложения.
+- аудитор, где они рассматривают транзакции приложения и предоставляют подробный отчет.
+- инженер поддержки, где они помогают клиентам отлаживать и исправлять проблемы на своих счетах.
+- клиент, где он взаимодействует с приложением и пользуется его услугами.
 
-In order to handle these uses and any other use case for that application, role definitions are setup (more commonly known as [RBAC](https://en.wikipedia.org/wiki/Role-based_access_control)). Based on these roles, the user is capable of accomplishing the required task.
+Чтобы справиться с этими применениями и любым другим вариантом использования для этого приложения, определения ролей устанавливаются (более широко известны как [RBAC](https://en.wikipedia.org/wiki/Role-based_access_control)). Основываясь на этих ролях, пользователь способен выполнить требуемую задачу.
 
-## Test Objectives
+## Цели теста
 
-- Identify and document roles used by the application.
-- Attempt to switch, change, or access another role.
-- Review the granularity of the roles and the needs behind the permissions given.
+- Определите и задокументируйте роли, используемые приложением.
+- Попытка переключиться, изменить или получить доступ к другой роли.
+- Просмотрите детализацию ролей и потребностей, стоящих за предоставленными разрешениями.
 
-## How to Test
+## Как проверить
 
-### Roles Identification
+### Идентификация ролей
 
-The tester should start by identifying the application roles being tested through any of the following methods:
+Тестер должен начать с определения ролей приложения, тестируемых любым из следующих методов:
 
-- Application documentation.
-- Guidance by the developers or administrators of the application.
-- Application comments.
-- Fuzz possible roles:
+- Документация по применению.
+- Руководство разработчиков или администраторов приложения.
+- Приложение комментариев.
+- fuzz возможных ролей
     - cookie variable (*e.g.* `role=admin`, `isAdmin=True`)
     - account variable (*e.g.* `Role: manager`)
     - hidden directories or files (*e.g.* `/admin`, `/mod`, `/backups`)
     - switching to well known users (*e.g.* `admin`, `backups`, etc.)
 
-### Switching to Available Roles
+### Переключение на доступные роли
 
-After identifying possible attack vectors, the tester needs to test and validate that they can access the available roles.
+После определения возможных векторов атаки тестер должен проверить и подтвердить, что они могут получить доступ к доступным ролям.
 
-> Some applications define the roles of the user on creation, through rigorous checks and policies, or by ensuring that the user's role is properly protected through a signature created by the backend. Finding that roles exist doesn't mean that they're a vulnerability.
+> Некоторые приложения определяют роли пользователя в создании посредством строгих проверок и политик или путем обеспечения надлежащей защиты роли пользователя с помощью подписи, созданной бэкэндом. Поиск ролей не означает, что они уязвимы.
 
-### Review Roles Permissions
+### Обзор Роли Разрешения
 
-After gaining access to the roles on the system, the tester must understand the permissions provided to each role.
+Получив доступ к ролям в системе, тестер должен понять разрешения, предоставляемые каждой роли.
 
-A support engineer shouldn't be able to conduct administrative functionalities, manage the backups, or conduct any transactions in the place of a user.
+Инженер поддержки не должен иметь возможности выполнять административные функции, управлять резервными копиями или проводить какие-либо транзакции вместо пользователя.
 
-An administrator shouldn't have full powers on the system. Sensitive admin functionality should leverage a maker-checker principle, or use MFA to ensure that the administrator is conducting the transaction. A clear example on this was the [Twitter incident in 2020](https://blog.twitter.com/en_us/topics/company/2020/an-update-on-our-security-incident.html).
+Администратор не должен иметь полных полномочий в системе. Чувствительная функциональность администратора должна использовать принцип maker-checker или использовать MFA, чтобы гарантировать, что администратор проводит транзакцию. Ярким примером этого был [Twitter incident in 2020](https://blog.twitter.com/en_us/topics/company/2020/an-update-on-our-security-incident.html).
 
-## Tools
+## Инструменты
 
-The above mentioned tests can be conducted without the use of any tool, except the one being used to access the system.
+Вышеупомянутые тесты могут проводиться без использования какого-либо инструмента, кроме того, который используется для доступа к системе.
 
-To make things easier and more documented, one can use:
+Чтобы сделать вещи проще и документированнее, можно использовать:
 
 - [Burp's Autorize extension](https://github.com/Quitten/Autorize)
 - [ZAP's Access Control Testing add-on](https://www.zaproxy.org/docs/desktop/addons/access-control-testing/)
