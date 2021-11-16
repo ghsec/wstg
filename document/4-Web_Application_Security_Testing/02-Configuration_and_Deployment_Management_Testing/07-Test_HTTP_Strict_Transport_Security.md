@@ -1,39 +1,39 @@
-# Test HTTP Strict Transport Security
+# Тест HTTP Строгая транспортная безопасность
 
-|ID          |
-|------------|
-|WSTG-CONF-07|
+| ID |
+| ------------- |
+| WSTG-CONF-07 |
 
-## Summary
+## Резюме
 
-The HTTP Strict Transport Security (HSTS) feature lets a web application inform the browser through the use of a special response header that it should never establish a connection to the specified domain servers using un-encrypted HTTP. Instead, it should automatically establish all connection requests to access the site through HTTPS. It also prevents users from overriding certificate errors.
+HTTP Строгая транспортная ситуация (HSTS) фон для защиты от перспективного происхождения от имени отвода ответа от города, То никони никогда не дольжно устанавлия с униказень с серверами домена с исползло, от имени автономного специалиста по изучению HTTPS. Это таакже плеке.
 
-Considering the importance of this security measure it is prudent to verify that the web site is using this HTTP header in order to ensure that all the data travels encrypted between the web browser and the server.
+Учитывая важность этой меры безопасности, разумно убедиться, что веб-сайт использует этот заголовок HTTP, чтобы гарантировать, что все данные передаются в зашифрованном виде между веб-браузером и сервером.
 
-The HTTP strict transport security header uses two directives:
+Строгий заголовок безопасности транспорта HTTP использует две директивы:
 
-- `max-age`: to indicate the number of seconds that the browser should automatically convert all HTTP requests to HTTPS.
-- `includeSubDomains`: to indicate that all related sub-domains must use HTTPS.
-- `preload` Unofficial: to indicate that the domain(s) are on the preload list(s) and that browsers should never connect without HTTPS.
-    - This is supported by all major browsers but is not official part of the specification. (See [hstspreload.org](https://hstspreload.org/) for more information.)
+- `max-age`: указать количество секунд, в течение которых браузер должен автоматически преобразовывать все HTTP-запросы в HTTPS
+- `includeSubDomains`: чтобы указать, что все связанные субдомены должны использовать HTTPS .
+- `preload` Неофициально: указать, что домен (ы) находятся в списке (ах) предварительной загрузки и что браузеры никогда не должны подключаться без HTTPS .
+    - Это поддерживается всеми основными браузерами, но не является официальной частью спецификации. (Видеть [hstspreload.org](https://hstspreload.org/) для получения дополнительной информации.)
 
-Here's an example of the HSTS header implementation:
+Вот пример реализации заголовка HSTS:
 
 `Strict-Transport-Security: max-age=31536000; includeSubDomains`
 
-The use of this header by web applications must be checked to find if the following security issues could be produced:
+Использование этого заголовка веб-приложениями должно быть проверено, чтобы определить, могут ли возникнуть следующие проблемы безопасности:
 
-- Attackers sniffing the network traffic and accessing the information transferred through an un-encrypted channel.
-- Attackers exploiting a manipulator in the middle attack because of the problem of accepting certificates that are not trusted.
-- Users who mistakenly entered an address in the browser putting HTTP instead of HTTPS, or users who click on a link in a web application which mistakenly indicated use of the HTTP protocol.
+- Атакующие нюхают сетевой трафик и получают доступ к информации, передаваемой по незашифрованному каналу.
+- Атакующие используют манипулятор в средней атаке из-за проблемы принятия сертификатов, которым не доверяют.
+- пользователи, которые ошибочно ввели адрес в браузере, поставив HTTP вместо HTTPS, или пользователи, которые щелкнули по ссылке в веб-приложении, которое ошибочно указывало на использование протокола HTTP.
 
-## Test Objectives
+## Цели теста
 
-- Review the HSTS header and its validity.
+- Просмотрите заголовок HSTS и его достоверность.
 
-## How to Test
+## Как проверить
 
-The presence of the HSTS header can be confirmed by examining the server's response through an intercepting proxy or by using curl as follows:
+Наличие заголовка HSTS можно подтвердить, изучив ответ сервера через перехватывающий прокси-сервер или используя curl следующим образом:
 
 ```bash
 $ curl -s -D- https://owasp.org | grep -i strict
