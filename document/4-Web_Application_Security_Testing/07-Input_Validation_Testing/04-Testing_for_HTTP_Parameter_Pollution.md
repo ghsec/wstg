@@ -1,30 +1,30 @@
-# Testing for HTTP Parameter Pollution
+# Тестирование на загрязнение параметров HTTP
 
-|ID          |
-|------------|
-|WSTG-INPV-04|
+| ID |
+| ------------- |
+| WSTG-INPV-04 |
 
-## Summary
+## Резюме
 
-HTTP Parameter Pollution tests the applications response to receiving multiple HTTP parameters with the same name; for example, if the parameter `username` is included in the GET or POST parameters twice.
+Параметр HTTP Pollution проверяет реакцию приложений на получение нескольких параметров HTTP с одним и тем же именем; например, если параметр `имя пользователя` включен в параметры GET или POST дважды.
 
-Supplying multiple HTTP parameters with the same name may cause an application to interpret values in unanticipated ways. By exploiting these effects, an attacker may be able to bypass input validation, trigger application errors or modify internal variables values. As HTTP Parameter Pollution (in short *HPP*) affects a building block of all web technologies, server and client-side attacks exist.
+Поставка нескольких параметров HTTP с одним и тем же именем может привести к тому, что приложение будет интерпретировать значения непредвиденным образом. Используя эти эффекты, злоумышленник может обойти проверку ввода, вызвать ошибки приложения или изменить значения внутренних переменных. Поскольку загрязнение параметров HTTP (вкратце * HPP *) влияет на строительный блок всех веб-технологий, существуют атаки на сервер и на стороне клиента.
 
-Current HTTP standards do not include guidance on how to interpret multiple input parameters with the same name. For instance, [RFC 3986](https://www.ietf.org/rfc/rfc3986.txt) simply defines the term *Query String* as a series of field-value pairs and [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt) defines classes of reversed and unreserved query string characters. Without a standard in place, web application components handle this edge case in a variety of ways (see the table below for details).
+Текущие стандарты HTTP не включают руководство о том, как интерпретировать несколько входных параметров с одним и тем же именем. Например, [RFC 3986](https://www.ietf.org/rfc/rfc3986.txt) просто определяет термин *Query String* как серия пар полевых значений и [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt) определяет классы обращенных и незарезервированных символов строки запроса. Без стандартного стандарта компоненты веб-приложений обрабатывают этот краевой корпус различными способами (подробности см. В таблице ниже).
 
-By itself, this is not necessarily an indication of vulnerability. However, if the developer is not aware of the problem, the presence of duplicated parameters may produce an anomalous behavior in the application that can be potentially exploited by an attacker. As often in security, unexpected behaviors are a usual source of weaknesses that could lead to HTTP Parameter Pollution attacks in this case. To better introduce this class of vulnerabilities and the outcome of HPP attacks, it is interesting to analyze some real-life examples that have been discovered in the past.
+Само по себе это не обязательно свидетельствует об уязвимости. Однако, если разработчик не знает о проблеме, наличие дублированных параметров может привести к аномальному поведению в приложении, которое может быть потенциально использовано злоумышленником. Как часто в безопасности, неожиданное поведение является обычным источником слабых сторон, которые могут привести к атакам загрязнения параметров HTTP в этом случае. Чтобы лучше представить этот класс уязвимостей и результаты атак ГЭС, интересно проанализировать некоторые реальные примеры, которые были обнаружены в прошлом.
 
-### Input Validation and Filters Bypass
+### Проверка ввода и обход фильтров
 
-In 2009, immediately after the publication of the first research on HTTP Parameter Pollution, the technique received attention from the security community as a possible way to bypass web application firewalls.
+В 2009 году, сразу после публикации первого исследования HTTP Parameter Pollution, метод получил внимание сообщества безопасности как возможный способ обойти брандмауэры веб-приложений.
 
-One of these flaws, affecting *ModSecurity SQL Injection Core Rules*, represents a perfect example of the impedance mismatch between applications and filters. The ModSecurity filter would correctly apply a deny list for the following string: `select 1,2,3 from table`, thus blocking this example URL from being processed by the web server: `/index.aspx?page=select 1,2,3 from table`. However, by exploiting the concatenation of multiple HTTP parameters, an attacker could cause the application server to concatenate the string after the ModSecurity filter already accepted the input. As an example, the URL `/index.aspx?page=select 1&page=2,3` from table would not trigger the ModSecurity filter, yet the application layer would concatenate the input back into the full malicious string.
+Один из этих недостатков, влияющих *ModSecurity SQL Injection Core Rules*, представляет собой прекрасный пример несоответствия импеданса между приложениями и фильтрами. Фильтр ModSecurity будет правильно применять список отказов для следующей строки: `select 1,2,3 from table`, таким образом блокируя этот пример URL от обработки веб-сервером: `/index.aspx?page=select 1,2,3 from table`. Однако, используя конкатенацию нескольких параметров HTTP, злоумышленник может заставить сервер приложения конкатенации строки после того, как фильтр ModSecurity уже принял ввод. В качестве примера, URL `/index.aspx?page=select 1&page=2,3` из таблицы не будет запускать фильтр ModSecurity, но прикладной уровень будет объединять вход обратно в полную вредоносную строку.
 
-Another HPP vulnerability turned out to affect *Apple Cups*, the well-known printing system used by many UNIX systems. Exploiting HPP, an attacker could easily trigger a Cross-Site Scripting vulnerability using the following URL: `http://127.0.0.1:631/admin/?kerberos=onmouseover=alert(1)&kerberos`. The application validation checkpoint could be bypassed by adding an extra `kerberos` argument having a valid string (e.g. empty string). As the validation checkpoint would only consider the second occurrence, the first `kerberos` parameter was not properly sanitized before being used to generate dynamic HTML content. Successful exploitation would result in JavaScript code execution under the context of the hosting web site.
+Оказалось, что другая уязвимость HPP повлияла *Apple Cups*, известная система печати, используемая многими системами UNIX. Используя HPP, злоумышленник может легко вызвать уязвимость межсайтового скриптинга, используя следующий URL: `http://127.0.0.1:631/admin/?kerberos=onmouseover=alert(1)&kerberos`. Контрольную точку проверки приложения можно обойти, добавив дополнительный аргумент `kerberos`, имеющий допустимую строку (например,. пустая строка). Поскольку контрольная точка проверки будет рассматривать только второе явление, первый параметр `kerberos` не был должным образом продезинфицирован перед использованием для генерации динамического содержимого HTML. Успешная эксплуатация приведет к выполнению кода JavaScript в контексте веб-сайта хостинга.
 
-### Authentication Bypass
+### Обход аутентификации
 
-An even more critical HPP vulnerability was discovered in *Blogger*, the popular blogging platform. The bug allowed malicious users to take ownership of the victim’s blog by using the following HTTP request (`https://www.blogger.com/add-authors.do`):
+Еще более критическая уязвимость HPP была обнаружена в *Blogger*, популярная платформа для блогов. Ошибка позволила злоумышленникам взять на себя ответственность за блог жертвы, используя следующий HTTP-запрос (`https://www.blogger.com/add-authors.do`):
 
 ```html
 POST /add-authors.do HTTP/1.1
@@ -33,13 +33,13 @@ POST /add-authors.do HTTP/1.1
 security_token=attackertoken&blogID=attackerblogidvalue&blogID=victimblogidvalue&authorsList=goldshlager19test%40gmail.com(attacker email)&ok=Invite
 ```
 
-The flaw resided in the authentication mechanism used by the web application, as the security check was performed on the first `blogID` parameter, whereas the actual operation used the second occurrence.
+Недостаток заключался в механизме аутентификации, используемом веб-приложением, поскольку проверка безопасности выполнялась для первого параметра `blogID`, тогда как фактическая операция использовала второе вхождение.
 
-### Expected Behavior by Application Server
+### Ожидаемое поведение со стороны Application Server
 
-The following table illustrates how different web technologies behave in presence of multiple occurrences of the same HTTP parameter.
+Следующая таблица иллюстрирует, как различные веб-технологии ведут себя при наличии нескольких вхождений одного и того же параметра HTTP.
 
-Given the URL and querystring: `http://example.com/?color=red&color=blue`
+Учитывая URL и строку запроса: `http://example.com/?color=red&color=blue`
 
   | Web Application Server Backend | Parsing Result | Example |
   |--------------------------------|----------------|--------|
@@ -62,65 +62,65 @@ Given the URL and querystring: `http://example.com/?color=red&color=blue`
 
 (source: [Appsec EU 2009 Carettoni & Paola](https://owasp.org/www-pdf-archive/AppsecEU09_CarettoniDiPaola_v0.8.pdf))
 
-## Test Objectives
+## Цели теста
 
-- Identify the backend and the parsing method used.
-- Assess injection points and try bypassing input filters using HPP.
+- Определите бэкэнд и используемый метод синтаксического анализа.
+- Оцените точки впрыска и попробуйте обойти фильтры ввода, используя HPP .
 
-## How to Test
+## Как проверить
 
-Luckily, because the assignment of HTTP parameters is typically handled via the web application server, and not the application code itself, testing the response to parameter pollution should be standard across all pages and actions. However, as in-depth business logic knowledge is necessary, testing HPP requires manual testing. Automatic tools can only partially assist auditors as they tend to generate too many false positives. In addition, HPP can manifest itself in client-side and server-side components.
+К счастью, поскольку назначение параметров HTTP обычно выполняется через сервер веб-приложений, а не сам код приложения, тестирование реакции на загрязнение параметров должно быть стандартным для всех страниц и действий. Однако, поскольку необходимы глубокие знания бизнес-логики, тестирование HPP требует ручного тестирования. Автоматические инструменты могут лишь частично помочь аудиторам, поскольку они, как правило, генерируют слишком много ложных срабатываний. Кроме того, HPP может проявляться в клиентских и серверных компонентах.
 
-### Server-Side HPP
+### HPP на стороне сервера
 
-To test for HPP vulnerabilities, identify any form or action that allows user-supplied input. Query string parameters in HTTP GET requests are easy to tweak in the navigation bar of the browser. If the form action submits data via POST, the tester will need to use an intercepting proxy to tamper with the POST data as it is sent to the server. Having identified a particular input parameter to test, one can edit the GET or POST data by intercepting the request, or change the query string after the response page loads. To test for HPP vulnerabilities simply append the same parameter to the GET or POST data but with a different value assigned.
+Чтобы проверить наличие уязвимостей HPP, определите любую форму или действие, которое позволяет вводить данные, предоставляемые пользователем. Параметры строки запроса в HTTP-запросах GET легко настраиваются в панели навигации браузера. Если действие формы отправляет данные через POST, тестер должен будет использовать перехватывающий прокси-сервер для подделки данных POST при их отправке на сервер. Определив конкретный входной параметр для тестирования, можно редактировать данные GET или POST, перехватывая запрос, или изменять строку запроса после загрузки страницы ответа. Чтобы проверить наличие уязвимостей HPP, просто добавьте один и тот же параметр к данным GET или POST, но с другим назначенным значением.
 
-For example: if testing the `search_string` parameter in the query string, the request URL would include that parameter name and value:
+Например: если тестируется параметр `search_string` в строке запроса, URL-адрес запроса будет включать это имя и значение параметра:
 
 ```text
 http://example.com/?search_string=kittens
 ```
 
-The particular parameter might be hidden among several other parameters, but the approach is the same; leave the other parameters in place and append the duplicate:
+Конкретный параметр может быть скрыт среди нескольких других параметров, но подход тот же; оставьте другие параметры на месте и добавьте дубликат :
 
 ```text
 http://example.com/?mode=guest&search_string=kittens&num_results=100
 ```
 
-Append the same parameter with a different value:
+Добавить тот же параметр с другим значением:
 
 ```text
 http://example.com/?mode=guest&search_string=kittens&num_results=100&search_string=puppies
 ```
 
-and submit the new request.
+и отправить новый запрос.
 
-Analyze the response page to determine which value(s) were parsed. In the above example, the search results may show `kittens`, `puppies`, some combination of both (`kittens,puppies` or `kittens~puppies` or `['kittens','puppies']`), may give an empty result, or error page.
+Проанализируйте страницу ответа, чтобы определить, какие значения были проанализированы. В приведенном выше примере результаты поиска могут показывать `kittens`, `puppies`, некоторую комбинацию обоих (` kittens, puppies `или` kittens ~ puppies `или` ['kittens', 'puppies'] '), может дать пустой результат или страницу ошибки.
 
-This behavior, whether using the first, last, or combination of input parameters with the same name, is very likely to be consistent across the entire application. Whether or not this default behavior reveals a potential vulnerability depends on the specific input validation and filtering specific to a particular application. As a general rule: if existing input validation and other security mechanisms are sufficient on single inputs, and if the server assigns only the first or last polluted parameters, then parameter pollution does not reveal a vulnerability. If the duplicate parameters are concatenated, different web application components use different occurrences or testing generates an error, there is an increased likelihood of being able to use parameter pollution to trigger security vulnerabilities.
+Такое поведение, будь то использование первого, последнего или комбинации входных параметров с одним и тем же именем, весьма вероятно, будет согласованным для всего приложения. Независимо от того, показывает ли это поведение по умолчанию потенциальную уязвимость, зависит от конкретной проверки входных данных и фильтрации, специфичной для конкретного приложения. Как правило: если на отдельных входах достаточно существующих входных проверок и других механизмов безопасности, и если сервер назначает только первые или последние загрязненные параметры, то загрязнение параметров не обнаруживает уязвимости. Если дублирующие параметры объединяются, разные компоненты веб-приложений используют разные вхождения или тестирование генерирует ошибку, существует повышенная вероятность использования параметров загрязнения для устранения уязвимостей безопасности.
 
-A more in-depth analysis would require three HTTP requests for each HTTP parameter:
+Более глубокий анализ потребует трех HTTP-запросов для каждого параметра HTTP:
 
-1. Submit an HTTP request containing the standard parameter name and value, and record the HTTP response. E.g. `page?par1=val1`
-2. Replace the parameter value with a tampered value, submit and record the HTTP response. E.g. `page?par1=HPP_TEST1`
-3. Send a new request combining step (1) and (2). Again, save the HTTP response. E.g. `page?par1=val1&par1=HPP_TEST1`
-4. Compare the responses obtained during all previous steps. If the response from (3) is different from (1) and the response from (3) is also different from (2), there is an impedance mismatch that may be eventually abused to trigger HPP vulnerabilities.
+1. Отправьте HTTP-запрос, содержащий стандартное имя и значение параметра, и запишите HTTP-ответ. Например. `page?par1=val1`
+2. Замените значение параметра на подделанное значение, отправьте и запишите ответ HTTP. Например. `page?par1=HPP_TEST1`
+3. Отправить новый запрос, объединяющий шаги (1) и (2). Опять же, сохраните HTTP-ответ. Например. `page?par1=val1&par1=HPP_TEST1`
+4. Сравните ответы, полученные на всех предыдущих этапах. Если ответ от (3) отличается от (1), а ответ от (3) также отличается от (2), существует несоответствие импеданса, которое в конечном итоге может быть использовано для запуска уязвимостей HPP.
 
-Crafting a full exploit from a parameter pollution weakness is beyond the scope of this text. See the references for examples and details.
+Создание полного эксплойта из-за слабости параметра загрязнения выходит за рамки этого текста. Смотрите ссылки для примеров и деталей.
 
-### Client-Side HPP
+### Клиент-сторонняя ГЭС
 
-Similarly to server-side HPP, manual testing is the only reliable technique to audit web applications in order to detect parameter pollution vulnerabilities affecting client-side components. While in the server-side variant the attacker leverages a vulnerable web application to access protected data or to perform actions that either not permitted or not supposed to be executed, client-side attacks aim at subverting client-side components and technologies.
+Как и в случае с HPP на стороне сервера, ручное тестирование является единственным надежным методом аудита веб-приложений с целью выявления уязвимостей загрязнения параметров, влияющих на компоненты на стороне клиента. В то время как в варианте на стороне сервера злоумышленник использует уязвимое веб-приложение для доступа к защищенным данным или для выполнения действий, которые либо не разрешены, либо не должны выполняться, атаки на стороне клиента направлены на подрыв компонентов и технологий на стороне клиента.
 
-To test for HPP client-side vulnerabilities, identify any form or action that allows user input and shows a result of that input back to the user. A search page is ideal, but a login box might not work (as it might not show an invalid username back to the user).
+Чтобы проверить наличие уязвимостей на стороне клиента HPP, определите любую форму или действие, которое позволяет вводить пользователя и показывает результат этого ввода обратно пользователю. Страница поиска идеальна, но поле входа может не работать (поскольку оно может не отображать неверное имя пользователя обратно пользователю).
 
-Similarly to server-side HPP, pollute each HTTP parameter with `%26HPP_TEST` and look for *url-decoded* occurrences of the user-supplied payload:
+Подобно HPP на стороне сервера, загрязняйте каждый параметр HTTP с помощью `%26HPP_TEST` и ищите * url-decoded * вхождения предоставленной пользователем полезной нагрузки:
 
 - `&HPP_TEST`
 - `&amp;HPP_TEST`
 - etc.
 
-In particular, pay attention to responses having HPP vectors within `data`, `src`, `href` attributes or forms actions. Again, whether or not this default behavior reveals a potential vulnerability depends on the specific input validation, filtering and application business logic. In addition, it is important to notice that this vulnerability can also affect query string parameters used in XMLHttpRequest (XHR), runtime attribute creation and other plugin technologies (e.g. Adobe Flash’s flashvars variables).
+В частности, обратите внимание на ответы, имеющие векторы HPP в `data`, `src`, `href` атрибутах или формах действий. Опять же, независимо от того, показывает ли это поведение по умолчанию потенциальную уязвимость, зависит от конкретной проверки ввода, фильтрации и бизнес-логики приложения. Кроме того, важно отметить, что эта уязвимость также может влиять на параметры строки запроса, используемые в XMLHttpRequest (XHR), создании атрибутов времени выполнения и других технологиях плагинов (например,. Переменные Adobe Flashvars).
 
 ## Tools
 
