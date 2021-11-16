@@ -1,28 +1,28 @@
-# Fingerprint Web Server
+# Отпечаток пальца веб-сервера
 
 |ID          |
 |------------|
 |WSTG-INFO-02|
 
-## Summary
+## Резюме
 
-Web server fingerprinting is the task of identifying the type and version of web server that a target is running on. While web server fingerprinting is often encapsulated in automated testing tools, it is important for researchers to understand the fundamentals of how these tools attempt to identify software, and why this is useful.
+Отпечаток отпечатков пальцев веб-сервера - это задача определения типа и версии веб-сервера, на котором работает цель. Хотя дактилоскопия веб-сервера часто инкапсулируется в инструментах автоматического тестирования, исследователям важно понять основы того, как эти инструменты пытаются идентифицировать программное обеспечение, и почему это полезно.
 
-Accurately discovering the type of web server that an application runs on can enable security testers to determine if the application is vulnerable to attack. In particular, servers running older versions of software without up-to-date security patches can be susceptible to known version-specific exploits.
+Точное обнаружение типа веб-сервера, на котором работает приложение, может позволить тестировщикам безопасности определить, уязвимо ли приложение для атаки. В частности, серверы, на которых запущены более старые версии программного обеспечения без современных исправлений безопасности, могут быть подвержены известным эксплойтам, специфичным для версии.
 
-## Test Objectives
+## Цели теста
 
-- Determine the version and type of a running web server to enable further discovery of any known vulnerabilities.
+- Определите версию и тип работающего веб-сервера, чтобы обеспечить дальнейшее обнаружение любых известных уязвимостей.
+- 
+## Как проверить
 
-## How to Test
-
-Techniques used for web server fingerprinting include [banner grabbing](https://en.wikipedia.org/wiki/Banner_grabbing), eliciting responses to malformed requests, and using automated tools to perform more robust scans that use a combination of tactics. The fundamental premise by which all these techniques operate is the same. They all strive to elicit some response from the web server which can then be compared to a database of known responses and behaviors, and thus matched to a known server type.
+Методы, используемые для дактилоскопии веб-сервера, включают [banner grabbing](https://en.wikipedia.org/wiki/Banner_grabbing), выявление ответов на искаженные запросы и использование автоматизированных инструментов для выполнения более надежных сканирований, использующих комбинацию тактики. Фундаментальная предпосылка, с помощью которой работают все эти методы, одинакова. Все они стремятся получить некоторый ответ от веб-сервера, который затем можно сравнить с базой данных известных ответов и поведения и, таким образом, сопоставить с известным типом сервера.
 
 ### Banner Grabbing
 
-A banner grab is performed by sending an HTTP request to the web server and examining its [response header](https://developer.mozilla.org/en-US/docs/Glossary/Response_header). This can be accomplished using a variety of tools, including `telnet` for HTTP requests, or `openssl` for requests over SSL.
+Захват баннера выполняется путем отправки HTTP-запроса на веб-сервер и проверки его [response header](https://developer.mozilla.org/en-US/docs/Glossary/Response_header). Это может быть достигнуто с помощью различных инструментов, включая `telnet` для HTTP-запросов или `openssl` для запросов через SSL
 
-For example, here is the response to a request from an Apache server.
+Например, вот ответ на запрос с сервера Apache.
 
 ```http
 HTTP/1.1 200 OK
@@ -37,7 +37,7 @@ Content-Type: text/html
 ...
 ```
 
-Here is another response, this time from nginx.
+Вот еще один ответ, на этот раз от nginx.
 
 ```http
 HTTP/1.1 200 OK
@@ -52,7 +52,7 @@ Accept-Ranges: bytes
 ...
 ```
 
-Here's what a response from lighttpd looks like.
+Вот как выглядит ответ от lighttpd.
 
 ```sh
 HTTP/1.0 200 OK
@@ -66,7 +66,7 @@ Date: Thu, 05 Sep 2019 17:57:57 GMT
 Server: lighttpd/1.4.54
 ```
 
-In these examples, the server type and version is clearly exposed. However, security-conscious applications may obfuscate their server information by modifying the header. For example, here is an excerpt from the response to a request for a site with a modified header:
+В этих примерах тип и версия сервера четко раскрыты. Однако приложения, заботящиеся о безопасности, могут запутывать информацию своего сервера, изменяя заголовок. Например, вот выдержка из ответа на запрос сайта с измененным заголовком :
 
 ```sh
 HTTP/1.1 200 OK
@@ -77,7 +77,7 @@ Status: 200 OK
 ...
 ```
 
-In cases where the server information is obscured, testers may guess the type of server based on the ordering of the header fields. Note that in the Apache example above, the fields follow this order:
+В случаях, когда информация о сервере скрыта, тестировщики могут угадать тип сервера на основе упорядочения полей заголовка. Обратите внимание, что в приведенном выше примере Apache поля следуют этому порядку:
 
 - Date
 - Server
@@ -88,19 +88,19 @@ In cases where the server information is obscured, testers may guess the type of
 - Connection
 - Content-Type
 
-However, in both the nginx and obscured server examples, the fields in common follow this order:
+Однако как в примерах nginx, так и в скрытом сервере общие поля следуют этому порядку:
 
 - Server
 - Date
 - Content-Type
 
-Testers can use this information to guess that the obscured server is nginx. However, considering that a number of different web servers may share the same field ordering and fields can be modified or removed, this method is not definite.
+Тестеры могут использовать эту информацию, чтобы догадаться, что скрытый сервер - nginx. Однако, учитывая, что ряд различных веб-серверов могут совместно использовать один и тот же порядок полей, и поля могут быть изменены или удалены, этот метод не определен.
 
-### Sending Malformed Requests
+### Отправка искаженных запросов
 
-Web servers may be identified by examining their error responses, and in the cases where they have not been customized, their default error pages. One way to compel a server to present these is by sending intentionally incorrect or malformed requests.
+Веб-серверы могут быть идентифицированы путем изучения их ответов об ошибках, а в случаях, когда они не были настроены, их страницы ошибок по умолчанию. Один из способов заставить сервер представить их - отправлять намеренно неверные или искаженные запросы.
 
-For example, here is the response to a request for the non-existent method `SANTA CLAUS` from an Apache server.
+Например, вот ответ на запрос несуществующего метода `SANTA CLAUS` с сервера Apache.
 
 ```sh
 GET / SANTA CLAUS/1.1
@@ -123,7 +123,7 @@ Content-Type: text/html; charset=iso-8859-1
 </body></html>
 ```
 
-Here is the response to the same request from nginx.
+Вот ответ на тот же запрос от nginx.
 
 ```sh
 GET / SANTA CLAUS/1.1
@@ -138,7 +138,7 @@ GET / SANTA CLAUS/1.1
 </html>
 ```
 
-Here is the response to the same request from lighttpd.
+Вот ответ на тот же запрос от lighttpd.
 
 ```sh
 GET / SANTA CLAUS/1.1
@@ -164,22 +164,22 @@ Server: lighttpd/1.4.54
 </html>
 ```
 
-As default error pages offer many differentiating factors between types of web servers, their examination can be an effective method for fingerprinting even when server header fields are obscured.
+Поскольку страницы ошибок по умолчанию предлагают множество отличительных факторов между типами веб-серверов, их проверка может быть эффективным методом дактилоскопии, даже когда поля заголовков сервера скрыты.
 
-### Using Automated Scanning Tools
+### Использование автоматических инструментов сканирования
 
-As stated earlier, web server fingerprinting is often included as a functionality of automated scanning tools. These tools are able to make requests similar to those demonstrated above, as well as send other more server-specific probes. Automated tools can compare responses from web servers much faster than manual testing, and utilize large databases of known responses to attempt server identification. For these reasons, automated tools are more likely to produce accurate results.
+Как указывалось ранее, дактилоскопия веб-сервера часто включается в качестве функции инструментов автоматического сканирования. Эти инструменты могут выполнять запросы, аналогичные тем, которые были продемонстрированы выше, а также отправлять другие более специфичные для сервера зонды. Автоматизированные инструменты могут сравнивать ответы с веб-серверов намного быстрее, чем ручное тестирование, и использовать большие базы данных известных ответов для попытки идентификации сервера. По этим причинам автоматизированные инструменты с большей вероятностью дают точные результаты.
 
-Here are some commonly-used scan tools that include web server fingerprinting functionality.
+Вот некоторые широко используемые инструменты сканирования, которые включают функцию дактилоскопии веб-сервера.
 
-- [Netcraft](https://toolbar.netcraft.com/site_report), an online tool that scans websites for information, including the web server.
-- [Nikto](https://github.com/sullo/nikto), an Open Source command-line scanning tool.
-- [Nmap](https://nmap.org/), an Open Source command-line tool that also has a GUI, [Zenmap](https://nmap.org/zenmap/).
+- [Netcraft](https://toolbar.netcraft.com/site_report), онлайн-инструмент, который сканирует сайты на предмет информации, включая веб-сервер.
+- [Nikto](https://github.com/sullo/nikto), инструмент сканирования командной строки с открытым исходным кодом.
+- [Nmap](https://nmap.org/), инструмент командной строки с открытым исходным кодом, который также имеет графический интерфейс, [Zenmap](https://nmap.org/zenmap/).
 
-## Remediation
+## Восстановление
 
-While exposed server information is not necessarily in itself a vulnerability, it is information that can assist attackers in exploiting other vulnerabilities that may exist. Exposed server information can also lead attackers to find version-specific server vulnerabilities that can be used to exploit unpatched servers. For this reason it is recommended that some precautions be taken. These actions include:
+Хотя открытая информация о сервере сама по себе не обязательно является уязвимостью, она может помочь злоумышленникам использовать другие уязвимости, которые могут существовать. Открытая информация о сервере также может привести к тому, что злоумышленники найдут уязвимости сервера, специфичные для версии, которые можно использовать для использования непатентованных серверов. По этой причине рекомендуется принять некоторые меры предосторожности. Эти действия включают в себя:
 
-- Obscuring web server information in headers, such as with Apache's [mod_headers module](https://httpd.apache.org/docs/current/mod/mod_headers.html).
-- Using a hardened [reverse proxy server](https://en.wikipedia.org/wiki/Proxy_server#Reverse_proxies) to create an additional layer of security between the web server and the Internet.
-- Ensuring that web servers are kept up-to-date with the latest software and security patches.
+- Наблюдение за информацией веб-сервера в заголовках, например, с Apache [mod_headers module](https://httpd.apache.org/docs/current/mod/mod_headers.html).
+- Используя закаленный [reverse proxy server](https://en.wikipedia.org/wiki/Proxy_server#Reverse_proxies) создать дополнительный уровень безопасности между веб-сервером и Интернетом.
+- Обеспечение актуальности веб-серверов с использованием новейших программ и исправлений безопасности.
