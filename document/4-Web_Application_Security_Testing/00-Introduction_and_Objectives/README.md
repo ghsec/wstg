@@ -1,78 +1,77 @@
-# 4.0 Introduction and Objectives
+# 4.0 Введение и цели
 
-This section describes the OWASP web application security testing methodology and explains how to test for evidence of vulnerabilities within the application due to deficiencies with identified security controls.
+В этом разделе описывается методология тестирования безопасности веб-приложений OWASP и объясняется, как проверять наличие уязвимостей в приложении из-за недостатков с выявленными элементами управления безопасностью.
 
-## What is Web Application Security Testing?
+## Что такое тестирование безопасности веб-приложений?
 
-A security test is a method of evaluating the security of a computer system or network by methodically validating and verifying the effectiveness of application security controls. A web application security test focuses only on evaluating the security of a web application. The process involves an active analysis of the application for any weaknesses, technical flaws, or vulnerabilities. Any security issues that are found will be presented to the system owner, together with an assessment of the impact, a proposal for mitigation or a technical solution.
+Тест безопасности - это метод оценки безопасности компьютерной системы или сети путем методической проверки и проверки эффективности средств контроля безопасности приложений. Тест безопасности веб-приложения фокусируется только на оценке безопасности веб-приложения. Процесс включает в себя активный анализ приложения на наличие слабых сторон, технических недостатков или уязвимостей. Любые обнаруженные проблемы безопасности будут представлены владельцу системы вместе с оценкой воздействия, предложением по смягчению или техническим решением.
 
-## What is a Vulnerability?
+## Что такое уязвимость?
+Уязвимость - это недостаток или слабость в разработке, внедрении, эксплуатации или управлении системы, которые могут быть использованы для достижения целей безопасности системы.
 
-A vulnerability is a flaw or weakness in a system's design, implementation, operation or management that could be exploited to compromise the system's security objectives.
+## Что такое угроза?
 
-## What is a Threat?
+Угроза - это что-либо (злодейный внешний злоумышленник, внутренний пользователь, нестабильность системы и т. Д.), Которое может нанести ущерб активам, принадлежащим приложению (ценностные ресурсы, такие как данные в базе данных или в файловой системе), используя уязвимость.
 
-A threat is anything (a malicious external attacker, an internal user, a system instability, etc) that may harm the assets owned by an application (resources of value, such as the data in a database or in the file system) by exploiting a vulnerability.
+## Что такое тест?
 
-## What is a Test?
+Тест - это действие, чтобы продемонстрировать, что приложение соответствует требованиям безопасности заинтересованных сторон.
 
-A test is an action to demonstrate that an application meets the security requirements of its stakeholders.
+## Подход в написании этого руководства
 
-## The Approach in Writing this Guide
+Подход OWASP открыт и работает совместно :
 
-The OWASP approach is open and collaborative:
+- Открыто: каждый эксперт по безопасности может участвовать со своим опытом в проекте. Все бесплатно.
+- Совместная работа: мозговой штурм выполняется до того, как статьи будут написаны, чтобы команда могла делиться идеями и разрабатывать коллективное видение проекта. Это означает грубый консенсус, более широкую аудиторию и более широкое участие.
 
-- Open: every security expert can participate with their experience in the project. Everything is free.
-- Collaborative: brainstorming is performed before the articles are written so the team can share ideas and develop a collective vision of the project. That means rough consensus, a wider audience and increased participation.
+Этот подход имеет тенденцию создавать определенную методологию тестирования, которая будет:
 
-This approach tends to create a defined Testing Methodology that will be:
+- Последовательный
+- Воспроизводимый
+- Строго
+- под контролем качества
 
-- Consistent
-- Reproducible
-- Rigorous
-- Under quality control
+Проблемы, которые необходимо решить, полностью документированы и проверены. Важно использовать метод для проверки всех известных уязвимостей и документирования всех действий по проверке безопасности.
 
-The problems to be addressed are fully documented and tested. It is important to use a method to test all known vulnerabilities and document all the security test activities.
+## Что такое методология тестирования OWASP?
 
-## What Is the OWASP Testing Methodology?
+Тестирование безопасности никогда не будет точной наукой, где можно определить полный список всех возможных проблем, которые должны быть проверены. Действительно, тестирование безопасности является лишь подходящим методом для проверки безопасности веб-приложений при определенных обстоятельствах. Цель этого проекта - собрать все возможные методы тестирования, объяснить эти методы и обновить руководство. Метод тестирования безопасности веб-приложений OWASP основан на подходе «черный ящик». Тестер ничего не знает или имеет очень мало информации о тестируемом приложении.
 
-Security testing will never be an exact science where a complete list of all possible issues that should be tested can be defined. Indeed, security testing is only an appropriate technique for testing the security of web applications under certain circumstances. The goal of this project is to collect all the possible testing techniques, explain these techniques, and keep the guide updated. The OWASP Web Application Security Testing method is based on the black box approach. The tester knows nothing or has very little information about the application to be tested.
+Модель тестирования состоит из:
 
-The testing model consists of:
+- Тестер: кто выполняет тестирование
+- Инструменты и методология: ядро этого проекта Руководства по тестированию
+- Применение: черный ящик для тестирования
 
-- Tester: Who performs the testing activities
-- Tools and methodology: The core of this Testing Guide project
-- Application: The black box to test
+Тестирование можно отнести к категории пассивных или активных:
 
-Testing can be categorized as passive or active:
+### Пассивное тестирование
 
-### Passive Testing
+Во время пассивного тестирования тестер пытается понять логику приложения и исследует приложение как пользователя. Инструменты могут быть использованы для сбора информации. Например, HTTP-прокси может использоваться для наблюдения за всеми HTTP-запросами и ответами. В конце этого этапа тестер должен понимать все точки доступа и функциональность системы (например,., Заголовки HTTP, параметры, файлы cookie, API, использование технологий / шаблоны и т. д.). [Сбор информации] (../ 01-Information_Gathering/README.md) раздел объясняет, как выполнить пассивное тестирование.
 
-During passive testing, a tester tries to understand the application's logic and explores the application as a user. Tools can be used for information gathering. For example, an HTTP proxy can be used to observe all the HTTP requests and responses. At the end of this phase, the tester should generally understand all the access points and functionality of the system (e.g., HTTP headers, parameters, cookies, APIs, technology usage/patterns, etc). The [Information Gathering](../01-Information_Gathering/README.md) section explains how to perform passive testing.
+Например, тестер может найти страницу по следующему URL: `https://www.example.com/login/auth_form`
 
-For example, a tester may find a page at the following URL: `https://www.example.com/login/auth_form`
+Это может указывать форму аутентификации, когда приложение запрашивает имя пользователя и пароль.
 
-This may indicate an authentication form where the application requests a username and password.
+Следующие параметры представляют две точки доступа к приложению: `https://www.example.com/appx?a=1&b=1`
 
-The following parameters represent two access points to the application: `https://www.example.com/appx?a=1&b=1`
+В этом случае приложение показывает две точки доступа (parameters `a` and `b`). Все точки ввода, найденные на этом этапе, представляют собой цель для тестирования. Отслеживание каталога или дерева вызовов приложения и всех точек доступа может быть полезно во время активного тестирования.
 
-In this case, the application shows two access points (parameters `a` and `b`). All the input points found in this phase represent a target for testing. Keeping track of the directory or call tree of the application and all the access points may be useful during active testing.
+### Активное тестирование
 
-### Active Testing
+Во время активного тестирования тестер начинает использовать методологии, описанные в следующих разделах.
 
-During active testing, a tester begins to use the methodologies described in the follow sections.
+Набор активных тестов был разделен на 12 категорий:
 
-The set of active tests have been split into 12 categories:
-
-- Information Gathering
-- Configuration and Deployment Management Testing
-- Identity Management Testing
-- Authentication Testing
-- Authorization Testing
-- Session Management Testing
-- Input Validation Testing
-- Error Handling
-- Cryptography
-- Business Logic Testing
-- Client-side Testing
-- API Testing
+- Сбор информации
+- Тестирование управления конфигурацией и развертыванием
+- Тестирование управления идентификацией
+- Проверка подлинности
+- Проверка авторизации
+- Тестирование управления сессиями
+- Тестирование проверки ввода
+- Обработка ошибок
+- криптография
+- Тестирование бизнес-логики
+- Тестирование на стороне клиента
+- Тестирование API
