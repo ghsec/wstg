@@ -1,60 +1,60 @@
-# Conduct Search Engine Discovery Reconnaissance for Information Leakage
+# Проведите разведку обнаружения поисковых систем для утечки информации
 
 |ID          |
 |------------|
 |WSTG-INFO-01|
 
-## Summary
+## Резюме
 
-In order for search engines to work, computer programs (or `robots`) regularly fetch data (referred to as [crawling](https://en.wikipedia.org/wiki/Web_crawler)) from billions of pages on the web. These programs find web content and functionality by following links from other pages, or by looking at sitemaps. If a website uses a special file called `robots.txt` to list pages that it does not want search engines to fetch, then the pages listed there will be ignored. This is a basic overview - Google offers a more in-depth explanation of [how a search engine works](https://support.google.com/webmasters/answer/70897?hl=en).
+Для того, чтобы поисковые системы работали, компьютерные программы (или `robots`) регулярно получать данные (упоминается как [crawling](https://en.wikipedia.org/wiki/Web_crawler)) с миллиардов страниц в Интернете. Эти программы находят веб-контент и функциональность, переходя по ссылкам с других страниц или просматривая ситемы. Если веб-сайт использует специальный файл с именем `robots.txt` для списка страниц, которые он не хочет извлекать поисковыми системами, то перечисленные там страницы будут игнорироваться. Это основной обзор - Google предлагает более подробное объяснение [how a search engine works](https://support.google.com/webmasters/answer/70897?hl=en).
 
-Testers can use search engines to perform reconnaissance on websites and web applications. There are direct and indirect elements to search engine discovery and reconnaissance: direct methods relate to searching the indexes and the associated content from caches, while indirect methods relate to learning sensitive design and configuration information by searching forums, newsgroups, and tendering websites.
+Тестеры могут использовать поисковые системы для проведения разведки на веб-сайтах и в веб-приложениях. Существуют прямые и косвенные элементы для обнаружения и разведки поисковых систем: прямые методы относятся к поиску индексов и связанного с ними контента из кешей, в то время как косвенные методы относятся к обучению конфиденциальной информации о дизайне и конфигурации с помощью поисковых форумов, групп новостей и сайтов тендеров.
 
-Once a search engine robot has completed crawling, it commences indexing the web content based on tags and associated attributes, such as `<TITLE>`, in order to return relevant search results. If the `robots.txt` file is not updated during the lifetime of the web site, and in-line HTML meta tags that instruct robots not to index content have not been used, then it is possible for indexes to contain web content not intended to be included by the owners. Website owners may use the previously mentioned `robots.txt`, HTML meta tags, authentication, and tools provided by search engines to remove such content.
+После того, как робот поисковой системы завершил ползание, он начинает индексировать веб-контент на основе тегов и связанных атрибутов, таких как `<TITLE> `, чтобы вернуть соответствующие результаты поиска. Если файл `robots.txt` не обновляется в течение срока службы веб-сайта, и встроенные метатеги HTML, которые инструктируют роботов не индексировать контент, не использовались, то индексы могут содержать веб-контент, не предназначенный быть включенным владельцами. Владельцы веб-сайтов могут использовать ранее упомянутые `robots.txt`, метатеги HTML, аутентификацию и инструменты, предоставляемые поисковыми системами, для удаления такого контента.
 
-## Test Objectives
+## Цели теста
 
-- Identify what sensitive design and configuration information of the application, system, or organization is exposed directly (on the organization's website) or indirectly (via third-party services).
+- Определите, какая конфиденциальная информация о конструкции и конфигурации приложения, системы или организации раскрывается напрямую (на веб-сайте организации) или косвенно (через сторонние службы).
 
-## How to Test
+## Как проверить
 
-Use a search engine to search for potentially sensitive information. This may include:
+Используйте поисковую систему для поиска потенциально конфиденциальной информации. Это может включать в себя:
 
-- network diagrams and configurations;
-- archived posts and emails by administrators or other key staff;
-- logon procedures and username formats;
-- usernames, passwords, and private keys;
-- third-party, or cloud service configuration files;
-- revealing error message content; and
-- development, test, User Acceptance Testing (UAT), and staging versions of sites.
+- сетевые схемы и конфигурации;
+- архивные сообщения и электронные письма администраторов или других ключевых сотрудников;
+- процедуры входа в систему и форматы имени пользователя;
+- имена пользователей, пароли и личные ключи;
+- сторонние или облачные файлы конфигурации службы;
+- раскрытие содержимого сообщения об ошибке; а также
+- разработка, тестирование, тестирование на приемку пользователей (UAT) и постановка версий сайтов.
 
-### Search Engines
+### Поисковые системы
 
-Do not limit testing to just one search engine provider, as different search engines may generate different results. Search engine results can vary in a few ways, depending on when the engine last crawled content, and the algorithm the engine uses to determine relevant pages. Consider using the following (alphabetically-listed) search engines:
+Не ограничивайте тестирование только одним поставщиком поисковых систем, поскольку разные поисковые системы могут генерировать разные результаты. Результаты поисковой системы могут варьироваться несколькими способами, в зависимости от того, когда движок последний ползучий контент, и алгоритма, который движок использует для определения соответствующих страниц. Рассмотрим использование следующих (в алфавитном порядке) поисковых систем:
 
-- [Baidu](https://www.baidu.com/), China's [most popular](https://en.wikipedia.org/wiki/Web_search_engine#Market_share) search engine.
-- [Bing](https://www.bing.com/), a search engine owned and operated by Microsoft, and the second [most popular](https://en.wikipedia.org/wiki/Web_search_engine#Market_share) worldwide. Supports [advanced search keywords](http://help.bing.microsoft.com/#apex/18/en-US/10001/-1).
-- [binsearch.info](https://binsearch.info/), a search engine for binary Usenet newsgroups.
-- [Common Crawl](https://commoncrawl.org/), "an open repository of web crawl data that can be accessed and analyzed by anyone."
-- [DuckDuckGo](https://duckduckgo.com/), a privacy-focused search engine that compiles results from many different [sources](https://help.duckduckgo.com/results/sources/). Supports [search syntax](https://help.duckduckgo.com/duckduckgo-help-pages/results/syntax/).
-- [Google](https://www.google.com/), which offers the world's [most popular](https://en.wikipedia.org/wiki/Web_search_engine#Market_share) search engine, and uses a ranking system to attempt to return the most relevant results. Supports [search operators](https://support.google.com/websearch/answer/2466433).
-- [Internet Archive Wayback Machine](https://archive.org/web/), "building a digital library of Internet sites and other cultural artifacts in digital form."
-- [Startpage](https://www.startpage.com/), a search engine that uses Google's results without collecting personal information through trackers and logs. Supports [search operators](https://support.startpage.com/index.php?/Knowledgebase/Article/View/989/0/advanced-search-which-search-operators-are-supported-by-startpagecom).
-- [Shodan](https://www.shodan.io/), a service for searching Internet-connected devices and services. Usage options include a limited free plan as well as paid subscription plans.
+- [Baidu](https://www.baidu.com/), Китай [самый популярный](https://en.wikipedia.org/wiki/Web_search_engine#Market_share) поисковая система.
+- [Bing](https://www.bing.com/), поисковая система, принадлежащая и управляемая Microsoft, и вторая [most popular](https://en.wikipedia.org/wiki/Web_search_engine#Market_share) по всему миру. Поддерживает [advanced search keywords](http://help.bing.microsoft.com/#apex/18/en-US/10001/-1).
+- [binsearch.info](https://binsearch.info/), поисковая система для бинарных групп новостей Usenet.
+- [Common Crawl](https://commoncrawl.org/), "открытый репозиторий данных веб-ползания, к которым может обращаться и анализировать любой желающий."
+- [DuckDuckGo](https://duckduckgo.com/), ориентированная на конфиденциальность поисковая система, которая собирает результаты из разных [sources](https://help.duckduckgo.com/results/sources/). Поддерживает [search syntax](https://help.duckduckgo.com/duckduckgo-help-pages/results/syntax/).
+- [Google](https://www.google.com/), который предлагает мир [most popular](https://en.wikipedia.org/wiki/Web_search_engine#Market_share) поисковая система и использует систему ранжирования, чтобы попытаться вернуть наиболее релевантные результаты. Поддерживает [search operators](https://support.google.com/websearch/answer/2466433).
+- [Internet Archive Wayback Machine](https://archive.org/web/), "создание цифровой библиотеки интернет-сайтов и других культурных артефактов в цифровом виде."
+- [Startpage](https://www.startpage.com/), поисковая система, которая использует результаты Google без сбора личной информации через трекеры и журналы. Поддерживает [search operators](https://support.startpage.com/index.php?/Knowledgebase/Article/View/989/0/advanced-search-which-search-operators-are-supported-by-startpagecom).
+- [Shodan](https://www.shodan.io/), служба поиска подключенных к Интернету устройств и услуг. Варианты использования включают ограниченный бесплатный план, а также планы платной подписки.
 
-Both DuckDuckGo and Startpage offer some increased privacy to users by not utilizing trackers or keeping logs. This can provide reduced information leakage about the tester.
+И DuckDuckGo, и Startpage предлагают пользователям некоторую повышенную конфиденциальность, не используя трекеры или ведение журналов. Это может обеспечить уменьшенную утечку информации о тестере.
 
-### Search Operators
+### Операторы поиска
 
-A search operator is a special keyword or syntax that extends the capabilities of regular search queries, and can help obtain more specific results. They generally take the form of `operator:query`. Here are some commonly supported search operators:
+Оператор поиска - это специальное ключевое слово или синтаксис, который расширяет возможности обычных поисковых запросов и может помочь получить более конкретные результаты. Они обычно принимают форму `operator: query`. Вот некоторые часто поддерживаемые поисковые операторы:
 
-- `site:` will limit the search to the provided domain.
-- `inurl:` will only return results that include the keyword in the URL.
-- `intitle:` will only return results that have the keyword in the page title.
-- `intext:` or `inbody:` will only search for the keyword in the body of pages.
-- `filetype:` will match only a specific filetype, i.e. png, or php.
+- `site:` ограничит поиск предоставленным доменом.
+- `inurl:` будет возвращать только те результаты, которые включают ключевое слово в URL .
+- `intitle:` будет возвращать только те результаты, которые имеют ключевое слово в заголовке страницы.
+- `intext:` или `inbody:` будет искать только ключевое слово в теле страниц.
+- `filetype:` будет соответствовать только определенному типу файла, т.е. png, или php.
 
-For example, to find the web content of owasp.org as indexed by a typical search engine, the syntax required is:
+Например, чтобы найти веб-контент owasp.org, проиндексированный типичной поисковой системой, требуется синтаксис:
 
 ```text
 site:owasp.org
@@ -63,11 +63,11 @@ site:owasp.org
 ![Google Site Operation Search Result Example](images/Google_site_Operator_Search_Results_Example_20200406.png)\
 *Figure 4.1.1-1: Google Site Operation Search Result Example*
 
-### Viewing Cached Content
+### Просмотр кэшированного контента
 
-To search for content that has previously been indexed, use the `cache:` operator. This is helpful for viewing content that may have changed since the time it was indexed, or that may no longer be available. Not all search engines provide cached content to search; the most useful source at time of writing is Google.
+Для поиска содержимого, которое было ранее проиндексировано, используйте оператор `cache:`. Это полезно для просмотра контента, который мог измениться с момента его индексации или который может быть недоступен. Не все поисковые системы предоставляют кэшированный контент для поиска; самый полезный источник на момент написания статьи - Google.
 
-To view `owasp.org` as it is cached, the syntax is:
+Для просмотра `owasp.org` в кешированном виде синтаксис:
 
 ```text
 cache:owasp.org
@@ -76,25 +76,25 @@ cache:owasp.org
 ![Google Cache Operation Search Result Example](images/Google_cache_Operator_Search_Results_Example_20200406.png)\
 *Figure 4.1.1-2: Google Cache Operation Search Result Example*
 
-### Google Hacking, or Dorking
+### Google Hacking, или Dorking
 
-Searching with operators can be a very effective discovery technique when combined with the creativity of the tester. Operators can be chained to effectively discover specific kinds of sensitive files and information. This technique, called [Google hacking](https://en.wikipedia.org/wiki/Google_hacking) or Dorking, is also possible using other search engines, as long as the search operators are supported.
+Поиск с операторами может быть очень эффективной техникой обнаружения в сочетании с креативностью тестера. Операторы могут быть объединены для эффективного обнаружения определенных видов конфиденциальных файлов и информации. Эта техника называется [Google hacking](https://en.wikipedia.org/wiki/Google_hacking) или Dorking, также возможно с использованием других поисковых систем, если поддерживаются операторы поиска.
 
-A database of dorks, such as [Google Hacking Database](https://www.exploit-db.com/google-hacking-database), is a useful resource that can help uncover specific information. Some categories of dorks available on this database include:
+База данных dork-ов, таких как [Google Hacking Database](https://www.exploit-db.com/google-hacking-database), это полезный ресурс, который может помочь раскрыть конкретную информацию. Некоторые категории придурков, доступные в этой базе данных, включают:
 
-- Footholds
-- Files containing usernames
-- Sensitive Directories
-- Web Server Detection
-- Vulnerable Files
-- Vulnerable Servers
-- Error Messages
-- Files containing juicy info
-- Files containing passwords
-- Sensitive Online Shopping Info
+- предгорья
+- Файлы, содержащие имена пользователей
+- Чувствительные каталоги
+- Обнаружение веб-сервера
+- Уязвимые файлы
+- Уязвимые серверы
+- Сообщения об ошибках
+- Файлы, содержащие сочную информацию
+- Файлы, содержащие пароли
+- Чувствительная информация о покупках в Интернете
 
-## Remediation
+## Восстановление
 
-Carefully consider the sensitivity of design and configuration information before it is posted online.
+Внимательно рассмотрите чувствительность информации о дизайне и конфигурации, прежде чем она будет опубликована в Интернете.
 
-Periodically review the sensitivity of existing design and configuration information that is posted online.
+Периодически проверяйте чувствительность существующей информации о дизайне и конфигурации, которая публикуется в Интернете.
