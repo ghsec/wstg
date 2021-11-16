@@ -1,45 +1,45 @@
-# Map Application Architecture
+# Карта архитектуры приложений
 
 |ID          |
 |------------|
 |WSTG-INFO-10|
 
-## Summary
+## Резюме
 
-In order to effectively test an application, and to be able to provide meaningful recommendations on how to address any of the issues identified, it is important to understand what you are actually testing. Additionally, it can help determine whether specific components should be considered out of scope for testing.
+Чтобы эффективно протестировать приложение и дать содержательные рекомендации о том, как решить любую из выявленных проблем, важно понимать, что вы на самом деле тестируете. Кроме того, это может помочь определить, следует ли считать конкретные компоненты не в рамках тестирования.
 
-Modern web applications can vary significantly in complexity, from a simple script running on a single server to a highly complex application spread across dozens of different systems, languages and components. There may also be additional network-level components such as firewalls or intrusion protection systems that can have a significant impact on testing.
+Современные веб-приложения могут значительно различаться по сложности: от простого скрипта, работающего на одном сервере, до очень сложного приложения, распространяющегося на десятки различных систем, языков и компонентов. Также могут быть дополнительные компоненты на уровне сети, такие как брандмауэры или системы защиты от вторжений, которые могут оказать существенное влияние на тестирование.
 
-## Test Objectives
+## Цели теста
 
-- Understand the architecture of the application and the technologies in use.
+- Понять архитектуру приложения и используемые технологии.
 
-## How to Test
+## Как проверить
 
-When testing from a black box perspective, it is important to try and build up a clear picture of how the application works, and which technologies and components are in place. In some cases it is possible to test for specific components (such as a web application firewall), while others can be identified by inspecting the behaviour of the application.
+При тестировании с точки зрения черного ящика важно попытаться составить четкое представление о том, как работает приложение, и какие технологии и компоненты существуют. В некоторых случаях можно проверить конкретные компоненты (такие как брандмауэр веб-приложения), в то время как другие могут быть идентифицированы путем проверки поведения приложения.
 
-The sections below provide a high-level overview of common architectural components, along with details of how they can be identified.
+В разделах ниже представлен обзор общих архитектурных компонентов на высоком уровне, а также подробности того, как их можно идентифицировать.
 
-### Application Components
+### Компоненты приложения
 
-#### Web Server
+#### Веб-сервер
 
-Simple applications may run on a single server, which can be identified using the steps discussed in the [Fingerprint Web Server](02-Fingerprint_Web_Server.md) section of the guide.
+Простые приложения могут работать на одном сервере, который можно идентифицировать с помощью шагов, обсуждаемых в разделе [Fingerprint Web Server](02-Fingerprint_Web_Server.md) руководства.
 
-#### Platform-as-a-Service (PaaS)
+#### Платформа как услуга (PaaS)
 
-In a Platform-as-a-Service (PaaS) model, the web server and underlying infrastructure are managed by the service provider, and the customer is only responsible for the application that this deployed on them. From a testing perspective, there are two main differences:
+В модели «Платформа как услуга» (PaaS) веб-сервер и базовая инфраструктура управляются поставщиком услуг, и клиент несет ответственность только за приложение, которое развернуто на них. С точки зрения тестирования, есть два основных отличия:
 
-- The application owner has no access to the underlying infrastructure, so will be unable to directly remediate any issues.
-- Infrastructure testing is likely to be out of scope for any engagements.
+- Владелец приложения не имеет доступа к базовой инфраструктуре, поэтому не сможет напрямую устранить какие-либо проблемы.
+- Тестирование инфраструктуры, вероятно, будет недоступно для любых обязательств.
 
-In some cases it is possible to identify the use of PaaS, as the application may use a specific domain name (for example, applications deployed on Azure App Services will have a `*.azurewebsites.net` domain - although they may also use custom domains). However, in other cases it is difficult to determine whether PaaS is in use.
+В некоторых случаях можно идентифицировать использование PaaS, поскольку приложение может использовать конкретное доменное имя (например, приложения, развернутые в Azure App Services, будут иметь домен `* .azurewebsites.net` - хотя они также могут использовать пользовательские домены). Однако в других случаях трудно определить, используется ли PaaS.
 
 #### Serverless
 
-In a Serverless model, the developers provide code which is directly run on a hosting platform as individual functions, rather than as an traditional larger web application deployed in a webroot. This makes it well suited to microservice-based architectures. As with a PaaS environment, infrastructure testing is likely to be out of scope.
+В модели без сервера разработчики предоставляют код, который непосредственно запускается на хостинговой платформе, в качестве отдельных функций, а не в качестве традиционного более крупного веб-приложения, развернутого в webroot. Это делает его хорошо подходящим для микросервисных архитектур. Как и в случае среды PaaS, тестирование инфраструктуры, вероятно, будет недоступно.
 
-In some cases the use of Serverless code may be indicated by the presence of specific HTTP headers. For example, AWS Lambda functions will typically return the following headers:
+IВ некоторых случаях использование кода без сервера может указываться наличием определенных заголовков HTTP. Например, лямбда-функции AWS обычно возвращают следующие заголовки:
 
 ```http
 X-Amz-Invocation-Type
@@ -47,145 +47,145 @@ X-Amz-Log-Type
 X-Amz-Client-Context
 ```
 
-Azure Functions are less obvious. They typically return the `Server: Kestrel` header - but this on its own is not enough to be confident that it is an Azure App function, rather than some other code running on Kestrel.
+Функции лазур менее очевидны. Как правило, они возвращают заголовок `Server: Kestrel` - но этого само по себе недостаточно, чтобы быть уверенным, что это функция Azure App, а не какой-то другой код, работающий на Kestrel.
 
 #### Microservices
 
-In a microservice-based architecture, the application API is made up of multiple discrete services, rather than running as a monolithic application. The services themselves often run inside containers (usually with Kubernetes), and can use a variety of different operating systems and languages. Although they are typically behind a single API gateway and domain, the use of multiple languages (often indicated in detailed error messages) can suggest that microservices are in use.
+В архитектуре на основе микросервиса API-интерфейс приложения состоит из нескольких дискретных сервисов, а не работает как монолитное приложение. Сами службы часто работают внутри контейнеров (обычно с Kubernetes) и могут использовать различные операционные системы и языки. Хотя они обычно находятся за одним шлюзом и доменом API, использование нескольких языков (часто указанных в подробных сообщениях об ошибках) может указывать на использование микросервисов.
 
 #### Static Storage
 
-Many applications store static content on dedicated storage platforms, rather than hosting it directly on the main web server. The two most common platforms are Amazon's S3 Buckets, and Azure's Storage Accounts, and can be easily identified by the domain names:
+Многие приложения хранят статический контент на выделенных платформах хранения, а не размещают его непосредственно на главном веб-сервере. Двумя наиболее распространенными платформами являются ведра Amazon S3 и учетные записи Azure, которые можно легко идентифицировать по доменным именам:
 
-- Amazon S3 Buckets are either `BUCKET.s3.amazonaws.com` or `s3.REGION.amazonaws.com/BUCKET`
-- Azure Storage Accounts are `ACCOUNT.blob.core.windows.net`
+- Ведра Amazon S3 - это либо `BUCKET.s3.amazonaws.com`, либо `s3.REGION.amazonaws.com/BUCKET`
+- Счета хранения Azure - это `ACCOUNT.blob.core.windows.net`
 
-These storage accounts can often exposes sensitive files, as discussed in the [Testing Cloud Storage Guide](../02-Configuration_and_Deployment_Management_Testing/11-Test_Cloud_Storage.md) section.
+Эти учетные записи хранилища часто могут раскрывать конфиденциальные файлы, как описано в [Testing Cloud Storage Guide](../02-Configuration_and_Deployment_Management_Testing/11-Test_Cloud_Storage.md) раздел.
 
-#### Database
+#### База данных
 
-Most non-trivial web applications use some kind of database to store dynamic content. In some cases it's possible to determine the database, although it usually relies on other issues in the application. This can often be done by:
+Большинство нетривиальных веб-приложений используют какую-то базу данных для хранения динамического контента. В некоторых случаях можно определить базу данных, хотя обычно она опирается на другие вопросы в приложении. Это часто можно сделать с помощью:
 
-- Port scanning the server and looking for any open ports associated with specific databases.
-- Triggering SQL (or NoSQL) related error messages (or finding existing errors from a [search engine](../01-Information_Gathering/01-Conduct_Search_Engine_Discovery_Reconnaissance_for_Information_Leakage.md).
+- Портовое сканирование сервера и поиск любых открытых портов, связанных с конкретными базами данных.
+- Запуск сообщений об ошибках, связанных с SQL (или NoSQL) (или поиск существующих ошибок из a [search engine](../01-Information_Gathering/01-Conduct_Search_Engine_Discovery_Reconnaissance_for_Information_Leakage.md).
 
-Where it's not possible to conclusively determine the database, you can often make an educated guess based on other aspects of the application:
+Там, где невозможно окончательно определить базу данных, вы часто можете сделать обоснованное предположение, основанное на других аспектах приложения:
 
 - Windows, IIS and ASP.NET often use Microsoft SQL server.
 - Embedded systems often use SQLite.
 - PHP often uses MySQL or PostgreSQL.
 - APEX often uses Oracle.
 
-These are not hard rules, but can certainly give you a reasonable starting point if no better information is available.
+Это не жесткие правила, но, безусловно, могут дать вам разумную отправную точку, если нет лучшей информации.
 
 #### Authentication
 
-Most applications have some form of authentication for users. There are multiple authentication back ends that can be used, such as:
+Большинство приложений имеют некоторую форму аутентификации для пользователей. Есть несколько задних концов аутентификации, которые можно использовать, таких как:
 
-- Web server configuration (including `.htaccess` files) or hard-coding passwords in scripts.
-    - Usually shows up as HTTP Basic authentication, indicated by a pop-up in the browser and a `WWW-Authenticate: Basic` HTTP header.
-- Local user accounts in a database.
-    - Usually integrated into a form or API endpoint on the application.
-- An existing central authentication source such as Active Directory or an LDAP server.
-    - May use NTLM authentication, indicated by a `WWW-Authenticate: NTLM` HTTP header.
-    - May be integrated into the web application in a form.
-    - May require the username to be entered in the "DOMAIN\username" format, or may give a dropdown of available domains.
-- Single Sign-On (SSO) with either an internal or external provider.
-    - Typically uses OAuth, OpenID Connect, or SAML.
+- Конфигурация веб-сервера (включая файлы .htaccess`) или пароли жесткого кодирования в скриптах.
+    - Обычно отображается как HTTP Basic аутентификация, обозначаемая всплывающим окном в браузере и заголовком `WWW-Authenticate: Basic` HTTP.
+- Локальные учетные записи пользователей в базе данных.
+    - Обычно интегрируется в форму или конечную точку API в приложении.
+- Существующий центральный источник аутентификации, такой как Active Directory или сервер LDAP.
+    - Может использовать аутентификацию NTLM, указанную в заголовке HTTP `WWW-Authenticate: NTLM`.
+    - Может быть интегрирован в веб-приложение в форме.
+    - Может потребовать ввода имени пользователя в формате «DOMAIN \ username» или может привести к выпаданию доступных доменов.
+- Единый вход (SSO) с внутренним или внешним поставщиком.
+    - Обычно использует OAuth, OpenID Connect или SAML .
 
-Applications may provide multiple options for the user to authenticate (such as registering a local account, or using their existing Facebook account), and may use different mechanisms for normal users and administrators.
+Приложения могут предоставлять пользователю несколько вариантов аутентификации (например, регистрация локальной учетной записи или использование существующей учетной записи Facebook) и могут использовать различные механизмы для обычных пользователей и администраторов.
 
-#### Third Party Services and APIs
+#### Сторонние сервисы и API
 
-Almost all web applications include third party resources that are loaded or interacted with by the client. These can include:
+Почти все веб-приложения включают сторонние ресурсы, которые загружаются или взаимодействуют клиентом. Они могут включать в себя:
 
-- [Active content](https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content#mixed_active_content) (such as scripts, style sheets, fonts, and iframes).
-- [Passive content](https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content#mixed_passivedisplay_content) (such as images and videos).
-- External APIs.
-- Social media buttons.
-- Advertising networks.
-- Payment gateways.
+- [Active content](https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content#mixed_active_content) (такие как скрипты, таблицы стилей, шрифты и iframes).
+- [Passive content](https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content#mixed_passivedisplay_content) (такие как изображения и видео).
+- Внешние API.
+- Кнопки социальных сетей.
+- Рекламные сети.
+- Платежные ворота.
 
-These resources are requested directly by the user's browser, so can easily be identified using the developer tools, or an intercepting proxy. While it is important to identify them (as they can impact the security of the application), remember that *they are usually out of scope for testing*, as they belong to third parties.
+Эти ресурсы запрашиваются непосредственно браузером пользователя, поэтому их можно легко идентифицировать с помощью инструментов разработчика или перехвата прокси. Хотя важно их идентифицировать (поскольку они могут повлиять на безопасность приложения), помните, что * они обычно не подходят для тестирования *, поскольку они принадлежат третьим сторонам.
 
-### Network Components
+### Сетевые компоненты
 
 #### Reverse Proxy
 
-A reverse proxy sits in front of one or more back end servers and redirects requests to the appropriate destination. They can implement various functionality, such as:
+Обратный прокси-сервер находится перед одним или несколькими серверными серверами и перенаправляет запросы в соответствующий пункт назначения. Они могут реализовать различные функции, такие как:
 
-- Acting as a [load balancer](#load-balancer) or [web application firewall](#web-application-firewall-waf).
-- Allowing multiple applications to be hosted on a single IP address or domain (in subfolders).
-- Implementing IP filtering or other restrictions.
-- Caching content from the back end to improve performance.
+- Действуя как [load balancer](#load-balancer) или [web application firewall](#web-application-firewall-waf).
+- Разрешение размещения нескольких приложений на одном IP-адресе или домене (в подпапках).
+- Внедрение IP-фильтрации или другие ограничения.
+- Кэширование контента с бэк-энда для повышения производительности.
 
-It is not always possible to detect a reverse proxy (especially if there is only a application behind it), but you can often sometimes identify it by:
+Не всегда возможно обнаружить обратный прокси-сервер (особенно если за ним стоит только приложение), но вы часто можете иногда идентифицировать его по:
 
-- A mismatch between the front end server and the back end application (such as a `Server: nginx` header with an ASP.NET application).
-    - This can sometimes lead to [request smuggling vulnerabilities](https://portswigger.net/web-security/request-smuggling).
-- Duplicate headers (especially the `Server` header).
-- Multiple applications hosted on the same IP address or domain (especially if they use different languages).
+- Несоответствие между интерфейсом сервера и бэкэнд-приложением (например, заголовок `Server: nginx` с приложением ASP.NET).
+    - Это иногда может привести к [request smuggling vulnerabilities](https://portswigger.net/web-security/request-smuggling).
+- Дубликаты (особенно заголовок `Server`).
+- Несколько приложений размещены на одном IP-адресе или домене (особенно если они используют разные языки).
 
 #### Load Balancer
 
-A load balancer sits in front of multiple back end servers and allocates requests between them in order to provide greater redundancy and processing capacity for the application.
+Балансировщик нагрузки находится перед несколькими серверными серверами и распределяет запросы между ними, чтобы обеспечить большую избыточность и емкость обработки для приложения.
 
-Load balancers can be difficult to detect, but can sometimes be identified by making multiple requests and examining the responses for differences, such as:
+Балансиров нагрузки может быть трудно обнаружить, но иногда их можно идентифицировать, делая несколько запросов и изучая ответы на различия, такие как:
 
-- Inconsistent system times.
-- Different internal IP addresses or hostnames in detailed error messages.
-- Different addresses returned from [Server-Side Request Forgery (SSRF)](../07-Input_Validation_Testing/19-Testing_for_Server-Side_Request_Forgery.md).
+- Непоследовательное системное время.
+- Различные внутренние IP-адреса или имена хостов в подробных сообщениях об ошибках.
+- Различные адреса возвращаются [Server-Side Request Forgery (SSRF)](../07-Input_Validation_Testing/19-Testing_for_Server-Side_Request_Forgery.md).
 
-They may also be indicated by the presence of specific cookies (for example, F5 BIG-IP load balancers will create a cookie called `BIGipServer`.
+Они также могут указываться наличием определенных файлов cookie (например, балансировщики нагрузки F5 BIG-IP создадут файл cookie под названием «BIGipServer»).
 
 #### Content Delivery Network (CDN)
 
-A Content Delivery Network (CDN) is a geographically distributed set of caching proxy servers, designed to improve website performance to to provide additional resilience for a website.
+Сеть доставки контента (CDN) - это географически распределенный набор кэширующих прокси-серверов, предназначенный для повышения производительности веб-сайта, чтобы обеспечить дополнительную устойчивость веб-сайта.
 
-It is typically configured by pointing the publicly facing domain to the CDN's servers, and then configuring the CDN to connect to the correct back end servers (sometimes known as the "origin").
+Обычно он настраивается путем указания общедоступного домена на серверы CDN, а затем настройки CDN для подключения к правильным серверам бэк-энда (иногда называемым "origin").
 
-The easiest way to detect a CDN is to perform a WHOIS lookup for the IP addresses that the domain resolves to. If they belong to a CDN company (such as Akamai, Cloudflare or Fastly - see [Wikipedia](https://en.wikipedia.org/wiki/Content_delivery_network#Notable_content_delivery_service_providers) for a more complete list) then it's like that a CDN is in use.
+Самый простой способ обнаружить CDN - выполнить поиск WHOIS для IP-адресов, которые домен разрешает. Если они принадлежат компании CDN (например, Akamai, Cloudflare или Fastly - см [Wikipedia](https://en.wikipedia.org/wiki/Content_delivery_network#Notable_content_delivery_service_providers) для более полного списка), то это похоже на то, что используется CDN.
 
-When testing a site behind a CDN, you should bear in mind the following points:
+При тестировании сайта за CDN вы должны учитывать следующие моменты:
 
-- The IPs and servers belong to the CDN provider, and are likely to be out of scope for infrastructure testing.
-- Many CDNs also include features like bot detection, rate limiting, and web application firewalls.
-- CDNs usually cache content, so any changes made to the back end website may not appear immediately.
+- IP-адреса и серверы принадлежат поставщику CDN и, вероятно, не подходят для тестирования инфраструктуры.
+- Многие CDN также включают такие функции, как обнаружение ботов, ограничение скорости и брандмауэры веб-приложений.
+- CDN обычно кэшируют содержимое, поэтому любые изменения, внесенные в серверный сайт, могут появляться не сразу.
 
-If the site is behind a CDN, then it can be useful to identify the back end servers. If they don't have proper access control enforced, then you may be able to bypass the CDN (and any protections it offers) by directly accessing the back end servers. There are a variety of different methods that may allow you to identify the back end system:
+Если сайт находится за CDN, то может быть полезно идентифицировать серверы бэк-энда. Если у них нет надлежащего контроля доступа, вы можете обойти CDN (и любые средства защиты, которые он предлагает), напрямую войдя на серверы бэк-энда. Существует множество различных методов, которые могут позволить вам идентифицировать бэкэнд-систему:
 
-- Emails sent by the application may come direct from the back end server, which could reveal it's IP address.
-- DNS grinding, zone transfers or certificate transparency lists for domain may reveal it on a subdomain.
-- Scanning the IP ranges known to be used by the company may find the back end server.
-- Exploiting [Server-Side Request Forgery (SSRF)](../07-Input_Validation_Testing/19-Testing_for_Server-Side_Request_Forgery.md) may reveal the IP address.
-- Detailed error messages from the application may expose IP addresses or hostnames.
+- Письма, отправленные приложением, могут поступать напрямую с серверного сервера, который может раскрыть его IP-адрес.
+- Размельчение DNS, передача зон или списки прозрачности сертификатов для домена могут раскрыть его в поддомене.
+- Сканирование диапазонов IP, которые, как известно, используются компанией, может найти сервер бэк-энда.
+- Использование [Server-Side Request Forgery (SSRF)](../07-Input_Validation_Testing/19-Testing_for_Server-Side_Request_Forgery.md) может раскрыть IP-адрес.
+- Подробные сообщения об ошибках из приложения могут отображать IP-адреса или имена хостов.
 
-### Security Components
+### Компоненты безопасности
 
-#### Network Firewall
+#### Сетевой брандмауэр
 
-Most web servers will be protected by a packet filtering or stateful inspection firewall, which blocks any network traffic that is not required. To detect this, perform a port scan of the server and examine the results.
+Большинство веб-серверов будут защищены брандмауэром фильтрации пакетов или проверки состояния, который блокирует любой сетевой трафик, который не требуется. Чтобы обнаружить это, выполните сканирование порта сервера и изучите результаты.
 
-If the majority of the ports are shown as "closed" (i.e, they return a `RST` packet in response to the initial `SYN` packet) then this suggests that the server may not be protected by a firewall. If the ports are shown as "filtered" (i.e, no response is received when sending a `SYN` packet to an unused port) then a firewall is most likely to be in place.
+Если большинство портов отображаются как «закрытые» (т. Е. Они возвращают пакет «RST» в ответ на первоначальный пакет «SYN»), это говорит о том, что сервер не может быть защищен брандмауэром. Если порты отображаются как «фильтрованные» (т. Е. При отправке пакета «SYN» на неиспользуемый порт не получен ответ), то, скорее всего, будет установлен брандмауэр.
 
-Additionally, if inappropriate services are exposed to the world (such as SMTP, IMAP, MySQL, etc), this suggests that either there is not firewall in place, or that the firewall is badly configured.
+Кроме того, если неподходящие службы подвергаются воздействию мира (например, SMTP, IMAP, MySQL и т. Д.), Это говорит о том, что либо нет брандмауэра, либо брандмауэр плохо настроен.
 
-#### Network Intrusion Detection and Prevention System
+#### Сетевая система обнаружения и предотвращения вторжений
 
-A network Intrusion Detection System (IDS) detects suspicious or malicious network-level activity (such as port or vulnerability scanning) and raises alerts. An Intrusion Prevention System (IPS) is similar, but also takes action to prevent the activity - usually by blocking the source IP address.
+Сетевая система обнаружения вторжений (IDS) обнаруживает подозрительную или вредоносную активность на уровне сети (например, сканирование портов или уязвимостей) и вызывает оповещения. Система предотвращения вторжений (IPS) аналогична, но также предпринимает действия для предотвращения активности - обычно путем блокировки исходного IP-адреса.
 
-An IPS can usually be detected by running automated scanning tools (such as a port scanner) against the target, and seeing if the source IP is blocked. However, many application-level tools may not be detected by an IPS (especially if it doesn't decrypt TLS).
+IPS обычно можно обнаружить, запустив инструменты автоматического сканирования (например, сканер портов) по цели и посмотрев, заблокирован ли исходный IP-адрес. Однако многие инструменты уровня приложения не могут быть обнаружены IPS (особенно если они не расшифровывают TLS).
 
-#### Web Application Firewall (WAF)
+#### Брандмауэр веб-приложений (WAF)
 
-A Web Application Firewall (WAF) inspects the contents of HTTP requests and blocks those that appear to be suspicious or malicious, or dynamically apply other controls such as CAPTCHA or rate limiting. They are usually based on a set of known bad signatures and regular expressions, such as the [OWASP Core Rule Set](https://owasp.org/www-project-modsecurity-core-rule-set/).  WAFs can be effective at protecting against some types of attacks (such as SQL injection or cross-site scripting), but are less effective against other types (such as access control or business logic related issues).
+Брандмауэр веб-приложения (WAF) проверяет содержимое HTTP-запросов и блокирует те, которые кажутся подозрительными или вредоносными, или динамически применяет другие элементы управления, такие как CAPTCHA или ограничение скорости. Они обычно основаны на наборе известных плохих подписей и регулярных выражений, таких как [OWASP Core Rule Set](https://owasp.org/www-project-modsecurity-core-rule-set/).  WAF могут быть эффективными для защиты от некоторых типов атак (таких как SQL-инъекция или cross-site scripting), но менее эффективны по отношению к другим типам (таким как контроль доступа или проблемы, связанные с бизнес-логикой).
 
-A WAF can be deployed in multiple locations, including:
+WAF может быть развернут в нескольких местах, включая:
 
-- On the web server itself.
-- On a separate virtual machine or hardware appliance.
-- In the cloud in front of the back end server.
+- На самом веб-сервере.
+- На отдельной виртуальной машине или аппаратном устройстве.
+- В облаке перед серверным сервером.
 
-Because a WAF blocks malicious requests, it can be detected by adding common attack strings to parameters and observing whether or not they are blocked. For example, try adding a parameter called `foo` with a value such as `' UNION SELECT 1` or `><script>alert(1)</script>`. If these requests are blocked then it suggests that there may be a WAF in place. Additionally, the contents of the block pages may provide information about the specific technology that is in use. Finally, some WAFs may add cookies or HTTP headers to responses that can reveal their presence.
+Поскольку WAF блокирует вредоносные запросы, его можно обнаружить, добавив общие строки атаки к параметрам и наблюдая, заблокированы они или нет. Например, попробуйте добавить параметр `foo` со значением, таким как `' UNION SELECT 1` или `><script>alert(1)</script>`. Если эти запросы заблокированы, это говорит о том, что может быть WAF на месте. Кроме того, содержимое страниц блока может содержать информацию о конкретной используемой технологии. Наконец, некоторые WAF могут добавлять файлы cookie или заголовки HTTP в ответы, которые могут раскрыть их присутствие.
 
-If a cloud-based WAF is in use, then it may be possible to bypass it by directly accessing the back end server, using the same methods discussed in the [Content Delivery Network](#content-delivery-network-cdn) section.
+Если используется облачный WAF, то можно обойти его, напрямую войдя на сервер бэк-энда, используя те же методы, которые обсуждались в [Content Delivery Network](#content-delivery-network-cdn) раздел.
