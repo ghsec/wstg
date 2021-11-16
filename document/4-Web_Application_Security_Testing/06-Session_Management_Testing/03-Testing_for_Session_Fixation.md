@@ -1,36 +1,36 @@
-# Testing for Session Fixation
+# Тестирование для фиксации сеанса
 
-|ID          |
-|------------|
-|WSTG-SESS-03|
+| ID |
+| ------------- |
+| WSTG-SESS-03 |
 
-## Summary
+## Резюме
 
-Session fixation is enabled by the insecure practice of preserving the same value of the session cookies before and after authentication. This typically happens when session cookies are used to store state information even before login, e.g., to add items to a shopping cart before authenticating for payment.
+Фиксация сеанса обеспечивается небезопасной практикой сохранения одного и того же значения файлов cookie сеанса до и после аутентификации. Обычно это происходит, когда сеансовые файлы cookie используются для хранения информации о состоянии даже до входа в систему, например,., добавить товары в корзину перед проверкой подлинности для оплаты.
 
-In the generic exploit of session fixation vulnerabilities, an attacker can obtain a set of session cookies from the target website without first authenticating. The attacker can then force these cookies into the victim's browser using different techniques. If the victim later authenticates at the target website and the cookies are not refreshed upon login, the victim will be identified by the session cookies chosen by the attacker. The attacker is then able to impersonate the victim with these known cookies.
+В общем использовании уязвимостей фиксации сеанса злоумышленник может получить набор файлов cookie сеанса с целевого веб-сайта без предварительной аутентификации. Затем злоумышленник может принудительно ввести эти файлы cookie в браузер жертвы, используя различные методы. Если жертва позже аутентифицируется на целевом веб-сайте, и файлы cookie не обновляются при входе в систему, жертва будет идентифицирована с помощью файлов cookie сеанса, выбранных злоумышленником. Затем злоумышленник может выдать себя за жертву с помощью этих известных файлов cookie.
 
-This issue can be fixed by refreshing the session cookies after the authentication process. Alternatively, the attack can be prevented by ensuring the integrity of session cookies. When considering network attackers, i.e., attackers who control the network used by the victim, use full [HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) or add the`__Host-` / `__Secure-` prefix to the cookie name.
+Эту проблему можно исправить, обновив сеансовые файлы cookie после процесса аутентификации. В качестве альтернативы, атака может быть предотвращена путем обеспечения целостности файлов cookie сеанса. При рассмотрении сетевых злоумышленников, т.е.злоумышленники, которые контролируют сеть, используемую жертвой, используют полностью [HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) или добавить`__Host-` / `__Secure-` префикс к имени файла cookie.
 
-Full HSTS adoption occurs when a host activates HSTS for itself and all its sub-domains. This is described in a paper called *Testing for Integrity Flaws in Web Sessions* by Stefano Calzavara, Alvise Rabitti, Alessio Ragazzo, and Michele Bugliesi.
+Полное принятие HSTS происходит, когда хост активирует HSTS для себя и всех своих субдоменов. Это описано в статье под названием *Testing for Integrity Flaws in Web Sessions* Стефано Кальзавара, Альвизе Рабитти, Алессио Рагаццо и Микеле Буглиеси.
 
-## Test Objectives
+## Цели теста
 
-- Analyze the authentication mechanism and its flow.
-- Force cookies and assess the impact.
+- Проанализируйте механизм аутентификации и его поток.
+- Принудительные куки и оцените влияние.
 
-## How to Test
+## Как проверить
 
-In this section we give an explanation of the testing strategy that will be shown in the next section.
+В этом разделе мы даем объяснение стратегии тестирования, которая будет показана в следующем разделе.
 
-The first step is to make a request to the site to be tested (_e.g._ `www.example.com`). If the tester requests the following:
+Первый шаг - сделать запрос на тестируемый сайт (_e.g._ `www.example.com`). Если тестер запрашивает следующее:
 
 ```http
 GET / HTTP/1.1
 Host: www.example.com
 ```
 
-They will obtain the following response:
+Они получат следующий ответ:
 
 ```html
 HTTP/1.1 200 OK
@@ -45,9 +45,9 @@ Content-Type: text/html;charset=Cp1254
 Content-Language: en-US
 ```
 
-The application sets a new session identifier, `JSESSIONID=0000d8eyYq3L0z2fgq10m4v-rt4:-1`, for the client.
+Приложение устанавливает новый идентификатор сеанса `JSESSIONID=0000d8eyYq3L0z2fgq10m4v-rt4:-1`, для клиента.
 
-Next, if the tester successfully authenticates to the application with the following POST to `https://www.example.com/authentication.php`:
+Затем, если тестер успешно аутентифицируется в приложении со следующим POST to `https://www.example.com/authentication.php`:
 
 ```http
 POST /authentication.php HTTP/1.1
@@ -61,7 +61,7 @@ Content-length: 57
 Name=Meucci&wpPassword=secret!&wpLoginattempt=Log+in
 ```
 
-The tester observes the following response from the server:
+Тестер наблюдает следующий ответ от сервера:
 
 ```http
 HTTP/1.1 200 OK
@@ -79,35 +79,35 @@ HTML data
 ...
 ```
 
-As no new cookie has been issued upon a successful authentication, the tester knows that it is possible to perform session hijacking unless the integrity of the session cookie is ensured.
+Поскольку при успешной аутентификации не было выпущено ни одного нового файла cookie, тестер знает, что можно выполнить захват сеанса, если не обеспечена целостность файла cookie сеанса.
 
-The tester can send a valid session identifier to a user (possibly using a social engineering trick), wait for them to authenticate, and subsequently verify that privileges have been assigned to this cookie.
+Тестер может отправить пользователю действительный идентификатор сеанса (возможно, с помощью трюка социальной инженерии), подождать, пока он аутентифицируется, и впоследствии убедиться, что привилегии были назначены этому cookie.
 
-### Test with Forced Cookies
+### Тест с принудительным печеньем
 
-This testing strategy is targeted at network attackers, hence it only needs to be applied to sites without full HSTS adoption (sites with full HSTS adoption are secure, since all their cookies have integrity). We assume to have two testing accounts on the website under test, one to act as the victim and one to act as the attacker. We simulate a scenario where the attacker forces in the victim's browser all the cookies which are not freshly issued after login and do not have integrity. After the victim's login, the attacker presents the forced cookies to the website to access the victim's account: if they are enough to act on the victim's behalf, session fixation is possible.
+Эта стратегия тестирования предназначена для сетевых злоумышленников, поэтому ее нужно применять только к сайтам без полного принятия HSTS (сайты с полным внедрением HSTS безопасны, поскольку все их файлы cookie имеют целостность). Мы предполагаем, что на тестируемом веб-сайте есть две учетные записи тестирования: одна - жертва, а другая - злоумышленник. Мы моделируем сценарий, при котором злоумышленник выдает в браузере жертвы все файлы cookie, которые не были выпущены недавно после входа в систему и не имеют целостности. После входа жертвы злоумышленник представляет принудительные файлы cookie на веб-сайт для доступа к учетной записи жертвы: если их достаточно, чтобы действовать от имени жертвы, возможна фиксация сеанса.
 
-Here are the steps for executing this test:
+Вот шаги для выполнения этого теста:
 
-1. Reach the login page of the website.
-2. Save a snapshot of the cookie jar before logging in, excluding cookies which contain the `__Host-` or `__Secure-` prefix in their name.
-3. Login to the website as the victim and reach any page offering a secure function requiring authentication.
-4. Set the cookie jar to the snapshot taken at step 2.
-5. Trigger the secure function identified at step 3.
-6. Observe whether the operation at step 5 has been performed successfully. If so, the attack was successful.
-7. Clear the cookie jar, login as the attacker and reach the page at step 3.
-8. Write in the cookie jar, one by one, the cookies saved at step 2.
-9. Trigger again the secure function identified at step 3.
-10. Clear the cookie jar and login again as the victim.
-11. Observe whether the operation at step 9 has been performed successfully in the victim's account. If so, the attack was successful; otherwise, the site is secure against session fixation.
+1. Перейдите на страницу входа на сайт.
+2. Сохраните снимок банки с файлами cookie перед входом в систему, за исключением файлов cookie, которые содержат префикс `__Host-` или `__Secure-` в своем имени.
+3. Войдите на сайт как жертва и зайдите на любую страницу, предлагающую безопасную функцию, требующую аутентификации.
+4. Установите банку с печеньем на снимок, сделанный на шаге 2.
+5. Запустите безопасную функцию, указанную на шаге 3.
+6. Посмотрите, была ли операция на шаге 5 успешно выполнена. Если так, атака была успешной.
+7. Очистите банку с файлами cookie, войдите в систему как злоумышленник и перейдите на страницу на шаге 3.
+8. Напишите в банке с печеньем, один за другим, куки сохраняются на шаге 2.
+9. Снова запустите безопасную функцию, указанную на шаге 3.
+10. Очистите банку с печеньем и снова войдите в систему как жертва.
+11. Посмотрите, была ли операция на шаге 9 успешно выполнена на счете жертвы. Если это так, атака была успешной; в противном случае сайт защищен от фиксации сеанса.
 
-We recommend using two different machines or browsers for the victim and the attacker. This allows you to decrease the number of false positives if the web application does fingerprinting to verify access enabled from a given cookie. A shorter but less precise variant of the testing strategy only requires one testing account. It follows the same steps, but it halts at step 6.
+Мы рекомендуем использовать две разные машины или браузеры для жертвы и злоумышленника. Это позволяет уменьшить количество ложных срабатываний, если веб-приложение выполняет дактилоскопию для проверки доступа, включенного из данного файла cookie. Более короткий, но менее точный вариант стратегии тестирования требует только одной учетной записи тестирования. Он следует тем же шагам, но останавливается на шаге 6.
 
-## Remediation
+## Восстановление
 
-Implement a session token renewal after a user successfully authenticates.
+Внедрить обновление токена сеанса после успешной аутентификации пользователя.
 
-The application should always first invalidate the existing session ID before authenticating a user, and if the authentication is successful, provide another session ID.
+Приложение всегда должно сначала аннулировать существующий идентификатор сеанса перед аутентификацией пользователя, а если аутентификация прошла успешно, укажите другой идентификатор сеанса
 
 ## Tools
 
