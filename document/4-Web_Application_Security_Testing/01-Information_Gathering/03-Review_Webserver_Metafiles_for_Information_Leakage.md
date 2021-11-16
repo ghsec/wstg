@@ -1,27 +1,27 @@
-# Review Webserver Metafiles for Information Leakage
+# Просмотр метафайлов веб-сервера для утечки информации
 
 |ID          |
 |------------|
 |WSTG-INFO-03|
 
-## Summary
+## Резюме
 
-This section describes how to test various metadata files for information leakage of the web application's path(s), or functionality. Furthermore, the list of directories that are to be avoided by Spiders, Robots, or Crawlers can also be created as a dependency for [Map execution paths through application](07-Map_Execution_Paths_Through_Application.md). Other information may also be collected to identify attack surface, technology details, or for use in social engineering engagement.
+В этом разделе описывается, как тестировать различные файлы метаданных на предмет утечки информации из пути (ей) веб-приложения или функциональности. Кроме того, список каталогов, которых следует избегать паукам, роботам или скаулерам, также может быть создан как зависимость [Map execution paths through application](07-Map_Execution_Paths_Through_Application.md). Другая информация также может быть собрана для идентификации поверхности атаки, технологических деталей или для использования в социальной инженерии.
 
-## Test Objectives
+## Цели теста
 
-- Identify hidden or obfuscated paths and functionality through the analysis of metadata files.
-- Extract and map other information that could lead to better understanding of the systems at hand.
+- Определите скрытые или запутанные пути и функциональность посредством анализа файлов метаданных.
+- Извлечение и картирование другой информации, которая может привести к лучшему пониманию рассматриваемых систем.
 
-## How to Test
+## Как проверить
 
-> Any of the actions performed below with `wget` could also be done with `curl`. Many Dynamic Application Security Testing (DAST) tools such as ZAP and Burp Suite include checks or parsing for these resources as part of their spider/crawler functionality. They can also be identified using various [Google Dorks](https://en.wikipedia.org/wiki/Google_hacking) or leveraging advanced search features such as `inurl:`.
+> Любое из действий, выполненных ниже с `wget`, также может быть выполнено с `curl`. Многие инструменты динамического тестирования безопасности приложений (DAST), такие как ZAP и Burp Suite, включают проверки или анализ этих ресурсов как часть их функциональности паука / гусеницы. Их также можно идентифицировать, используя различные [Google Dorks](https://en.wikipedia.org/wiki/Google_hacking) или использование расширенных функций поиска, таких как `inurl:`.
 
-### Robots
+### Роботы
 
-Web Spiders, Robots, or Crawlers retrieve a web page and then recursively traverse hyperlinks to retrieve further web content. Their accepted behavior is specified by the [Robots Exclusion Protocol](https://www.robotstxt.org) of the [robots.txt](https://www.robotstxt.org/) file in the web root directory.
+Веб-пауки, роботы или скаулеры извлекают веб-страницу, а затем рекурсивно пересекают гиперссылки для получения дополнительного веб-контента. Их принятое поведение определяется [Robots Exclusion Protocol](https://www.robotstxt.org) из [robots.txt](https://www.robotstxt.org/) файл в корневом каталоге.
 
-As an example, the beginning of the `robots.txt` file from [Google](https://www.google.com/robots.txt) sampled on 2020 May 5 is quoted below:
+Например, начало файла `robots.txt` из [Google](https://www.google.com/robots.txt) Выбрана 5 мая 2020 года приведена ниже:
 
 ```text
 User-agent: *
@@ -33,9 +33,9 @@ Disallow: /sdch
 ...
 ```
 
-The [User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) directive refers to the specific web spider/robot/crawler. For example, the `User-Agent: Googlebot` refers to the spider from Google while `User-Agent: bingbot` refers to a crawler from Microsoft. `User-Agent: *` in the example above applies to all [web spiders/robots/crawlers](https://support.google.com/webmasters/answer/6062608?visit_id=637173940975499736-3548411022&rd=1).
+The [User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) директива относится к конкретной сети spider/robot/crawler. Например, `User-Agent: Googlebot` относится к пауку из Google в то время как `User-Agent: bingbot` относится к скалеру из Microsoft. `User-Agent: *` в приведенном выше примере относится ко всем [web spiders/robots/crawlers](https://support.google.com/webmasters/answer/6062608?visit_id=637173940975499736-3548411022&rd=1).
 
-The `Disallow` directive specifies which resources are prohibited by spiders/robots/crawlers. In the example above, the following are prohibited:
+`Disallow` директива указывает, какие ресурсы запрещены spiders/robots/crawlers. В приведенном выше примере запрещено следующее:
 
 ```text
 ...
@@ -45,9 +45,9 @@ Disallow: /sdch
 ...
 ```
 
-Web spiders/robots/crawlers can [intentionally ignore](https://blog.isc2.org/isc2_blog/2008/07/the-attack-of-t.html) the `Disallow` directives specified in a `robots.txt` file. Hence, `robots.txt` should not be considered as a mechanism to enforce restrictions on how web content is accessed, stored, or republished by third parties.
+Веб spiders/robots/crawlers can [intentionally ignore](https://blog.isc2.org/isc2_blog/2008/07/the-attack-of-t.html) `Disallow` директивы, указанные в файле `robots.txt`. Следовательно, `robots.txt` не следует рассматривать как механизм для обеспечения соблюдения ограничений на доступ, хранение или повторную публикацию веб-контента третьими лицами.
 
-The `robots.txt` file is retrieved from the web root directory of the web server. For example, to retrieve the `robots.txt` from `www.google.com` using `wget` or `curl`:
+Файл `robots.txt` извлекается из корневого каталога веб-сервера. Например, чтобы получить `robots.txt` из `www.google.com`, используя `wget` или `curl`:
 
 ```bash
 $ curl -O -Ss http://www.google.com/robots.txt && head -n5 robots.txt
@@ -59,27 +59,27 @@ Allow: /search/howsearchworks
 ...
 ```
 
-#### Analyze robots.txt Using Google Webmaster Tools
+#### Анализируйте robots.txt с помощью инструментов Google Webmaster
 
-Web site owners can use the Google "Analyze robots.txt" function to analyze the website as part of its [Google Webmaster Tools](https://www.google.com/webmasters/tools). This tool can assist with testing and the procedure is as follows:
+Владельцы веб-сайтов могут использовать функцию Google "Analyze robots.txt" для анализа веб-сайта как части его [Google Webmaster Tools](https://www.google.com/webmasters/tools). Этот инструмент может помочь с тестированием, и процедура выглядит следующим образом:
 
-1. Sign into Google Webmaster Tools with a Google account.
-2. On the dashboard, enter the URL for the site to be analyzed.
-3. Choose between the available methods and follow the on screen instruction.
+1. Войдите в Google Webmaster Tools с учетной записью Google.
+2. На панели инструментов введите URL для сайта, который будет проанализирован.
+3. Выберите между доступными методами и следуйте инструкциям на экране.
 
-### META Tags
+### META Теги
 
-`<META>` tags are located within the `HEAD` section of each HTML document and should be consistent across a web site in the event that the robot/spider/crawler start point does not begin from a document link other than webroot i.e. a [deep link](https://en.wikipedia.org/wiki/Deep_linking). Robots directive can also be specified through use of a specific [META tag](https://www.robotstxt.org/meta.html).
+Теги `<META> `расположены в разделе `HEAD` каждого документа HTML и должны быть согласованы на веб-сайте в том случае, если начальная точка robot/spider/crawler не начинается со ссылки на документ, отличной от webroot, т.е. а [deep link](https://en.wikipedia.org/wiki/Deep_linking). Директива роботов также может быть указана с помощью определенного [META tag](https://www.robotstxt.org/meta.html).
 
-#### Robots META Tag
+#### Роботы МЕТА Tag
 
-If there is no `<META NAME="ROBOTS" ... >` entry then the "Robots Exclusion Protocol" defaults to `INDEX,FOLLOW` respectively. Therefore, the other two valid entries defined by the "Robots Exclusion Protocol" are prefixed with `NO...` i.e. `NOINDEX` and `NOFOLLOW`.
+Если нет `<META NAME="ROBOTS" ... >` запись тогда «Протокол исключения роботов» по умолчанию «INDEX, FOLLOW» соответственно. Поэтому две другие действительные записи, определенные «Протоколом исключения роботов», имеют префикс «NO ...`т.е. `NOINDEX` и `NOFOLLOW`.
 
-Based on the Disallow directive(s) listed within the `robots.txt` file in webroot, a regular expression search for `<META NAME="ROBOTS"` within each web page is undertaken and the result compared to the `robots.txt` file in webroot.
+На основании директив (й) Disallow, перечисленных в файле `robots.txt` в webroot, выполняется регулярный поиск по выражению `<META NAME = "ROBOTS" `на каждой веб-странице, и результат сравнивается с `robots .txt` файл в webroot.
 
-#### Miscellaneous META Information Tags
+#### Разные META Информационные теги
 
-Organizations often embed informational META tags in web content to support various technologies such as screen readers, social networking previews, search engine indexing, etc. Such meta-information can be of value to testers in identifying technologies used, and additional paths/functionality to explore and test. The following meta information was retrieved from `www.whitehouse.gov` via View Page Source on 2020 May 05:
+Организации часто встраивают информационные теги META в веб-контент для поддержки различных технологий, таких как программы чтения с экрана, предварительные просмотры в социальных сетях, индексация в поисковых системах и т. Д. Такая метаинформация может иметь значение для тестировщиков при определении используемых технологий и дополнительных путей / функциональности для изучения и тестирования. Следующая метаинформация была получена из `www.whitehouse.gov` через источник страницы просмотра 2020 мая 05:
 
 ```html
 ...
@@ -108,9 +108,9 @@ Organizations often embed informational META tags in web content to support vari
 
 ### Sitemaps
 
-A sitemap is a file where a developer or organization can provide information about the pages, videos, and other files offered by the site or application, and the relationship between them. Search engines can use this file to more intelligently explore your site. Testers can use `sitemap.xml` files to learn more about the site or application to explore it more completely.
+Карта сайта - это файл, в котором разработчик или организация могут предоставить информацию о страницах, видео и других файлах, предлагаемых сайтом или приложением, а также об отношениях между ними. Поисковые системы могут использовать этот файл для более разумного изучения вашего сайта. Тестеры могут использовать файлы `sitemap.xml`, чтобы узнать больше о сайте или приложении, чтобы изучить его более полно.
 
-The following excerpt is from Google's primary sitemap retrieved 2020 May 05.
+Следующий отрывок взят из основной карты сайта Google, полученной 2020 мая 05.
 
 ```bash
 $ wget --no-verbose https://www.google.com/sitemap.xml && head -n8 sitemap.xml
@@ -127,7 +127,7 @@ $ wget --no-verbose https://www.google.com/sitemap.xml && head -n8 sitemap.xml
 ...
 ```
 
-Exploring from there a tester may wish to retrieve the gmail sitemap `https://www.google.com/gmail/sitemap.xml`:
+Исследуя оттуда, тестер может захотеть получить карту сайта gmail `https://www.google.com/gmail/sitemap.xml`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -143,19 +143,19 @@ Exploring from there a tester may wish to retrieve the gmail sitemap `https://ww
 
 ### Security TXT
 
-`security.txt` is a [proposed standard](https://securitytxt.org/) which allows websites to define security policies and contact details. There are multiple reasons this might be of interest in testing scenarios, including but not limited to:
+`security.txt` является [proposed standard](https://securitytxt.org/) что позволяет веб-сайтам определять политики безопасности и контактные данные. Есть несколько причин, которые могут представлять интерес в сценариях тестирования, включая, но не ограничиваясь:
 
-- Identifying further paths or resources to include in discovery/analysis.
-- Open Source intelligence gathering.
-- Finding information on Bug Bounties, etc.
-- Social Engineering.
+- Определение дальнейших путей или ресурсов для включения в обнаружение / анализ.
+- Сбор информации с открытым исходным кодом.
+- Поиск информации о Bug Bounties и т. Д.
+- Социальная инженерия.
 
-The file may be present either in the root of the webserver or in the `.well-known/` directory. Ex:
+Файл может присутствовать либо в корне веб-сервера, либо в каталоге `.well-known /`. Ex:
 
 - `https://example.com/security.txt`
 - `https://example.com/.well-known/security.txt`
 
-Here is a real world example retrieved from LinkedIn 2020 May 05:
+Вот пример реального мира, полученный из LinkedIn 2020, май 05:
 
 ```bash
 $ wget --no-verbose https://www.linkedin.com/.well-known/security.txt && cat security.txt
@@ -170,9 +170,9 @@ Policy: https://www.linkedin.com/help/linkedin/answer/62924
 
 ### Humans TXT
 
-`humans.txt` is an initiative for knowing the people behind a website. It takes the form of a text file that contains information about the different people who have contributed to building the website. See [humanstxt](http://humanstxt.org/) for more info. This file often (though not always) contains information for career or job sites/paths.
+`humans.txt` это инициатива по знанию людей, стоящих за сайтом. Он принимает форму текстового файла, который содержит информацию о разных людях, которые внесли свой вклад в создание сайта. Видеть [humanstxt](http://humanstxt.org/) для получения дополнительной информации. Этот файл часто (хотя и не всегда) содержит информацию для карьерных или рабочих мест / путей.
 
-The following example was retrieved from Google 2020 May 05:
+Следующий пример был получен из Google 2020, май 05:
 
 ```bash
 $ wget --no-verbose  https://www.google.com/humans.txt && cat humans.txt
@@ -180,11 +180,11 @@ $ wget --no-verbose  https://www.google.com/humans.txt && cat humans.txt
 Google is built by a large team of engineers, designers, researchers, robots, and others in many different sites across the globe. It is updated continuously, and built with more tools and technologies than we can shake a stick at. If you'd like to help us out, see careers.google.com.
 ```
 
-### Other .well-known Information Sources
+### Другой .well-known Источники информации
 
-There are other RFCs and Internet drafts which suggest standardized uses of files within the `.well-known/` directory. Lists of which can be found [here](https://en.wikipedia.org/wiki/List_of_/.well-known/_services_offered_by_webservers) or [here](https://www.iana.org/assignments/well-known-uris/well-known-uris.xhtml).
+Существуют и другие RFC и интернет-черновики, которые предлагают стандартизированное использование файлов в каталоге `.well-known /`. Списки которых можно найти [here](https://en.wikipedia.org/wiki/List_of_/.well-known/_services_offered_by_webservers) или [here](https://www.iana.org/assignments/well-known-uris/well-known-uris.xhtml).
 
-It would be fairly simple for a tester to review the RFC/drafts are create a list to be supplied to a crawler or fuzzer, in order to verify the existence or content of such files.
+Тестеру было бы довольно просто просмотреть RFC / drafts, создать список, который будет предоставлен скайлеру или фуззеру, чтобы проверить наличие или содержание таких файлов.
 
 ## Tools
 
