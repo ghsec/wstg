@@ -1,51 +1,51 @@
-# Test Cloud Storage
+# Тестовое облачное хранилище
 
-|ID          |
-|------------|
-|WSTG-CONF-11|
+| ID |
+| ------------- |
+| WSTG-CONF-11 |
 
-## Summary
+## Резюме
 
-Cloud storage services facilitate web application and services to store and access objects in the storage service. Improper access control configuration, however, may result in sensitive information exposure, data being tampered, or unauthorized access.
+Службы облачного хранения облегчают использование веб-приложений и услуг для хранения и доступа к объектам в службе хранения. Однако неправильная конфигурация контроля доступа может привести к конфиденциальному раскрытию информации, подделке данных или несанкционированному доступу.
 
-A known example is where an Amazon S3 bucket is misconfigured, although the other cloud storage services may also be exposed to similar risks. By default, all S3 buckets are private and can be accessed only by users that are explicitly granted access. Users can grant public access to both the bucket itself and to individual objects stored within that bucket. This may lead to an unauthorized user being able to upload new files, modify or read stored files.
+Известный пример - когда ведро Amazon S3 неправильно сконфигурировано, хотя другие службы облачного хранилища также могут подвергаться аналогичным рискам. По умолчанию все ведра S3 являются частными и доступны только пользователям, которым явно предоставлен доступ. Пользователи могут предоставить публичный доступ как к самому ведру, так и к отдельным объектам, хранящимся в этом ведре. Это может привести к тому, что неавторизованный пользователь сможет загружать новые файлы, изменять или читать сохраненные файлы.
 
-## Test Objectives
+## Цели теста
 
-- Assess that the access control configuration for the storage services is properly in place.
+- Оцените, что конфигурация контроля доступа для служб хранения правильно установлена.
 
-## How to Test
+## Как проверить
 
-First identify the URL to access the data in the storage service, and then consider the following tests:
+Сначала определите URL-адрес для доступа к данным в службе хранения, а затем рассмотрите следующие тесты:
 
-- read the unauthorized data
-- upload a new arbitrary file
+- читать несанкционированные данные
+- загрузить новый произвольный файл
 
-You may use curl for the tests with the following commands and see if unauthorized actions can be performed successfully.
+Вы можете использовать curl для тестов со следующими командами и посмотреть, могут ли несанкционированные действия быть успешно выполнены.
 
-To test the ability to read an object:
+Чтобы проверить способность читать объект :
 
 ```bash
 curl -X GET https://<cloud-storage-service>/<object>
 ```
 
-To test the ability to upload a file:
+Чтобы проверить возможность загрузки файла :
 
 ```bash
 curl -X PUT -d 'test' 'https://<cloud-storage-service>/test.txt'
 ```
 
-### Testing for Amazon S3 Bucket Misconfiguration
+### Тестирование на амазонку S3 Bucket Misconfiguration
 
-The Amazon S3 bucket URLs follow one of two formats, either virtual host style or path-style.
+URL-адреса ведра Amazon S3 следуют одному из двух форматов: виртуальный стиль хоста или стиль пути.
 
-- Virtual Hosted Style Access
+- Виртуальный хостинг Стиль доступа
 
 ```text
 https://bucket-name.s3.Region.amazonaws.com/key-name
 ```
 
-In the following example, `my-bucket` is the bucket name, `us-west-2` is the region, and `puppy.png` is the key-name:
+В следующем примере `my-bucket` - это имя ведра, `us-west-2` - это регион, а `puppy.png` - это имя ключа:
 
 ```text
 https://my-bucket.s3.us-west-2.amazonaws.com/puppy.png
@@ -57,13 +57,13 @@ https://my-bucket.s3.us-west-2.amazonaws.com/puppy.png
 https://s3.Region.amazonaws.com/bucket-name/key-name
 ```
 
-As above, in the following example, `my-bucket` is the bucket name, `us-west-2` is the region, and `puppy.png` is the key-name:
+Как и выше, в следующем примере `my-bucket` - это имя ведра, `us-west-2` - это регион, а `puppy.png` - это имя ключа:
 
 ```text
 https://s3.us-west-2.amazonaws.com/my-bucket/puppy.jpg
 ```
 
-For some regions, the legacy global endpoint that does not specify a region-specific endpoint can be used. Its format is also either virtual hosted style or path-style.
+Для некоторых регионов можно использовать устаревшую глобальную конечную точку, которая не указывает конкретную для региона конечную точку. Его формат также является виртуальным стилем или стилем пути.
 
 - Virtual Hosted Style Access
 
@@ -77,9 +77,9 @@ https://bucket-name.s3.amazonaws.com
 https://s3.amazonaws.com/bucket-name
 ```
 
-#### Identify Bucket URL
+#### Определите URL ведра
 
-For black-box testing, S3 URLs can be found in the HTTP messages. The following example shows a bucket URL is sent in the `img` tag in a HTTP response.
+Для тестирования черного ящика URL-адреса S3 можно найти в сообщениях HTTP. В следующем примере показан URL-адрес ведра, отправляемый в теге `img` в ответе HTTP.
 
 ```html
 ...
@@ -87,45 +87,45 @@ For black-box testing, S3 URLs can be found in the HTTP messages. The following 
 ...
 ```
 
-For gray-box testing, you can obtain bucket URLs from Amazon's web interface, documents, source code, or any other available sources.
+Для тестирования «серых ящиков» вы можете получить URL-адреса ведра из веб-интерфейса Amazon, документов, исходного кода или любых других доступных источников.
 
-#### Testing with AWS-CLI
+#### Тестирование с AWS-CLI
 
-In addition to testing with curl, you can also test with the AWS Command-line tool. In this case `s3://` protocol is used.
+Помимо тестирования с помощью завивки, вы также можете протестировать с помощью инструмента командной строки AWS. В этом случае используется протокол `s3: //`.
 
-##### List
+##### Список
 
-The following command lists all the objects of the bucket when it is configured public.
+Следующая команда перечисляет все объекты ведра, когда оно настроено общедоступно.
 
 ```bash
 aws s3 ls s3://<bucket-name>
 ```
 
-##### Upload
+##### Загрузить
 
-The following is the command to upload a file
+Ниже приведена команда загрузки файла
 
 ```bash
 aws s3 cp arbitrary-file s3://bucket-name/path-to-save
 ```
 
-This example shows the result when the upload has been successful.
+Этот пример показывает результат, когда загрузка прошла успешно.
 
 ```bash
 $ aws s3 cp test.txt s3://bucket-name/test.txt
 upload: ./test.txt to s3://bucket-name/test.txt
 ```
 
-This example shows the result when the upload has failed.
+Этот пример показывает результат, когда загрузка не удалась.
 
 ```bash
 $ aws s3 cp test.txt s3://bucket-name/test.txt
 upload failed: ./test2.txt to s3://bucket-name/test2.txt An error occurred (AccessDenied) when calling the PutObject operation: Access Denied
 ```
 
-##### Remove
+##### Удалить
 
-The following is the command to remove an object
+Ниже приведена команда удаления объекта
 
 ```bash
 aws s3 rm s3://bucket-name/object-to-remove
