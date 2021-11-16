@@ -1,34 +1,34 @@
-# Test RIA Cross Domain Policy
+# Тестовая политика RIA Cross Domain
 
-|ID          |
-|------------|
-|WSTG-CONF-08|
+| ID |
+| ------------- |
+| WSTG-CONF-08 |
 
-## Summary
+## Резюме
 
-Rich Internet Applications (RIA) have adopted Adobe's crossdomain.xml policy files to allow for controlled cross domain access to data and service consumption using technologies such as Oracle Java, Silverlight, and Adobe Flash. Therefore, a domain can grant remote access to its services from a different domain. However, often the policy files that describe the access restrictions are poorly configured. Poor configuration of the policy files enables Cross-site Request Forgery attacks, and may allow third parties to access sensitive data meant for the user.
+Rich Internet Applications (RIA) приняли файлы политики Adobe crossdomain.xml, чтобы обеспечить контролируемый междоменный доступ к данным и потреблению услуг с использованием таких технологий, как Oracle Java, Silverlight и Adobe Flash. Следовательно, домен может предоставлять удаленный доступ к своим услугам из другого домена. Однако часто файлы политик, которые описывают ограничения доступа, плохо настроены. Плохая конфигурация файлов политики позволяет проводить межсайтовые атаки и может позволить третьим сторонам получить доступ к конфиденциальным данным, предназначенным для пользователя.
 
-### What are cross-domain policy files?
+### Что такое файлы политики междоменного пространства?
 
-A cross-domain policy file specifies the permissions that a web client such as Java, Adobe Flash, Adobe Reader, etc. use to access data across different domains. For Silverlight, Microsoft adopted a subset of the Adobe's crossdomain.xml, and additionally created it's own cross-domain policy file: clientaccesspolicy.xml.
+Файл политики междоменного домена определяет разрешения, которые веб-клиент, такой как Java, Adobe Flash, Adobe Reader и т. Д. использовать для доступа к данным в разных доменах. Для Silverlight Microsoft приняла подмножество Adobe crossdomain.xml и дополнительно создала собственный файл политики кросс-домена: clientaccesspolicy.xml.
 
-Whenever a web client detects that a resource has to be requested from other domain, it will first look for a policy file in the target domain to determine if performing cross-domain requests, including headers, and socket-based connections are allowed.
+Всякий раз, когда веб-клиент обнаруживает, что ресурс должен запрашиваться из другого домена, он сначала ищет файл политики в целевом домене, чтобы определить, разрешено ли выполнение междоменных запросов, включая заголовки и соединения на основе сокетов.
 
-Master policy files are located at the domain's root. A client may be instructed to load a different policy file but it will always check the master policy file first to ensure that the master policy file permits the requested policy file.
+Файлы основных политик находятся в корне домена. Клиенту может быть поручено загрузить другой файл политики, но он всегда сначала проверяет основной файл политики, чтобы убедиться, что основной файл политики разрешает запрашиваемый файл политики.
 
-#### Crossdomain.xml vs. Clientaccesspolicy.xml
+#### Crossdomain.xml против. Clientaccesspolicy.xml
 
-Most RIA applications support crossdomain.xml. However in the case of Silverlight, it will only work if the crossdomain.xml specifies that access is allowed from any domain. For more granular control with Silverlight, clientaccesspolicy.xml must be used.
+Большинство приложений RIA поддерживают crossdomain.xml. Однако в случае Silverlight он будет работать только в том случае, если crossdomain.xml указывает, что доступ разрешен из любого домена. Для более детального контроля с Silverlight необходимо использовать clientaccesspolicy.xml.
 
-Policy files grant several types of permissions:
+Файлы политик предоставляют несколько типов разрешений:
 
-- Accepted policy files (Master policy files can disable or restrict specific policy files)
-- Sockets permissions
-- Header permissions
-- HTTP/HTTPS access permissions
-- Allowing access based on cryptographic credentials
+- Принимаемые файлы политик (основные файлы политик могут отключать или ограничивать определенные файлы политик)
+- Носочки разрешения
+- Права заголовка
+- разрешения доступа HTTP / HTTPS
+- Разрешение доступа на основе криптографических учетных данных
 
-An example of an overly permissive policy file:
+Пример чрезмерно разрешающего файла политики:
 
 ```xml
 <?xml version="1.0"?>
@@ -41,30 +41,30 @@ An example of an overly permissive policy file:
 </cross-domain-policy>
 ```
 
-### How can cross domain policy files can be abused?
+### Как можно злоупотреблять файлами политики междоменов?
 
-- Overly permissive cross-domain policies.
-- Generating server responses that may be treated as cross-domain policy files.
-- Using file upload functionality to upload files that may be treated as cross-domain policy files.
+- Чрезмерно разрешающая междоменная политика.
+- Генерация ответов сервера, которые могут рассматриваться как файлы политики междоменного пространства.
+- Использование функции загрузки файлов для загрузки файлов, которые могут рассматриваться как файлы политики междоменного пространства.
 
-### Impact of Abusing Cross-Domain Access
+### Воздействие злоупотребления междоменным доступом
 
-- Defeat CSRF protections.
-- Read data restricted or otherwise protected by cross-origin policies.
+- Обездействовать защите CSRF.
+- Данные чтения ограничены или иным образом защищены политиками перекрестного происхождения.
 
-## Test Objectives
+## Цели теста
 
-- Review and validate the policy files.
+- Просмотр и проверка файлов политики.
 
-## How to Test
+## Как проверить
 
-### Testing for RIA Policy Files Weakness
+### Тестирование на слабые стороны файлов политики RIA
 
-To test for RIA policy file weakness the tester should try to retrieve the policy files crossdomain.xml and clientaccesspolicy.xml from the application's root, and from every folder found.
+Чтобы проверить слабость файла политики RIA, тестер должен попытаться извлечь файлы политики crossdomain.xml и clientaccesspolicy.xml из корня приложения и из каждой найденной папки.
 
-For example, if the application's URL is `http://www.owasp.org`, the tester should try to download the files `http://www.owasp.org/crossdomain.xml` and `http://www.owasp.org/clientaccesspolicy.xml`.
+Например, если URL приложения `http://www.owasp.org`, тестер должен попытаться загрузить файлы `http://www.owasp.org/crossdomain.xml` and `http://www.owasp.org/clientaccesspolicy.xml`.
 
-After retrieving all the policy files, the permissions allowed should be be checked under the least privilege principle. Requests should only come from the domains, ports, or protocols that are necessary. Overly permissive policies should be avoided. Policies with `*` in them should be closely examined.
+После извлечения всех файлов политики разрешенные разрешения должны проверяться по принципу наименьших привилегий. Запросы должны поступать только с доменов, портов или протоколов, которые необходимы. Следует избегать чрезмерных разрешительных политик. Политики с `* `в них должны быть внимательно изучены.
 
 #### Example
 
