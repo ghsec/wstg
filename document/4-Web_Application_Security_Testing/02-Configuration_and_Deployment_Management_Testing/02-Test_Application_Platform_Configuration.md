@@ -1,157 +1,157 @@
-# Test Application Platform Configuration
+# Тестовая конфигурация платформы приложения
 
 |ID          |
 |------------|
 |WSTG-CONF-02|
 
-## Summary
+## Резюме
 
-Proper configuration of the single elements that make up an application architecture is important in order to prevent mistakes that might compromise the security of the whole architecture.
+Правильная конфигурация отдельных элементов, составляющих архитектуру приложения, важна для предотвращения ошибок, которые могут поставить под угрозу безопасность всей архитектуры.
 
-Configuration review and testing is a critical task in creating and maintaining an architecture. This is because many different systems will be usually provided with generic configurations that might not be suited to the task they will perform on the specific site they're installed on.
+Проверка и тестирование конфигурации является важной задачей при создании и поддержании архитектуры. Это связано с тем, что многие различные системы обычно будут снабжены общими конфигурациями, которые могут не соответствовать задаче, которую они будут выполнять на конкретном сайте, на котором они установлены.
 
-While the typical web and application server installation will contain a lot of functionality (like application examples, documentation, test pages) what is not essential should be removed before deployment to avoid post-install exploitation.
+Хотя типичная установка веб-сервера и сервера приложений будет содержать много функций (например, примеры приложений, документация, тестовые страницы), что не обязательно, следует удалять перед развертыванием, чтобы избежать эксплуатации после установки.
 
-## Test Objectives
+## Цели теста
 
-- Ensure that defaults and known files have been removed.
-- Validate that no debugging code or extensions are left in the production environments.
-- Review the logging mechanisms set in place for the application.
+- Убедитесь, что настройки по умолчанию и известные файлы были удалены.
+- Убедитесь, что в производственных средах не осталось кода отладки или расширений.
+- Просмотрите механизмы регистрации, установленные для приложения.
 
-## How to Test
+## Как проверить
 
-### Black-Box Testing
+### Тестирование черного ящика
 
-#### Sample and Known Files and Directories
+#### Образец и известные файлы и каталоги
 
-Many web servers and application servers provide, in a default installation, sample applications and files for the benefit of the developer and in order to test that the server is working properly right after installation. However, many default web server applications have been later known to be vulnerable. This was the case, for example, for CVE-1999-0449 (Denial of Service in IIS when the Exair sample site had been installed), CAN-2002-1744 (Directory traversal vulnerability in CodeBrws.asp in Microsoft IIS 5.0), CAN-2002-1630 (Use of sendmail.jsp in Oracle 9iAS), or CAN-2003-1172 (Directory traversal in the view-source sample in Apache’s Cocoon).
+Многие веб-серверы и серверы приложений предоставляют при установке по умолчанию образцы приложений и файлов в интересах разработчика и для проверки правильности работы сервера сразу после установки. Однако позже стало известно, что многие приложения веб-сервера по умолчанию уязвимы. Это был случай, например, для CVE-1999-0449 (Отказ в обслуживании в IIS, когда был установлен образец сайта Exair) CAN-2002-1744 (Уязвимость обхода каталога в CodeBrws.asp в Microsoft IIS 5.0) CAN-2002-1630 (Использование sendmail.jsp в Oracle 9iAS) или CAN-2003-1172 (Обход каталога в образце источника просмотра в Apache Cocoon).
 
-CGI scanners include a detailed list of known files and directory samples that are provided by different web or application servers and might be a fast way to determine if these files are present. However, the only way to be really sure is to do a full review of the contents of the web server or application server and determine of whether they are related to the application itself or not.
+Сканеры CGI включают подробный список известных файлов и образцов каталогов, которые предоставляются различными веб-серверами или серверами приложений, и могут быть быстрым способом определить, присутствуют ли эти файлы. Однако единственный способ быть уверенным - это сделать полный обзор содержимого веб-сервера или сервера приложений и определить, связаны ли они с самим приложением или нет.
 
-#### Comment Review
+#### Комментарий Обзор
 
-It is very common for programmers to add comments when developing large web-based applications. However, comments included inline in HTML code might reveal internal information that should not be available to an attacker. Sometimes, even source code is commented out since a functionality is no longer required, but this comment is leaked out to the HTML pages returned to the users unintentionally.
+Программисты очень часто добавляют комментарии при разработке крупных веб-приложений. Однако комментарии, включенные в встроенный код HTML, могут раскрывать внутреннюю информацию, которая не должна быть доступна злоумышленнику. Иногда даже исходный код комментируется, поскольку функциональность больше не требуется, но этот комментарий просочится на HTML-страницы, непреднамеренно возвращаемые пользователям.
 
-Comment review should be done in order to determine if any information is being leaked through comments. This review can only be thoroughly done through an analysis of the web server static and dynamic content and through file searches. It can be useful to browse the site either in an automatic or guided fashion and store all the content retrieved. This retrieved content can then be searched in order to analyse any HTML comments available in the code.
+Обзор комментариев должен быть сделан, чтобы определить, просочилась ли какая-либо информация через комментарии. Этот обзор может быть полностью выполнен только путем анализа статического и динамического содержимого веб-сервера и поиска файлов. Может быть полезно просматривать сайт автоматически или с гидом и хранить весь полученный контент. Этот восстановленный контент затем можно искать, чтобы проанализировать любые комментарии HTML, доступные в коде.
 
-#### System Configuration
+#### Конфигурация системы
 
-Various tools, documents, or checklists can be used to give IT and security professionals a detailed assessment of target systems' conformance to various configuration baselines or benchmarks. Such tools include (but are not limited to):
+Различные инструменты, документы или контрольные списки могут использоваться для предоставления специалистам в области ИТ и безопасности подробной оценки соответствия целевых систем различным базовым показателям или контрольным показателям конфигурации. Такие инструменты включают (но не ограничиваются ими):
 
 - [CIS-CAT Lite](https://www.cisecurity.org/blog/introducing-cis-cat-lite/)
 - [Microsoft's Attack Surface Analyzer](https://github.com/microsoft/AttackSurfaceAnalyzer)
 - [NIST's National Checklist Program](https://nvd.nist.gov/ncp/repository)
 
-### Gray-Box Testing
+### Тестирование серой коробки
 
-#### Configuration Review
+#### Обзор конфигурации
 
-The web server or application server configuration takes an important role in protecting the contents of the site and it must be carefully reviewed in order to spot common configuration mistakes. Obviously, the recommended configuration varies depending on the site policy, and the functionality that should be provided by the server software. In most cases, however, configuration guidelines (either provided by the software vendor or external parties) should be followed to determine if the server has been properly secured.
+Конфигурация веб-сервера или сервера приложений играет важную роль в защите содержимого сайта, и ее необходимо тщательно проверять, чтобы обнаружить распространенные ошибки конфигурации. Очевидно, что рекомендуемая конфигурация варьируется в зависимости от политики сайта и функциональности, которая должна предоставляться серверным программным обеспечением. Однако в большинстве случаев следует соблюдать рекомендации по конфигурации (предоставленные поставщиком программного обеспечения или внешними сторонами), чтобы определить, был ли сервер должным образом защищен.
 
-It is impossible to generically say how a server should be configured, however, some common guidelines should be taken into account:
+Невозможно в общих чертах сказать, как должен быть настроен сервер, однако следует учитывать некоторые общие рекомендации:
 
-- Only enable server modules (ISAPI extensions in the case of IIS) that are needed for the application. This reduces the attack surface since the server is reduced in size and complexity as software modules are disabled. It also prevents vulnerabilities that might appear in the vendor software from affecting the site if they are only present in modules that have been already disabled.
-- Handle server errors (40x or 50x) with custom-made pages instead of with the default web server pages. Specifically make sure that any application errors will not be returned to the end user and that no code is leaked through these errors since it will help an attacker. It is actually very common to forget this point since developers do need this information in pre-production environments.
-- Make sure that the server software runs with minimized privileges in the operating system. This prevents an error in the server software from directly compromising the whole system, although an attacker could elevate privileges once running code as the web server.
-- Make sure the server software properly logs both legitimate access and errors.
-- Make sure that the server is configured to properly handle overloads and prevent Denial of Service attacks. Ensure that the server has been performance-tuned properly.
-- Never grant non-administrative identities (with the exception of `NT SERVICE\WMSvc`) access to applicationHost.config, redirection.config, and administration.config (either Read or Write access). This includes `Network Service`, `IIS_IUSRS`, `IUSR`, or any custom identity used by IIS application pools. IIS worker processes are not meant to access any of these files directly.
-- Never share out applicationHost.config, redirection.config, and administration.config on the network. When using Shared Configuration, prefer to export applicationHost.config to another location (see the section titled "Setting Permissions for Shared Configuration).
-- Keep in mind that all users can read .NET Framework `machine.config` and root `web.config` files by default. Do not store sensitive information in these files if it should be for administrator eyes only.
-- Encrypt sensitive information that should be read by the IIS worker processes only and not by other users on the machine.
-- Do not grant Write access to the identity that the Web server uses to access the shared `applicationHost.config`. This identity should have only Read access.
-- Use a separate identity to publish applicationHost.config to the share. Do not use this identity for configuring access to the shared configuration on the Web servers.
-- Use a strong password when exporting the encryption keys for use with shared -configuration.
-- Maintain restricted access to the share containing the shared configuration and encryption keys. If this share is compromised, an attacker will be able to read and write any IIS configuration for your Web servers, redirect traffic from your Web site to malicious sources, and in some cases gain control of all web servers by loading arbitrary code into IIS worker processes.
-- Consider protecting this share with firewall rules and IPsec policies to allow only the member web servers to connect.
+- Включите только серверные модули (расширения ISAPI в случае IIS), которые необходимы для приложения. Это уменьшает поверхность атаки, поскольку размер и сложность сервера уменьшены по мере отключения программных модулей. Это также предотвращает воздействие на сайт уязвимостей, которые могут появляться в программном обеспечении поставщика, если они присутствуют только в модулях, которые уже отключены.
+- Обработка ошибок сервера (40x или 50x) с помощью пользовательских страниц, а не с страницами веб-сервера по умолчанию. В частности, убедитесь, что любые ошибки приложения не будут возвращены конечному пользователю и что через эти ошибки не будет пропущен код, поскольку он поможет злоумышленнику. На самом деле очень часто забывают об этом, поскольку разработчики действительно нуждаются в этой информации в среде подготовки к производству.
+- Убедитесь, что серверное программное обеспечение работает с минимальными привилегиями в операционной системе. Это предотвращает прямую компрометацию всей системы с помощью серверного программного обеспечения, хотя злоумышленник может повысить привилегии при запуске кода в качестве веб-сервера.
+- Убедитесь, что серверное программное обеспечение правильно регистрирует как законный доступ, так и ошибки.
+- Убедитесь, что сервер настроен на правильную обработку перегрузок и предотвращение атак типа «отказ в обслуживании». Убедитесь, что сервер настроен правильно.
+- Никогда не предоставляйте неадминистративным идентификаторам (за исключением `NT SERVICE \ WMSvc`) доступ к applicationHost.config, redirection.config и administration.config (доступ для чтения или записи). Это включает в себя «Сетевое обслуживание», «IIS_IUSRS», «IUSR» или любые пользовательские идентификаторы, используемые пулами приложений IIS. Рабочие процессы IIS не предназначены для прямого доступа к любому из этих файлов.
+- Никогда не делитесь applicationHost.config, redirection.config и administration.config в сети. При использовании общей конфигурации предпочитайте экспортировать applicationHost.config в другое место (см. Раздел «Настройка разрешений для общей конфигурации»).
+- Имейте в виду, что все пользователи могут по умолчанию читать файлы .NET Framework `machine.config` и root `web.config`. Не храните конфиденциальную информацию в этих файлах, если это должно быть только для глаз администратора.
+- Шифровать конфиденциальную информацию, которая должна считываться только рабочими процессами IIS, а не другими пользователями на компьютере.
+- Не предоставляйте доступ к записи с идентификатором, который веб-сервер использует для доступа к общему `applicationHost.config`. Эта личность должна иметь только доступ для чтения.
+- Используйте отдельную идентификацию для публикации приложения Host.config к акции. Не используйте этот идентификатор для настройки доступа к общей конфигурации на веб-серверах.
+- Используйте надежный пароль при экспорте ключей шифрования для использования с общей конфигурацией.
+- Поддерживать ограниченный доступ к общему ресурсу, содержащему общие ключи конфигурации и шифрования. Если этот общий ресурс скомпрометирован, злоумышленник сможет читать и записывать любую конфигурацию IIS для ваших веб-серверов, перенаправлять трафик с вашего веб-сайта на вредоносные источники и в некоторых случаях получить контроль над всеми веб-серверами, загружая произвольный код в работника IIS. процессы.
+- Подумайте о защите этого ресурса с помощью правил брандмауэра и политик IPsec, чтобы разрешить подключение только веб-серверов-членов.
 
-#### Logging
+#### Регистрация
 
-Logging is an important asset of the security of an application architecture, since it can be used to detect flaws in applications (users constantly trying to retrieve a file that does not really exist) as well as sustained attacks from rogue users. Logs are typically properly generated by web and other server software. It is not common to find applications that properly log their actions to a log and, when they do, the main intention of the application logs is to produce debugging output that could be used by the programmer to analyze a particular error.
+Регистрация является важным активом безопасности архитектуры приложения, поскольку она может использоваться для обнаружения недостатков в приложениях (пользователи постоянно пытаются получить файл, который на самом деле не существует), а также для устойчивых атак со стороны мошеннических пользователей. Журналы обычно правильно генерируются веб-и другим серверным программным обеспечением. Нередко можно найти приложения, которые должным образом регистрируют свои действия в журнале, и, когда они это делают, основное намерение журналов приложений состоит в том, чтобы создать выходные данные отладки, которые могут использоваться программистом для анализа конкретной ошибки.
 
-In both cases (server and application logs) several issues should be tested and analyzed based on the log contents:
+В обоих случаях (журналы сервера и приложения) несколько проблем должны быть проверены и проанализированы на основе содержимого журнала:
 
-1. Do the logs contain sensitive information?
-2. Are the logs stored in a dedicated server?
-3. Can log usage generate a Denial of Service condition?
-4. How are they rotated? Are logs kept for the sufficient time?
-5. How are logs reviewed? Can administrators use these reviews to detect targeted attacks?
-6. How are log backups preserved?
-7. Is the data being logged data validated (min/max length, chars etc) prior to being logged?
+1. Содержит ли журналы конфиденциальную информацию?
+2. Хранятся ли журналы на выделенном сервере?
+3. Может ли использование журнала генерировать условие отказа в обслуживании?
+4. Как они вращаются? Хранятся ли журналы в течение достаточного времени?
+5. Как рассматриваются журналы? Могут ли администраторы использовать эти обзоры для обнаружения целевых атак?
+6. Как сохраняются резервные копии журналов?
+7. Проверяются ли данные зарегистрированными данными (минимальная / максимальная длина, символы и т. Д.) До регистрации?
 
-##### Sensitive Information in Logs
+##### Чувствительная информация в журналах
 
-Some applications might, for example, use GET requests to forward form data which will be seen in the server logs. This means that server logs might contain sensitive information (such as usernames as passwords, or bank account details). This sensitive information can be misused by an attacker if they obtained the logs, for example, through administrative interfaces or known web server vulnerabilities or misconfiguration (like the well-known `server-status` misconfiguration in Apache-based HTTP servers).
+Некоторые приложения могут, например, использовать запросы GET для пересылки данных формы, которые будут отображаться в журналах сервера. Это означает, что журналы сервера могут содержать конфиденциальную информацию (например, имена пользователей в качестве паролей или данные банковского счета). Эта конфиденциальная информация может быть использована злоумышленником, если он получил журналы, например, через административные интерфейсы или известные уязвимости веб-сервера или неправильную конфигурацию (например, хорошо известная неправильная конфигурация `server-status` на HTTP-серверах на основе Apache).
 
-Event logs will often contain data that is useful to an attacker (information leakage) or can be used directly in exploits:
+Журналы событий часто будут содержать данные, которые полезны для злоумышленника (утечка информации) или могут использоваться непосредственно в эксплойтах :
 
-- Debug information
-- Stack traces
-- Usernames
-- System component names
-- Internal IP addresses
-- Less sensitive personal data (e.g. email addresses, postal addresses and telephone numbers associated with named individuals)
-- Business data
+- Отладка информации
+- Стек следы
+- имена пользователей
+- Имена компонентов системы
+- Внутренние IP-адреса
+- Менее конфиденциальные личные данные (например,. адреса электронной почты, почтовые адреса и номера телефонов, связанные с именными лицами)
+- Деловые данные
 
-Also, in some jurisdictions, storing some sensitive information in log files, such as personal data, might oblige the enterprise to apply the data protection laws that they would apply to their back-end databases to log files too. And failure to do so, even unknowingly, might carry penalties under the data protection laws that apply.
+Кроме того, в некоторых юрисдикциях хранение некоторой конфиденциальной информации в файлах журналов, таких как личные данные, может обязать предприятие применять законы о защите данных, которые они будут применять к своим внутренним базам данных, также к файлам журналов. И неспособность сделать это, даже неосознанно, может повлечь за собой штрафы в соответствии с действующим законодательством о защите данных.
 
-A wider list of sensitive information is:
+Более широкий список конфиденциальной информации:
 
-- Application source code
-- Session identification values
-- Access tokens
-- Sensitive personal data and some forms of personally identifiable information (PII)
-- Authentication passwords
-- Database connection strings
-- Encryption keys
-- Bank account or payment card holder data
-- Data of a higher security classification than the logging system is allowed to store
-- Commercially-sensitive information
-- Information it is illegal to collect in the relevant jurisdiction
-- Information a user has opted out of collection, or not consented to e.g. use of do not track, or where consent to collect has expired
+- Исходный код приложения
+- Значения идентификации сеанса
+- Доступ к токенам
+- Чувствительные личные данные и некоторые формы личной информации (PII)
+- Аутентификация паролей
+- Строки подключения к базе данных
+- Ключи шифрования
+- Данные банковского счета или держателя платежной карты
+- Данные более высокой классификации безопасности, чем система регистрации, разрешено хранить
+- Коммерчески конфиденциальная информация
+- Информация, которую незаконно собирать в соответствующей юрисдикции
+- Информация, которую пользователь отказался от сбора или не согласился, например,. использование не отслеживается, или когда истек срок действия согласия на сбор
 
-#### Log Location
+#### Местоположение журнала
 
-Typically servers will generate local logs of their actions and errors, consuming the disk of the system the server is running on. However, if the server is compromised its logs can be wiped out by the intruder to clean up all the traces of its attack and methods. If this were to happen the system administrator would have no knowledge of how the attack occurred or where the attack source was located. Actually, most attacker tool kits include a ''log zapper '' that is capable of cleaning up any logs that hold given information (like the IP address of the attacker) and are routinely used in attacker’s system-level root kits.
+Обычно серверы генерируют локальные журналы своих действий и ошибок, потребляя диск системы, на которой работает сервер. Однако, если сервер скомпрометирован, злоумышленник может уничтожить его журналы, чтобы очистить все следы его атаки и методы. Если бы это произошло, системный администратор не знал бы, как произошла атака или где находился источник атаки. Фактически, большинство наборов инструментов злоумышленника включают в себя «log zapper», который способен очищать любые журналы, которые содержат заданную информацию (например, IP-адрес злоумышленника) и обычно используются в корневых наборах системного уровня злоумышленника.
 
-Consequently, it is wiser to keep logs in a separate location and not in the web server itself. This also makes it easier to aggregate logs from different sources that refer to the same application (such as those of a web server farm) and it also makes it easier to do log analysis (which can be CPU intensive) without affecting the server itself.
+Следовательно, разумнее хранить журналы в отдельном месте, а не на самом веб-сервере. Это также облегчает агрегирование журналов из разных источников, которые ссылаются на одно и то же приложение (например, на ферме веб-серверов), а также облегчает анализ журналов (который может быть интенсивным для процессора), не затрагивая сам сервер.
 
-#### Log Storage
+#### Хранилище журналов
 
-Logs can introduce a Denial of Service condition if they are not properly stored. Any attacker with sufficient resources could be able to produce a sufficient number of requests that would fill up the allocated space to log files, if they are not specifically prevented from doing so. However, if the server is not properly configured, the log files will be stored in the same disk partition as the one used for the operating system software or the application itself. This means that if the disk were to be filled up the operating system or the application might fail because it is unable to write on disk.
+Журналы могут вводить условие отказа в обслуживании, если они не хранятся должным образом. Любой злоумышленник, обладающий достаточными ресурсами, может быть в состоянии выполнить достаточное количество запросов, которые заполнят выделенное пространство для файлов журналов, если они специально не лишены возможности сделать это. Однако, если сервер не настроен должным образом, файлы журнала будут храниться в том же разделе диска, что и раздел, используемый для программного обеспечения операционной системы или самого приложения. Это означает, что если диск будет заполнен, операционная система или приложение может выйти из строя, потому что оно не может записать на диск.
 
-Typically in UNIX systems logs will be located in /var (although some server installations might reside in /opt or /usr/local) and it is important to make sure that the directories in which logs are stored are in a separate partition. In some cases, and in order to prevent the system logs from being affected, the log directory of the server software itself (such as /var/log/apache in the Apache web server) should be stored in a dedicated partition.
+Как правило, в системах UNIX журналы будут находиться в / var (хотя некоторые серверные установки могут находиться в / opt или / usr / local), и важно убедиться, что каталоги, в которых хранятся журналы, находятся в отдельном разделе. В некоторых случаях, чтобы предотвратить влияние системных журналов, каталог журналов самого серверного программного обеспечения (такого как / var / log / apache на веб-сервере Apache) должен храниться в специальном разделе.
 
-This is not to say that logs should be allowed to grow to fill up the file system they reside in. Growth of server logs should be monitored in order to detect this condition since it may be indicative of an attack.
+Это не означает, что журналы должны быть разрешены для увеличения, чтобы заполнить файловую систему, в которой они находятся. Для обнаружения этого условия следует отслеживать рост журналов сервера, поскольку это может указывать на атаку.
 
-Testing this condition is as easy, and as dangerous in production environments, as firing off a sufficient and sustained number of requests to see if these requests are logged and if there is a possibility to fill up the log partition through these requests. In some environments where QUERY_STRING parameters are also logged regardless of whether they are produced through GET or POST requests, big queries can be simulated that will fill up the logs faster since, typically, a single request will cause only a small amount of data to be logged, such as date and time, source IP address, URI request, and server result.
+Тестирование этого условия так же просто и опасно в производственных средах, как и выполнение достаточного и устойчивого количества запросов, чтобы увидеть, регистрируются ли эти запросы и есть ли возможность заполнить раздел журнала с помощью этих запросов. В некоторых средах параметры QUERY_STRING также регистрируются независимо от того, создаются ли они с помощью запросов GET или POST, большие запросы могут быть смоделированы, что с тех пор заполнит журналы быстрее, как правило, один запрос приведет к регистрации только небольшого количества данных, такие как дата и время, IP-адрес источника, Запрос URI, и результат сервера.
 
-#### Log Rotation
+#### Ротация журнала
 
-Most servers (but few custom applications) will rotate logs in order to prevent them from filling up the file system they reside on. The assumption when rotating logs is that the information in them is only necessary for a limited amount of time.
+Большинство серверов (но мало пользовательских приложений) будут вращать журналы, чтобы они не могли заполнить файловую систему, в которой они находятся. При вращении журналов предполагается, что информация в них необходима только в течение ограниченного периода времени.
 
-This feature should be tested in order to ensure that:
+Эта функция должна быть проверена, чтобы гарантировать, что :
 
-- Logs are kept for the time defined in the security policy, not more and not less.
-- Logs are compressed once rotated (this is a convenience, since it will mean that more logs will be stored for the same available disk space).
-- File system permission of rotated log files are the same (or stricter) that those of the log files itself. For example, web servers will need to write to the logs they use but they don’t actually need to write to rotated logs, which means that the permissions of the files can be changed upon rotation to prevent the web server process from modifying these.
+- Журналы хранятся в течение времени, определенного в политике безопасности, не больше и не меньше.
+- Журналы сжимаются после вращения (это удобно, поскольку это будет означать, что больше журналов будет храниться для того же доступного дискового пространства).
+- Разрешение файловой системы на файлы с поворотным журналом такое же (или более строгое), как и у самих файлов журнала. Например, веб-серверам нужно будет записывать в журналы, которые они используют, но на самом деле им не нужно писать в повернутые журналы, что означает, что разрешения файлов могут быть изменены при вращении, чтобы предотвратить их изменение в процессе веб-сервера.
 
-Some servers might rotate logs when they reach a given size. If this happens, it must be ensured that an attacker cannot force logs to rotate in order to hide his tracks.
+Некоторые серверы могут вращать журналы, когда они достигают заданного размера. Если это произойдет, необходимо убедиться, что злоумышленник не может заставить журналы вращаться, чтобы скрыть свои следы.
 
-#### Log Access Control
+#### Управление доступом к журналу
 
-Event log information should never be visible to end users. Even web administrators should not be able to see such logs since it breaks separation of duty controls. Ensure that any access control schema that is used to protect access to raw logs and any applications providing capabilities to view or search the logs is not linked with access control schemas for other application user roles. Neither should any log data be viewable by unauthenticated users.
+Информация журнала событий никогда не должна быть видна конечным пользователям. Даже веб-администраторы не должны видеть такие журналы, поскольку они нарушают разделение дежурного контроля. Убедитесь, что любая схема контроля доступа, которая используется для защиты доступа к необработанным журналам, и любые приложения, предоставляющие возможности для просмотра или поиска журналов, не связаны со схемами контроля доступа для других ролей пользователя приложения. Также не должны быть доступны данные журнала для не аутентифицированных пользователей.
 
-#### Log Review
+#### Обзор журнала
 
-Review of logs can be used for more than extraction of usage statistics of files in the web servers (which is typically what most log-based application will focus on), but also to determine if attacks take place at the web server.
+Просмотр журналов может использоваться не только для извлечения статистики использования файлов на веб-серверах (на которой обычно сосредоточено большинство приложений на основе журналов), но и для определения того, происходят ли атаки на веб-сервере.
 
-In order to analyze web server attacks the error log files of the server need to be analyzed. Review should concentrate on:
+Для анализа атак на веб-сервер необходимо проанализировать файлы журнала ошибок сервера. Обзор должен сосредоточиться на:
 
-- 40x (not found) error messages. A large amount of these from the same source might be indicative of a CGI scanner tool being used against the web server
-- 50x (server error) messages. These can be an indication of an attacker abusing parts of the application which fail unexpectedly. For example, the first phases of a SQL injection attack will produce these error message when the SQL query is not properly constructed and its execution fails on the back end database.
+- 40x (не найдено) сообщений об ошибках. Большое количество из них из одного и того же источника может свидетельствовать о том, что инструмент CGI-сканера используется против веб-сервера
+- 50x (ошибка сервера) сообщений. Это может быть признаком того, что злоумышленник злоупотребляет частями приложения, которые неожиданно выходят из строя. Например, первые фазы атаки SQL-инъекции будут создавать это сообщение об ошибке, когда запрос SQL не будет правильно построен и его выполнение не удастся в базе данных бэк-энда.
 
-Log statistics or analysis should not be generated, nor stored, in the same server that produces the logs. Otherwise, an attacker might, through a web server vulnerability or improper configuration, gain access to them and retrieve similar information as would be disclosed by log files themselves.
+Статистика или анализ журналов не должны генерироваться или храниться на том же сервере, который создает журналы. В противном случае злоумышленник может через уязвимость веб-сервера или неправильную конфигурацию получить к ним доступ и получить аналогичную информацию, которая будет раскрыта самими файлами журналов.
 
 ## References
 
