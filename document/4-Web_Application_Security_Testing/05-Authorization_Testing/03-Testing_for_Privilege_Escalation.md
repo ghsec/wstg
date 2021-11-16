@@ -1,34 +1,34 @@
-# Testing for Privilege Escalation
+# Тестирование на эскалацию привилегий
 
-|ID          |
-|------------|
-|WSTG-ATHZ-03|
+| ID |
+| ------------- |
+| WSTG-ATHZ-03 |
 
-## Summary
+## Резюме
 
-This section describes the issue of escalating privileges from one stage to another. During this phase, the tester should verify that it is not possible for a user to modify their privileges or roles inside the application in ways that could allow privilege escalation attacks.
+В этом разделе описывается проблема увеличения привилегий с одного этапа на другой. На этом этапе тестер должен убедиться, что пользователь не может изменить свои привилегии или роли внутри приложения таким образом, чтобы это могло позволить атаки на повышение привилегий.
 
-Privilege escalation occurs when a user gets access to more resources or functionality than they are normally allowed, and such elevation or changes should have been prevented by the application. This is usually caused by a flaw in the application. The result is that the application performs actions with more privileges than those intended by the developer or system administrator.
+Повышение привилегий происходит, когда пользователь получает доступ к большему количеству ресурсов или функций, чем обычно разрешено, и такое повышение или изменения должны были быть предотвращены приложением. Обычно это вызвано недостатком приложения. В результате приложение выполняет действия с большим количеством привилегий, чем те, которые предназначены разработчиком или системным администратором.
 
-The degree of escalation depends on what privileges the attacker is authorized to possess, and what privileges can be obtained in a successful exploit. For example, a programming error that allows a user to gain extra privilege after successful authentication limits the degree of escalation, because the user is already authorized to hold some privilege. Likewise, a remote attacker gaining superuser privilege without any authentication presents a greater degree of escalation.
+Степень эскалации зависит от того, какими привилегиями злоумышленник уполномочен обладать, и какие привилегии можно получить в успешном эксплойте. Например, ошибка программирования, которая позволяет пользователю получить дополнительные привилегии после успешной аутентификации, ограничивает степень эскалации, поскольку пользователь уже уполномочен иметь некоторые привилегии. Аналогично, удаленный злоумышленник, получающий привилегию суперпользователя без какой-либо аутентификации, представляет большую степень эскалации.
 
-Usually, people refer to *vertical escalation* when it is possible to access resources granted to more privileged accounts (e.g., acquiring administrative privileges for the application), and to *horizontal escalation* when it is possible to access resources granted to a similarly configured account (e.g., in an online banking application, accessing information related to a different user).
+Обычно люди ссылаются на * вертикальную эскалацию *, когда можно получить доступ к ресурсам, предоставляемым для более привилегированных учетных записей (например,., получение административных привилегий для приложения) и к * горизонтальное повышение *, когда можно получить доступ к ресурсам, предоставленным аналогично настроенной учетной записи (например,.в онлайн-приложении, доступ к информации, связанной с другим пользователем).
 
-## Test Objectives
+## Цели теста
 
-- Identify injection points related to privilege manipulation.
-- Fuzz or otherwise attempt to bypass security measures.
+- Определите точки инъекции, связанные с манипулированием привилегиями.
+- FUZZ или иным образом попытка обойти меры безопасности.
 
-## How to Test
+## Как проверить
 
-### Testing for Role/Privilege Manipulation
+### Тестирование на манипуляцию ролями / привилегиями
 
-In every portion of the application where a user can create information in the database (e.g., making a payment, adding a contact, or sending a message), can receive information (statement of account, order details, etc.), or delete information (drop users, messages, etc.), it is necessary to record that functionality. The tester should try to access such functions as another user in order to verify if it is possible to access a function that should not be permitted by the user's role/privilege (but might be permitted as another user).
+В каждой части приложения, где пользователь может создавать информацию в базе данных (например,., сделав платеж, добавив контакт или отправив сообщение), можно получить информацию (учетная запись, данные заказа и т. д.).) или удалить информацию (передать пользователей, сообщения и т. д.), необходимо записать эту функциональность. Тестер должен попытаться получить доступ к таким функциям, как другой пользователь, чтобы проверить, возможно ли получить доступ к функции, которая не должна быть разрешена ролью / привилегией пользователя (но может быть разрешена как другой пользователь).
 
-#### Manipulation of User Group
+#### Манипулирование группой пользователей
 
-For example:
-The following HTTP POST allows the user that belongs to `grp001` to access order #0001:
+Например:
+Следующий HTTP POST позволяет пользователю, который принадлежит `grp001`, получить доступ к порядку # 0001 :
 
 ```http
 POST /user/viewOrder.jsp HTTP/1.1
@@ -38,12 +38,12 @@ Host: www.example.com
 groupID=grp001&orderID=0001
 ```
 
-Verify if a user that does not belong to `grp001` can modify the value of the parameters `groupID` and `orderID` to gain access to that privileged data.
+Убедитесь, что пользователь, не принадлежащий `grp001`, может изменить значение параметров `groupID` и `orderID`, чтобы получить доступ к этим привилегированным данным.
 
-#### Manipulation of User Profile
+#### Манипулирование профилем пользователя
 
-For example:
-The following server's answer shows a hidden field in the HTML returned to the user after a successful authentication.
+Например:
+Ответ следующего сервера показывает скрытое поле в HTML, возвращаемое пользователю после успешной аутентификации.
 
 ```html
 HTTP/1.1 200 OK
@@ -66,51 +66,51 @@ Connection: close
 </tr>
 ```
 
-What if the tester modifies the value of the variable `profile` to `SysAdmin`? Is it possible to become **administrator**?
+Что делать, если тестер изменяет значение переменной `profile` на `SysAdmin`? Можно ли стать **administrator**?
 
-#### Manipulation of Condition Value
+#### Манипулирование значением состояния
 
-For example:
-In an environment where the server sends an error message contained as a value in a specific parameter in a set of answer codes, as the following:
+Например:
+В среде, где сервер отправляет сообщение об ошибке, содержащееся в виде значения в определенном параметре в наборе кодов ответов, следующим образом:
 
 ```text
 @0`1`3`3``0`UC`1`Status`OK`SEC`5`1`0`ResultSet`0`PVValid`-1`0`0` Notifications`0`0`3`Command  Manager`0`0`0` StateToolsBar`0`0`0`
 StateExecToolBar`0`0`0`FlagsToolBar`0
 ```
 
-The server gives an implicit trust to the user. It believes that the user will answer with the above message closing the session.
+Сервер дает неявное доверие пользователю. Он считает, что пользователь ответит вышеуказанным сообщением, закрывающим сеанс.
 
-In this condition, verify that it is not possible to escalate privileges by modifying the parameter values. In this particular example, by modifying the `PVValid` value from `-1` to `0` (no error conditions), it may be possible to authenticate as administrator to the server.
+В этом условии убедитесь, что невозможно увеличить привилегии путем изменения значений параметров. В этом конкретном примере, изменив значение `PVValid` с `-1` на `0` (без условий ошибки), можно выполнить аутентификацию в качестве администратора на сервере.
 
-#### Manipulation of IP Address
+#### Манипулирование IP-адресом
 
-Some websites limit access or count the number of failed login attempts based on IP address.
+Некоторые сайты ограничивают доступ или подсчитывают количество неудачных попыток входа в систему на основе IP-адреса.
 
-For example:
+Например:
 
 ```text
 X-Forwarded-For: 8.1.1.1
 ```
 
-In this case, if the website uses the value of `X-forwarded-For` as client IP address, tester may change the IP value of the `X-forwarded-For` HTTP header to workaround the IP source identification.
+В этом случае, если сайт использует значение `X-forwarded-For` в качестве IP-адреса клиента тестер может изменить значение IP `X-forwarded-For` Заголовок HTTP для обходной идентификации источника IP.
 
-### Testing for Vertical Bypassing Authorization Schema
+### Тестирование для схемы разрешения вертикального обхода
 
-A vertical authorization bypass is specific to the case that an attacker obtains a role higher than their own. Testing for this bypass focuses on verifying how the vertical authorization schema has been implemented for each role. For every function, page, specific role, or request that the application executes, it is necessary to verify if it is possible to:
+Обойдя вертикальной авторизации специфичен для случая, когда злоумышленник получает роль выше своей. Тестирование для этого обхода фокусируется на проверке того, как схема вертикальной авторизации была реализована для каждой роли. Для каждой функции, страницы, конкретной роли или запроса, который выполняет приложение, необходимо проверить, возможно ли:
 
-- Access resources that should be accessible only to a higher role user.
-- Operate functions on resources that should be operative only by a user that holds a higher or specific role identity.
+- Доступ к ресурсам, которые должны быть доступны только для более высокого роли пользователя.
+- Работать с функциями на ресурсах, которые должны работать только пользователем, который имеет более высокую или конкретную роль.
 
-For each role:
+Для каждой роли:
 
-1. Register a user.
-2. Establish and maintain two different sessions based on the two different roles.
-3. For every request, change the session identifier from the original to another role's session identifier and evaluate the responses for each.
-4. An application will be considered vulnerable if the weaker privileged session contains the same data, or indicate successful operations on higher privileged functions.
+1. Зарегистрируйте пользователя.
+2. Установите и поддерживайте две разные сессии на основе двух разных ролей.
+3. Для каждого запроса измените идентификатор сеанса с оригинала на идентификатор сеанса другой роли и оцените ответы для каждого.
+4. Приложение будет считаться уязвимым, если более слабый привилегированный сеанс содержит те же данные, или указывает на успешные операции с более высокими привилегированными функциями.
 
-#### Banking Site Roles Scenario
+#### Сценарий роли банковского сайта
 
-The following table illustrates the system roles on a banking site. Each role binds with specific permissions for the event menu functionality:
+Следующая таблица иллюстрирует роли системы на банковском сайте. Каждая роль связана с определенными разрешениями для функциональности меню события :
 
 |      ROLE     |     PERMISSION    | ADDITIONAL PERMISSION |
 |---------------|-------------------|-----------------------|
@@ -119,13 +119,13 @@ The following table illustrates the system roles on a banking site. Each role bi
 | Staff         | Read, Modify      | Modify                |
 | Customer      | Read Only         |                       |
 
-The application will be considered vulnerable if the:
+Приложение будет считаться уязвимым, если:
 
-1. Customer could operate administrator, manager or staff functions;
-2. Staff user could operate manager or administrator functions;
-3. Manager could operate administrator functions.
+1. Клиент может управлять функциями администратора, менеджера или персонала;
+2. Пользователь персонала может управлять функциями менеджера или администратора;
+3. Менеджер может управлять функциями администратора.
 
-Suppose that the `deleteEvent` function is part of the administrator account menu of the application, and it is possible to access it by requesting the following URL: `https://www.example.com/account/deleteEvent`. Then, the following HTTP request is generated when calling the `deleteEvent` function:
+Предположим, что функция `deleteEvent` является частью меню учетной записи администратора приложения, и к ней можно получить доступ, запросив следующий URL: `https://www.example.com/account/deleteEvent`. Затем при вызове функции `deleteEvent` генерируется следующий HTTP-запрос:
 
 ```http
 POST /account/deleteEvent HTTP/1.1
@@ -136,7 +136,7 @@ Cookie: SessionID=ADMINISTRATOR_USER_SESSION
 EventID=1000001
 ```
 
-The valid response:
+Действительный ответ:
 
 ```http
 HTTP/1.1 200 OK
@@ -145,7 +145,7 @@ HTTP/1.1 200 OK
 {"message": "Event was deleted"}
 ```
 
-The attacker may try and execute the same request:
+Злоумышленник может попытаться выполнить тот же запрос:
 
 ```http
 POST /account/deleteEvent HTTP/1.1
@@ -156,19 +156,19 @@ Cookie: SessionID=CUSTOMER_USER_SESSION
 EventID=1000002
 ```
 
-If the response of the attacker’s request contains the same data `{"message": "Event was deleted"}` the application is vulnerable.
+Если ответ запроса злоумышленника содержит те же данные `{"message": "Event was deleted"}` приложение уязвимо.
 
-#### Administrator Page Access
+#### Доступ к странице администратора
 
-Suppose that the administrator menu is part of the administrator account.
+Предположим, что меню администратора является частью учетной записи администратора.
 
-The application will be considered vulnerable if any role other than administrator could access the administrator menu. Sometimes, developers perform authorization validation at the GUI level only, and leave the functions without authorization validation, thus potentially resulting in a vulnerability.
+Приложение будет считаться уязвимым, если какая-либо роль, кроме администратора, может получить доступ к меню администратора. Иногда разработчики выполняют проверку авторизации только на уровне графического интерфейса и оставляют функции без проверки авторизации, что может привести к уязвимости.
 
 ### URL Traversal
 
-Try to traverse the website and check if some of pages that may miss the authorization check.
+Попробуйте просмотреть веб-сайт и проверить, не пропустили ли некоторые страницы, которые могут пропустить проверку авторизации.
 
-For example:
+Например:
 
 ```text
 /../.././userInfo.html
@@ -176,17 +176,17 @@ For example:
 
 ### WhiteBox
 
-If the URL authorization check is only done by partial URL match, then it's likely testers or hackers may workaround the authorization by URL encoding techniques.
+Если проверка авторизации URL выполняется только путем частичного сопоставления URL, то, вероятно, тестеры или хакеры могут обойти авторизацию с помощью методов кодирования URL.
 
-For example:
+Например:
 
 ```text
 startswith(), endswith(), contains(), indexOf()
 ```
 
-### Weak SessionID
+### Слабый SessionID
 
-Weak Session ID has algorithm may be vulnerable to brute Force attack. For example, one website is using `MD5(Password + UserID)` as sessionID. Then, testers may guess or generate the sessionID for other users.
+Слабый идентификатор сеанса имеет алгоритм может быть уязвим для грубой атаки Силы. Например, один сайт использует `MD5(Password + UserID)` как sessionID. Затем тестеры могут угадать или сгенерировать sessionID для других пользователей.
 
 ## References
 
